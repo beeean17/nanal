@@ -1,0 +1,372 @@
+/* ====================================
+   Responsive Styles
+   Mobile First Approach
+   ==================================== */
+
+/* ====================================
+   Tablet (768px+)
+   ==================================== */
+
+@media (min-width: 768px) {
+  /* Main Content */
+  .main-content {
+    padding: var(--space-lg);
+    padding-bottom: calc(var(--bottom-nav-height) + var(--space-lg));
+  }
+
+  /* Typography */
+  body {
+    font-size: var(--font-size-base);
+  }
+
+  /* Cards - 2열 그리드 */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+  }
+
+  /* Bottom Nav - 아이콘 크기 증가 */
+  .nav-item .icon {
+    font-size: 1.75rem;
+  }
+
+  .nav-item .label {
+    font-size: var(--font-size-sm);
+  }
+
+  /* Floating Button - 위치 조정 */
+  .floating-btn {
+    width: 64px;
+    height: 64px;
+    bottom: calc(var(--bottom-nav-height) + var(--space-xl));
+    right: var(--space-xl);
+  }
+}
+
+/* ====================================
+   Desktop (1024px+)
+   ==================================== */
+
+@media (min-width: 1024px) {
+  /* App Layout - 사이드바 등장 */
+  #app {
+    flex-direction: row;
+  }
+
+  /* Sidebar 표시 */
+  .sidebar {
+    display: block;
+  }
+
+  .sidebar .nav-menu {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-lg);
+    gap: var(--space-sm);
+  }
+
+  .sidebar .nav-item {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    width: 100%;
+  }
+
+  .sidebar .nav-item .icon {
+    font-size: 1.5rem;
+  }
+
+  .sidebar .nav-item .label {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .sidebar .nav-item:hover {
+    background-color: var(--color-bg-tertiary);
+  }
+
+  .sidebar .nav-item.active {
+    background-color: var(--color-primary);
+    color: white;
+  }
+
+  /* Main Content - 사이드바 공간만큼 여백 */
+  .main-content {
+    margin-left: var(--sidebar-width);
+    padding: var(--space-xl);
+    padding-bottom: var(--space-xl); /* 하단 네비 없으므로 일반 패딩 */
+  }
+
+  /* Bottom Nav 숨김 */
+  .bottom-nav {
+    display: none;
+  }
+
+  /* Floating Button - 위치 재조정 */
+  .floating-btn {
+    bottom: var(--space-xl);
+    right: var(--space-xl);
+  }
+
+  /* Cards - 3열 그리드 */
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-xl);
+  }
+
+  /* Hover Effects 활성화 */
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* ====================================
+   Large Desktop (1280px+)
+   ==================================== */
+
+@media (min-width: 1280px) {
+  /* Container 최대 너비 제한 */
+  .main-content {
+    max-width: var(--container-xl);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: calc(var(--sidebar-width) + var(--space-xl));
+  }
+
+  /* Cards - 최대 4열 */
+  .card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    max-width: var(--container-xl);
+  }
+
+  /* Typography 크기 증가 */
+  body {
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* ====================================
+   Extra Large Desktop (1536px+)
+   ==================================== */
+
+@media (min-width: 1536px) {
+  /* 여백 증가 */
+  .main-content {
+    padding: var(--space-3xl);
+  }
+
+  .sidebar .nav-menu {
+    padding: var(--space-xl);
+  }
+}
+
+/* ====================================
+   Screen-Specific Responsive Rules
+   ==================================== */
+
+/* Home Screen - 반응형 레이아웃 */
+@media (min-width: 768px) {
+  .home-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+  }
+
+  .home-weather {
+    grid-column: 1 / -1; /* 전체 너비 */
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-layout {
+    grid-template-columns: 1fr 1.5fr 1fr;
+  }
+
+  .home-weather {
+    grid-column: auto; /* 기본값으로 복원 */
+  }
+
+  .home-todo {
+    grid-column: 1;
+  }
+
+  .home-timeline {
+    grid-column: 2;
+  }
+
+  .home-pomodoro {
+    grid-column: 3;
+  }
+}
+
+/* Calendar Screen - 반응형 */
+@media (min-width: 768px) {
+  .calendar-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-lg);
+  }
+}
+
+@media (min-width: 1024px) {
+  .calendar-layout {
+    grid-template-columns: 200px 2fr 1fr;
+  }
+
+  .calendar-stats {
+    display: block; /* 통계 사이드바 표시 */
+  }
+}
+
+/* Growth Screen - 마스터-디테일 */
+@media (min-width: 1024px) {
+  .growth-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: var(--space-xl);
+  }
+
+  .growth-list {
+    border-right: 1px solid var(--color-border);
+    padding-right: var(--space-lg);
+  }
+}
+
+/* Timetable - 그리드 변환 */
+@media (min-width: 768px) {
+  .timetable-mobile {
+    display: none;
+  }
+
+  .timetable-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    gap: 1px;
+    background-color: var(--color-border);
+  }
+}
+
+/* ====================================
+   Touch Device Optimizations
+   ==================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  /* 터치 디바이스 */
+
+  /* 터치 영역 확대 */
+  .btn,
+  .nav-item,
+  .input {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Hover 효과 제거 */
+  .card:hover,
+  .btn:hover {
+    transform: none;
+  }
+
+  /* 탭 피드백 강화 */
+  .btn:active {
+    transform: scale(0.95);
+  }
+}
+
+/* ====================================
+   Print Styles
+   ==================================== */
+
+@media print {
+  /* 내비게이션 숨김 */
+  .sidebar,
+  .bottom-nav,
+  .floating-btn {
+    display: none;
+  }
+
+  /* 메인 콘텐츠 전체 너비 */
+  .main-content {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+  }
+
+  /* 배경 제거 */
+  body {
+    background: white;
+    color: black;
+  }
+
+  /* 그림자 제거 */
+  .card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  /* 페이지 나누기 */
+  .card,
+  .section {
+    page-break-inside: avoid;
+  }
+}
+
+/* ====================================
+   Landscape Orientation (Mobile)
+   ==================================== */
+
+@media (max-width: 1023px) and (orientation: landscape) {
+  /* 가로 모드에서 하단 네비 높이 축소 */
+  .bottom-nav {
+    height: 48px;
+    padding: var(--space-xs) 0;
+  }
+
+  .bottom-nav .nav-item .label {
+    display: none; /* 라벨 숨김 */
+  }
+
+  .main-content {
+    padding-bottom: calc(48px + var(--space-md));
+  }
+}
+
+/* ====================================
+   Reduced Motion
+   ==================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ====================================
+   High Contrast Mode
+   ==================================== */
+
+@media (prefers-contrast: high) {
+  :root {
+    --color-border: #000000;
+  }
+
+  .btn {
+    border: 2px solid currentColor;
+  }
+
+  .card {
+    border: 2px solid var(--color-border);
+  }
+}

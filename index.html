@@ -1,11 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>2025 2학기 웹프로젝트</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="일상 관리 허브 - 개인 생산성 앱">
+    <title>일상 관리 허브</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-    <p1>안녕하세요</p1>
+    <!-- 메인 컨테이너 -->
+    <div id="app">
+        <!-- 데스크탑 사이드바 (1024px+) -->
+        <aside id="sidebar" class="sidebar">
+            <nav class="nav-menu">
+                <a href="#home" class="nav-item active" data-screen="home">
+                    <span class="icon">🏠</span>
+                    <span class="label">홈</span>
+                </a>
+                <a href="#calendar" class="nav-item" data-screen="calendar">
+                    <span class="icon">📅</span>
+                    <span class="label">캘린더</span>
+                </a>
+                <a href="#growth" class="nav-item" data-screen="growth">
+                    <span class="icon">🎯</span>
+                    <span class="label">성장</span>
+                </a>
+                <a href="#timetable" class="nav-item" data-screen="timetable">
+                    <span class="icon">📋</span>
+                    <span class="label">시간표</span>
+                </a>
+                <a href="#more" class="nav-item" data-screen="more">
+                    <span class="icon">⋯</span>
+                    <span class="label">더보기</span>
+                </a>
+            </nav>
+        </aside>
 
+        <!-- 메인 콘텐츠 영역 -->
+        <main id="main-content" class="main-content">
+            <!-- 화면별 컨텐츠가 여기에 렌더링됨 -->
+            <div id="screen-container"></div>
+        </main>
+
+        <!-- 모바일 하단 탭 바 (~ 1023px) -->
+        <nav id="bottom-nav" class="bottom-nav">
+            <a href="#home" class="nav-item active" data-screen="home">
+                <span class="icon">🏠</span>
+                <span class="label">홈</span>
+            </a>
+            <a href="#calendar" class="nav-item" data-screen="calendar">
+                <span class="icon">📅</span>
+                <span class="label">캘린더</span>
+            </a>
+            <a href="#growth" class="nav-item" data-screen="growth">
+                <span class="icon">🎯</span>
+                <span class="label">성장</span>
+            </a>
+            <a href="#timetable" class="nav-item" data-screen="timetable">
+                <span class="icon">📋</span>
+                <span class="label">시간표</span>
+            </a>
+            <a href="#more" class="nav-item" data-screen="more">
+                <span class="icon">⋯</span>
+                <span class="label">더보기</span>
+            </a>
+        </nav>
+
+        <!-- 플로팅 액션 버튼 (선택적) -->
+        <button id="floating-action" class="floating-btn" aria-label="빠른 액션">
+            <span class="icon">+</span>
+        </button>
+    </div>
+
+    <!-- Firebase SDK (나중에 추가) -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/10.x.x/firebase-app.js"></script> -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/10.x.x/firebase-firestore.js"></script> -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/10.x.x/firebase-auth.js"></script> -->
+
+    <!-- JavaScript Modules -->
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
