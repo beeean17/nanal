@@ -4,6 +4,19 @@
    ==================================== */
 
 /* ====================================
+   Utility Classes for Responsive Display
+   ==================================== */
+
+/* Mobile only (hide on tablet and above) */
+.mobile-only {
+  display: block;
+}
+
+.desktop-only {
+  display: none;
+}
+
+/* ====================================
    Tablet (768px+)
    ==================================== */
 
@@ -109,6 +122,15 @@
   .floating-btn {
     bottom: var(--space-xl);
     right: var(--space-xl);
+  }
+
+  /* Utility Classes - Desktop */
+  .mobile-only {
+    display: none;
+  }
+
+  .desktop-only {
+    display: block;
   }
 
   /* Cards - 3열 그리드 */

@@ -1,6 +1,11 @@
 // app.js - 메인 진입점
 
 import { FirebaseDB, FirebaseAuth } from './firebase-config.js';
+import HomeScreen from './modules/home.js';
+import CalendarScreen from './modules/calendar.js';
+import GrowthScreen from './modules/growth.js';
+import TimetableScreen from './modules/timetable.js';
+import MoreScreen from './modules/more.js';
 
 // 전역 상태
 const AppState = {
@@ -26,12 +31,13 @@ const AppState = {
 class Router {
   constructor() {
     this.currentScreen = 'home';
+    this.currentModule = null;
     this.screens = {
-      home: null,      // TODO: 각 화면 모듈 불러오기
-      calendar: null,
-      growth: null,
-      timetable: null,
-      more: null
+      home: HomeScreen,
+      calendar: CalendarScreen,
+      growth: GrowthScreen,
+      timetable: TimetableScreen,
+      more: MoreScreen
     };
   }
 
@@ -47,20 +53,39 @@ class Router {
   }
 
   hideCurrentScreen() {
+    // 이전 모듈 정리
+    if (this.currentModule && this.currentModule.destroy) {
+      this.currentModule.destroy();
+    }
+
     const container = document.getElementById('screen-container');
     container.innerHTML = '';
   }
 
   showScreen(screenName) {
     const container = document.getElementById('screen-container');
+    const screenModule = this.screens[screenName];
 
-    // 임시 - 나중에 실제 화면으로 교체
-    container.innerHTML = `
-      <div class="screen-placeholder fade-in">
-        <h1>${this.getScreenTitle(screenName)}</h1>
-        <p>이 화면은 개발 중입니다.</p>
-      </div>
-    `;
+    if (screenModule) {
+      // 화면 렌더링
+      container.innerHTML = screenModule.render();
+
+      // 모듈 초기화
+      if (screenModule.init) {
+        screenModule.init();
+      }
+
+      // 현재 모듈 저장
+      this.currentModule = screenModule;
+    } else {
+      // 모듈이 없는 경우 플레이스홀더 표시
+      container.innerHTML = `
+        <div class="screen-placeholder fade-in">
+          <h1>${this.getScreenTitle(screenName)}</h1>
+          <p>이 화면은 개발 중입니다.</p>
+        </div>
+      `;
+    }
   }
 
   updateNavigation(screenName) {
@@ -125,6 +150,15 @@ function setupEventListeners() {
     floatingBtn.addEventListener('click', () => {
       console.log('Floating action button clicked');
       alert('빠른 액션 메뉴 (개발 예정)');
+    });
+  }
+
+  // 테마 전환 버튼
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      toggleTheme();
+      console.log('Theme toggled to:', AppState.theme);
     });
   }
 }
