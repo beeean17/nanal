@@ -1,5 +1,7 @@
 // app.js - 메인 진입점
 
+import { FirebaseDB, FirebaseAuth } from './firebase-config.js';
+
 // 전역 상태
 const AppState = {
   currentScreen: 'home',
@@ -207,11 +209,24 @@ function debounce(func, wait) {
 
 const router = new Router();
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   console.log('🚀 App initializing...');
 
   setupEventListeners();
   setupTheme();
+
+  // Firebase 연결 테스트
+  try {
+    console.log('Testing Firebase connection...');
+    const testData = {
+      message: 'Firebase connected!',
+      timestamp: new Date().toISOString()
+    };
+    await FirebaseDB.set('test', 'connection', testData);
+    console.log('✅ Firebase connected successfully');
+  } catch (error) {
+    console.error('Firebase connection failed:', error);
+  }
 
   const hash = window.location.hash.slice(1) || 'home';
   router.navigateTo(hash);
