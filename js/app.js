@@ -239,6 +239,25 @@ function debounce(func, wait) {
   };
 }
 
+// Firebase Auth 초기화
+
+function setupAuth() {
+  // Firebase Auth 상태 변화 감지
+  FirebaseAuth.onAuthChange((user) => {
+    console.log('Auth state changed:', user ? user.email : 'Not logged in');
+    AppState.setState({ user });
+
+    // 현재 화면이 More 화면이면 다시 렌더링
+    if (AppState.currentScreen === 'more') {
+      const container = document.getElementById('screen-container');
+      if (container) {
+        container.innerHTML = MoreScreen.render();
+        MoreScreen.init();
+      }
+    }
+  });
+}
+
 // 앱 시작
 
 const router = new Router();
@@ -248,6 +267,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   setupEventListeners();
   setupTheme();
+  setupAuth();
 
   // Firebase 연결 테스트
   try {
