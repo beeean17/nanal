@@ -95,11 +95,46 @@ const HomeScreen = {
             </div>
           </div>
 
-          <!-- 타임라인 목록 -->
-          <div class="timeline-container" id="timeline-list">
-            <!-- 일정들이 여기에 동적으로 추가됩니다 -->
+          <!-- 시각적 타임라인 (0-24시) -->
+          <div class="timeline-visual" id="timeline-visual">
+            <div class="timeline-hours" id="timeline-hours">
+              <!-- 시간 라벨들이 여기에 생성됩니다 -->
+            </div>
+            <div class="timeline-events-track" id="timeline-events-track">
+              <!-- Red Line (현재 시간 인디케이터) -->
+              <div class="timeline-current-line" id="timeline-current-line">
+                <div class="timeline-current-dot"></div>
+                <div class="timeline-current-label"></div>
+              </div>
+              <!-- 이벤트 블록들이 여기에 절대 위치로 배치됩니다 -->
+            </div>
           </div>
         </section>
+
+        <!-- 이벤트 상세 모달 -->
+        <div class="modal" id="event-detail-modal" style="display: none;">
+          <div class="modal-overlay" id="modal-overlay"></div>
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 id="modal-event-title">일정 상세</h3>
+              <button class="modal-close-btn" id="modal-close-btn" aria-label="닫기">×</button>
+            </div>
+            <div class="modal-body">
+              <div class="modal-event-time">
+                <span class="icon">🕐</span>
+                <span id="modal-event-time-text">--:-- ~ --:--</span>
+              </div>
+              <div class="modal-event-category">
+                <span class="icon">📁</span>
+                <span id="modal-event-category-text">카테고리</span>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-danger" id="modal-delete-btn">삭제</button>
+              <button class="btn-secondary" id="modal-cancel-btn">닫기</button>
+            </div>
+          </div>
+        </div>
       </div>
     `;
   },
@@ -386,20 +421,41 @@ const HomeScreen = {
                       .sort((a, b) => a.startTime.localeCompare(b.startTime));
   },
 
-  // 이벤트 아이템 렌더링
-  renderEventItem(event) {
+  // 시간을 분 단위로 변환 (00:00 = 0, 23:59 = 1439)
+  timeToMinutes(timeString) {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    return hours * 60 + minutes;
+  },
+
+  // 이벤트 위치 계산 (0-24시 타임라인에서의 top, height)
+  calculateEventPosition(event) {
+    const startMinutes = this.timeToMinutes(event.startTime);
+    const endMinutes = this.timeToMinutes(event.endTime);
+    const totalMinutesInDay = 24 * 60; // 1440분
+
+    const topPercent = (startMinutes / totalMinutesInDay) * 100;
+    const heightPercent = ((endMinutes - startMinutes) / totalMinutesInDay) * 100;
+
+    return {
+      top: topPercent,
+      height: heightPercent
+    };
+  },
+
+  // 시각적 이벤트 블록 렌더링
+  renderVisualEventBlock(event) {
     const isOngoing = this.isEventOngoing(event);
     const color = this.getCategoryColor(event.category);
+    const position = this.calculateEventPosition(event);
 
     return `
-      <div class="timeline-item ${isOngoing ? 'ongoing' : ''}" data-id="${event.id}">
-        <div class="timeline-time-marker" style="background-color: ${color}"></div>
-        <div class="timeline-content">
-          <div class="timeline-time">${event.startTime} - ${event.endTime}</div>
-          <div class="timeline-title">${this.escapeHtml(event.title)}</div>
-          <div class="timeline-category" style="color: ${color}">${this.getCategoryLabel(event.category)}</div>
-        </div>
-        <button class="timeline-delete-btn" aria-label="삭제">🗑️</button>
+      <div
+        class="timeline-event-block ${isOngoing ? 'ongoing' : ''}"
+        data-id="${event.id}"
+        style="top: ${position.top}%; height: ${position.height}%; background-color: ${color};"
+      >
+        <div class="event-block-time">${event.startTime}</div>
+        <div class="event-block-title">${this.escapeHtml(event.title)}</div>
       </div>
     `;
   },
@@ -416,34 +472,88 @@ const HomeScreen = {
     return labels[category] || labels.other;
   },
 
-  // 타임라인 렌더링
+  // 시간 라벨 렌더링 (0-24시)
+  renderTimelineHours() {
+    const hoursContainer = document.getElementById('timeline-hours');
+    if (!hoursContainer) return;
+
+    const hours = [];
+    for (let i = 0; i < 24; i++) {
+      const hourLabel = String(i).padStart(2, '0') + ':00';
+      hours.push(`<div class="timeline-hour-label">${hourLabel}</div>`);
+    }
+
+    hoursContainer.innerHTML = hours.join('');
+  },
+
+  // Red Line (현재 시간 인디케이터) 위치 업데이트
+  updateCurrentTimeLine() {
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const totalMinutesInDay = 24 * 60;
+    const topPercent = (currentMinutes / totalMinutesInDay) * 100;
+
+    const currentLine = document.getElementById('timeline-current-line');
+    if (currentLine) {
+      currentLine.style.top = `${topPercent}%`;
+
+      const label = currentLine.querySelector('.timeline-current-label');
+      if (label) {
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        label.textContent = `${hours}:${minutes}`;
+      }
+    }
+  },
+
+  // 시각적 타임라인 렌더링
   renderTimeline() {
-    const timelineList = document.getElementById('timeline-list');
-    if (!timelineList) return;
+    // 시간 라벨 렌더링
+    this.renderTimelineHours();
+
+    // Red Line 업데이트
+    this.updateCurrentTimeLine();
+
+    // 이벤트 렌더링
+    const eventsTrack = document.getElementById('timeline-events-track');
+    if (!eventsTrack) return;
 
     const todayEvents = this.getTodayEvents();
 
+    // Red Line 제외하고 기존 이벤트 블록들 제거
+    const eventBlocks = eventsTrack.querySelectorAll('.timeline-event-block');
+    eventBlocks.forEach(block => block.remove());
+
     if (todayEvents.length === 0) {
-      timelineList.innerHTML = `
-        <div class="timeline-empty">
-          <span class="icon">📅</span>
-          <p>오늘 일정이 없습니다</p>
-        </div>
+      const empty = document.createElement('div');
+      empty.className = 'timeline-empty-visual';
+      empty.innerHTML = `
+        <span class="icon">📅</span>
+        <p>오늘 일정이 없습니다</p>
       `;
+      eventsTrack.appendChild(empty);
       return;
     }
 
-    timelineList.innerHTML = todayEvents.map(event => this.renderEventItem(event)).join('');
+    // 빈 상태 메시지 제거
+    const emptyMsg = eventsTrack.querySelector('.timeline-empty-visual');
+    if (emptyMsg) emptyMsg.remove();
+
+    // 이벤트 블록 추가
+    todayEvents.forEach(event => {
+      const blockHTML = this.renderVisualEventBlock(event);
+      eventsTrack.insertAdjacentHTML('beforeend', blockHTML);
+    });
+
     this.attachTimelineListeners();
   },
 
   // 타임라인 이벤트 리스너
   attachTimelineListeners() {
-    document.querySelectorAll('.timeline-delete-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const timelineItem = e.target.closest('.timeline-item');
-        const id = timelineItem.dataset.id;
-        this.deleteEvent(id);
+    document.querySelectorAll('.timeline-event-block').forEach(block => {
+      block.addEventListener('click', (e) => {
+        const id = block.dataset.id;
+        this.showEventModal(id);
       });
     });
   },
@@ -568,6 +678,33 @@ const HomeScreen = {
     }
   },
 
+  // 이벤트 상세 모달 표시
+  showEventModal(eventId) {
+    const event = this.events.find(e => e.id === eventId);
+    if (!event) return;
+
+    const modal = document.getElementById('event-detail-modal');
+    const modalTitle = document.getElementById('modal-event-title');
+    const modalTime = document.getElementById('modal-event-time-text');
+    const modalCategory = document.getElementById('modal-event-category-text');
+
+    modalTitle.textContent = event.title;
+    modalTime.textContent = `${event.startTime} ~ ${event.endTime}`;
+    modalCategory.textContent = this.getCategoryLabel(event.category);
+
+    modal.style.display = 'flex';
+
+    // 모달 삭제 버튼에 이벤트 ID 저장
+    const deleteBtn = document.getElementById('modal-delete-btn');
+    deleteBtn.dataset.eventId = eventId;
+  },
+
+  // 이벤트 상세 모달 닫기
+  closeEventModal() {
+    const modal = document.getElementById('event-detail-modal');
+    modal.style.display = 'none';
+  },
+
   // 초기화 및 이벤트 리스너 설정
   async init() {
     console.log('Home screen initialized');
@@ -629,8 +766,10 @@ const HomeScreen = {
 
     // 현재 시간 업데이트 (1분마다)
     this.updateCurrentTime();
+    this.updateCurrentTimeLine(); // Red Line 초기 위치
     this.currentTimeInterval = setInterval(() => {
       this.updateCurrentTime();
+      this.updateCurrentTimeLine(); // Red Line 위치 업데이트
       this.renderTimeline(); // 진행 중인 이벤트 업데이트
     }, 60000); // 1분
 
@@ -666,6 +805,36 @@ const HomeScreen = {
     const cancelEventBtn = document.getElementById('cancel-event-btn');
     cancelEventBtn?.addEventListener('click', () => {
       this.toggleEventInput(false);
+    });
+
+    // ===== Modal 이벤트 =====
+
+    // 모달 닫기 버튼
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    modalCloseBtn?.addEventListener('click', () => {
+      this.closeEventModal();
+    });
+
+    // 모달 취소 버튼
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    modalCancelBtn?.addEventListener('click', () => {
+      this.closeEventModal();
+    });
+
+    // 모달 오버레이 클릭 시 닫기
+    const modalOverlay = document.getElementById('modal-overlay');
+    modalOverlay?.addEventListener('click', () => {
+      this.closeEventModal();
+    });
+
+    // 모달 삭제 버튼
+    const modalDeleteBtn = document.getElementById('modal-delete-btn');
+    modalDeleteBtn?.addEventListener('click', async () => {
+      const eventId = modalDeleteBtn.dataset.eventId;
+      if (eventId) {
+        this.closeEventModal();
+        await this.deleteEvent(eventId);
+      }
     });
 
     // TODO: Week 2에서 구현
