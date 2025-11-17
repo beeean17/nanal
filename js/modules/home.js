@@ -11,6 +11,15 @@ const HomeScreen = {
   currentTimeInterval: null, // For updating current time
   weatherData: null, // Weather data
 
+  // Focus Timer state (formerly Pomodoro)
+  pomodoroTimer: null,
+  pomodoroTimeLeft: 15 * 60, // 15 minutes in seconds (default)
+  pomodoroIsRunning: false,
+  pomodoroMode: 'work', // 'work' or 'break'
+  pomodoroSessions: 0,
+  pomodoroWorkDuration: 15 * 60, // 15 minutes (default)
+  pomodoroBreakDuration: 5 * 60, // 5 minutes (default)
+
   // 화면 렌더링
   render() {
     return `
@@ -108,6 +117,106 @@ const HomeScreen = {
                 <div class="timeline-current-label"></div>
               </div>
               <!-- 이벤트 블록들이 여기에 절대 위치로 배치됩니다 -->
+            </div>
+          </div>
+        </section>
+
+        <!-- 집중 타이머 -->
+        <section class="pomodoro-section">
+          <div class="section-header">
+            <h2>집중 타이머</h2>
+          </div>
+
+          <div class="pomodoro-container">
+            <!-- 시간 설정 -->
+            <div class="timer-settings">
+              <div class="timer-setting-group">
+                <label class="setting-label">작업 시간</label>
+                <div class="timer-presets">
+                  <button class="preset-btn active" data-work="15">15분</button>
+                  <button class="preset-btn" data-work="25">25분</button>
+                  <button class="preset-btn" data-work="45">45분</button>
+                  <button class="preset-btn" data-work="60">60분</button>
+                </div>
+                <div class="custom-time-input">
+                  <label class="custom-label">또는 직접 입력:</label>
+                  <div class="input-wrapper">
+                    <input
+                      type="number"
+                      id="custom-work-time"
+                      class="custom-input"
+                      placeholder="15"
+                      min="1"
+                      max="999"
+                    />
+                    <span class="input-unit">분</span>
+                    <button class="apply-btn" id="apply-work-time">적용</button>
+                  </div>
+                </div>
+              </div>
+              <div class="timer-setting-group">
+                <label class="setting-label">휴식 시간</label>
+                <div class="timer-presets">
+                  <button class="preset-btn active" data-break="5">5분</button>
+                  <button class="preset-btn" data-break="10">10분</button>
+                  <button class="preset-btn" data-break="15">15분</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 타이머 디스플레이 -->
+            <div class="pomodoro-display">
+              <div class="pomodoro-progress-ring">
+                <svg class="progress-ring" width="200" height="200">
+                  <circle
+                    class="progress-ring-circle"
+                    stroke="var(--color-border)"
+                    stroke-width="8"
+                    fill="transparent"
+                    r="90"
+                    cx="100"
+                    cy="100"
+                  />
+                  <circle
+                    class="progress-ring-circle progress-ring-fill"
+                    stroke="var(--color-primary)"
+                    stroke-width="8"
+                    fill="transparent"
+                    r="90"
+                    cx="100"
+                    cy="100"
+                    id="pomodoro-progress-circle"
+                  />
+                </svg>
+                <div class="pomodoro-timer-content">
+                  <div class="pomodoro-mode" id="pomodoro-mode">작업 시간</div>
+                  <div class="pomodoro-time" id="pomodoro-time">15:00</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 타이머 컨트롤 -->
+            <div class="pomodoro-controls">
+              <button class="pomodoro-btn pomodoro-btn-start" id="pomodoro-start-btn">
+                <span class="btn-icon">▶️</span>
+                <span class="btn-text">시작</span>
+              </button>
+              <button class="pomodoro-btn pomodoro-btn-pause" id="pomodoro-pause-btn" style="display: none;">
+                <span class="btn-icon">⏸️</span>
+                <span class="btn-text">일시정지</span>
+              </button>
+              <button class="pomodoro-btn pomodoro-btn-reset" id="pomodoro-reset-btn">
+                <span class="btn-icon">🔄</span>
+                <span class="btn-text">리셋</span>
+              </button>
+            </div>
+
+            <!-- 세션 정보 -->
+            <div class="pomodoro-stats">
+              <div class="pomodoro-stat-item">
+                <span class="stat-label">완료한 세션</span>
+                <span class="stat-value" id="pomodoro-sessions">0</span>
+              </div>
             </div>
           </div>
         </section>
@@ -840,6 +949,9 @@ const HomeScreen = {
 
     // ===== Weather Widget 초기화 =====
     this.initWeather();
+
+    // ===== Pomodoro Timer 초기화 =====
+    this.initPomodoro();
   },
 
   // ============ Weather Widget Methods ============
@@ -1069,6 +1181,276 @@ const HomeScreen = {
     });
   },
 
+  // ============ Pomodoro Timer Methods ============
+
+  // 집중 타이머 초기화
+  initPomodoro() {
+    const startBtn = document.getElementById('pomodoro-start-btn');
+    const pauseBtn = document.getElementById('pomodoro-pause-btn');
+    const resetBtn = document.getElementById('pomodoro-reset-btn');
+
+    startBtn?.addEventListener('click', () => this.startPomodoro());
+    pauseBtn?.addEventListener('click', () => this.pausePomodoro());
+    resetBtn?.addEventListener('click', () => this.resetPomodoro());
+
+    // 시간 설정 버튼 이벤트
+    document.querySelectorAll('.preset-btn[data-work]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const minutes = parseInt(e.target.dataset.work);
+        this.setWorkDuration(minutes);
+
+        // 활성화 표시
+        document.querySelectorAll('.preset-btn[data-work]').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+
+        // 커스텀 입력 필드 초기화
+        const customInput = document.getElementById('custom-work-time');
+        if (customInput) customInput.value = '';
+      });
+    });
+
+    document.querySelectorAll('.preset-btn[data-break]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const minutes = parseInt(e.target.dataset.break);
+        this.setBreakDuration(minutes);
+
+        // 활성화 표시
+        document.querySelectorAll('.preset-btn[data-break]').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+      });
+    });
+
+    // 커스텀 작업 시간 입력 이벤트
+    const customWorkInput = document.getElementById('custom-work-time');
+    const applyWorkBtn = document.getElementById('apply-work-time');
+
+    // 적용 버튼 클릭
+    applyWorkBtn?.addEventListener('click', () => {
+      this.applyCustomWorkTime();
+    });
+
+    // Enter 키로 적용
+    customWorkInput?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        this.applyCustomWorkTime();
+      }
+    });
+
+    // 초기 진행 바 설정
+    this.updatePomodoroProgress();
+  },
+
+  // 커스텀 작업 시간 적용
+  applyCustomWorkTime() {
+    const customInput = document.getElementById('custom-work-time');
+    if (!customInput) return;
+
+    const minutes = parseInt(customInput.value);
+
+    // 입력 값 검증
+    if (isNaN(minutes) || minutes < 1 || minutes > 999) {
+      alert('1분에서 999분 사이의 숫자를 입력해주세요.');
+      customInput.focus();
+      return;
+    }
+
+    // 시간 설정
+    this.setWorkDuration(minutes);
+
+    // 프리셋 버튼 비활성화
+    document.querySelectorAll('.preset-btn[data-work]').forEach(btn => {
+      btn.classList.remove('active');
+    });
+
+    // 성공 피드백
+    customInput.blur();
+  },
+
+  // 작업 시간 설정
+  setWorkDuration(minutes) {
+    // 타이머가 실행 중이면 중지
+    if (this.pomodoroIsRunning) {
+      this.pausePomodoro();
+    }
+
+    this.pomodoroWorkDuration = minutes * 60;
+
+    // 현재 작업 모드이면 시간 업데이트
+    if (this.pomodoroMode === 'work') {
+      this.pomodoroTimeLeft = this.pomodoroWorkDuration;
+      this.updatePomodoroDisplay();
+      this.updatePomodoroProgress();
+    }
+  },
+
+  // 휴식 시간 설정
+  setBreakDuration(minutes) {
+    // 타이머가 실행 중이면 중지
+    if (this.pomodoroIsRunning) {
+      this.pausePomodoro();
+    }
+
+    this.pomodoroBreakDuration = minutes * 60;
+
+    // 현재 휴식 모드이면 시간 업데이트
+    if (this.pomodoroMode === 'break') {
+      this.pomodoroTimeLeft = this.pomodoroBreakDuration;
+      this.updatePomodoroDisplay();
+      this.updatePomodoroProgress();
+    }
+  },
+
+  // 타이머 시작
+  startPomodoro() {
+    if (this.pomodoroIsRunning) return;
+
+    this.pomodoroIsRunning = true;
+    this.showPauseButton();
+
+    this.pomodoroTimer = setInterval(() => {
+      this.pomodoroTimeLeft--;
+
+      if (this.pomodoroTimeLeft <= 0) {
+        this.completePomodoro();
+      } else {
+        this.updatePomodoroDisplay();
+        this.updatePomodoroProgress();
+      }
+    }, 1000);
+  },
+
+  // 타이머 일시정지
+  pausePomodoro() {
+    if (!this.pomodoroIsRunning) return;
+
+    this.pomodoroIsRunning = false;
+    clearInterval(this.pomodoroTimer);
+    this.pomodoroTimer = null;
+    this.showStartButton();
+  },
+
+  // 타이머 리셋
+  resetPomodoro() {
+    this.pausePomodoro();
+    this.pomodoroMode = 'work';
+    this.pomodoroTimeLeft = this.pomodoroWorkDuration;
+    this.updatePomodoroDisplay();
+    this.updatePomodoroProgress();
+  },
+
+  // 뽀모도로 완료
+  completePomodoro() {
+    this.pausePomodoro();
+
+    if (this.pomodoroMode === 'work') {
+      // 작업 세션 완료
+      this.pomodoroSessions++;
+      this.updateSessionCount();
+      this.showNotification('작업 완료!', '휴식 시간입니다. 잠시 쉬어가세요 ☕');
+
+      // 휴식 모드로 전환
+      this.pomodoroMode = 'break';
+      this.pomodoroTimeLeft = this.pomodoroBreakDuration;
+    } else {
+      // 휴식 세션 완료
+      this.showNotification('휴식 완료!', '다시 집중할 시간입니다 💪');
+
+      // 작업 모드로 전환
+      this.pomodoroMode = 'work';
+      this.pomodoroTimeLeft = this.pomodoroWorkDuration;
+    }
+
+    this.updatePomodoroDisplay();
+    this.updatePomodoroProgress();
+  },
+
+  // 디스플레이 업데이트
+  updatePomodoroDisplay() {
+    const timeElement = document.getElementById('pomodoro-time');
+    const modeElement = document.getElementById('pomodoro-mode');
+
+    if (timeElement) {
+      const minutes = Math.floor(this.pomodoroTimeLeft / 60);
+      const seconds = this.pomodoroTimeLeft % 60;
+      timeElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    if (modeElement) {
+      modeElement.textContent = this.pomodoroMode === 'work' ? '작업 시간' : '휴식 시간';
+      modeElement.className = this.pomodoroMode === 'work' ? 'pomodoro-mode work' : 'pomodoro-mode break';
+    }
+  },
+
+  // 진행 바 업데이트
+  updatePomodoroProgress() {
+    const circle = document.getElementById('pomodoro-progress-circle');
+    if (!circle) return;
+
+    const totalDuration = this.pomodoroMode === 'work' ? this.pomodoroWorkDuration : this.pomodoroBreakDuration;
+    const progress = this.pomodoroTimeLeft / totalDuration;
+    const circumference = 2 * Math.PI * 90; // r = 90
+    const offset = circumference * (1 - progress);
+
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    circle.style.strokeDashoffset = offset;
+
+    // 모드에 따라 색상 변경
+    if (this.pomodoroMode === 'work') {
+      circle.style.stroke = 'var(--color-primary)';
+    } else {
+      circle.style.stroke = 'var(--color-success)';
+    }
+  },
+
+  // 세션 카운트 업데이트
+  updateSessionCount() {
+    const sessionsElement = document.getElementById('pomodoro-sessions');
+    if (sessionsElement) {
+      sessionsElement.textContent = this.pomodoroSessions;
+    }
+  },
+
+  // 버튼 표시 전환
+  showStartButton() {
+    const startBtn = document.getElementById('pomodoro-start-btn');
+    const pauseBtn = document.getElementById('pomodoro-pause-btn');
+    if (startBtn) startBtn.style.display = 'flex';
+    if (pauseBtn) pauseBtn.style.display = 'none';
+  },
+
+  showPauseButton() {
+    const startBtn = document.getElementById('pomodoro-start-btn');
+    const pauseBtn = document.getElementById('pomodoro-pause-btn');
+    if (startBtn) startBtn.style.display = 'none';
+    if (pauseBtn) pauseBtn.style.display = 'flex';
+  },
+
+  // 브라우저 알림
+  showNotification(title, body) {
+    // 알림 권한 확인
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, {
+        body: body,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico'
+      });
+    } else if ('Notification' in window && Notification.permission !== 'denied') {
+      // 권한 요청
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          new Notification(title, {
+            body: body,
+            icon: '/favicon.ico',
+            badge: '/favicon.ico'
+          });
+        }
+      });
+    }
+
+    // 알림 권한 없어도 콘솔에 표시
+    console.log(`${title}: ${body}`);
+  },
+
   // 화면 정리
   destroy() {
     console.log('Home screen destroyed');
@@ -1078,6 +1460,12 @@ const HomeScreen = {
     if (this.currentTimeInterval) {
       clearInterval(this.currentTimeInterval);
       this.currentTimeInterval = null;
+    }
+
+    // Pomodoro timer 정리
+    if (this.pomodoroTimer) {
+      clearInterval(this.pomodoroTimer);
+      this.pomodoroTimer = null;
     }
   }
 };
