@@ -9,6 +9,7 @@ const HomeScreen = {
   editingId: null,
   events: [], // Timeline events
   currentTimeInterval: null, // For updating current time
+  weatherData: null, // Weather data
 
   // 화면 렌더링
   render() {
@@ -20,10 +21,10 @@ const HomeScreen = {
         </div>
 
         <!-- 날씨 위젯 -->
-        <section class="weather-widget">
-          <div class="widget-placeholder">
-            <span class="icon">🌤️</span>
-            <p>날씨 위젯 (개발 예정)</p>
+        <section class="weather-widget" id="weather-widget">
+          <div class="weather-loading" id="weather-loading">
+            <div class="loading"></div>
+            <p>날씨 정보를 불러오는 중...</p>
           </div>
         </section>
 
@@ -837,9 +838,235 @@ const HomeScreen = {
       }
     });
 
-    // TODO: Week 2에서 구현
-    // - 날씨 위젯
-    // - 뽀모도로 타이머
+    // ===== Weather Widget 초기화 =====
+    this.initWeather();
+  },
+
+  // ============ Weather Widget Methods ============
+
+  // 날씨 위젯 초기화
+  async initWeather() {
+    const weatherWidget = document.getElementById('weather-widget');
+    if (!weatherWidget) return;
+
+    try {
+      // 위치 정보 가져오기
+      const position = await this.getUserLocation();
+
+      // 날씨 데이터 가져오기
+      const weather = await this.fetchWeatherData(position.coords.latitude, position.coords.longitude);
+
+      // 날씨 표시
+      this.weatherData = weather;
+      this.renderWeather();
+    } catch (error) {
+      console.error('Weather fetch error:', error);
+      this.renderWeatherError(error.message);
+    }
+  },
+
+  // 사용자 위치 가져오기
+  getUserLocation() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('브라우저가 위치 정보를 지원하지 않습니다.'));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        position => resolve(position),
+        error => {
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              reject(new Error('위치 권한이 거부되었습니다.'));
+              break;
+            case error.POSITION_UNAVAILABLE:
+              reject(new Error('위치 정보를 사용할 수 없습니다.'));
+              break;
+            case error.TIMEOUT:
+              reject(new Error('위치 요청 시간이 초과되었습니다.'));
+              break;
+            default:
+              reject(new Error('위치를 가져올 수 없습니다.'));
+          }
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 300000 // 5분 캐시
+        }
+      );
+    });
+  },
+
+  // Open-Meteo API로 날씨 데이터 가져오기 (완전 무료, API 키 불필요)
+  async fetchWeatherData(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&temperature_unit=celsius&wind_speed_unit=ms&timezone=auto`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error('날씨 정보를 가져오는데 실패했습니다.');
+    }
+
+    const data = await response.json();
+
+    // Open-Meteo 응답을 표준 형식으로 변환
+    return {
+      main: {
+        temp: data.current.temperature_2m,
+        feels_like: data.current.temperature_2m, // Open-Meteo는 체감온도 제공 안함
+        humidity: data.current.relative_humidity_2m
+      },
+      weather: [{
+        code: data.current.weather_code,
+        description: this.getWeatherDescriptionFromCode(data.current.weather_code)
+      }],
+      wind: {
+        speed: data.current.wind_speed_10m
+      },
+      name: data.timezone || '현재 위치' // Open-Meteo는 도시명 제공 안함
+    };
+  },
+
+  // WMO Weather Code에서 날씨 설명 가져오기
+  getWeatherDescriptionFromCode(code) {
+    const descriptions = {
+      0: '맑음',
+      1: '대체로 맑음',
+      2: '부분 흐림',
+      3: '흐림',
+      45: '안개',
+      48: '안개',
+      51: '가벼운 이슬비',
+      53: '이슬비',
+      55: '강한 이슬비',
+      56: '가벼운 어는 이슬비',
+      57: '강한 어는 이슬비',
+      61: '약한 비',
+      63: '비',
+      65: '강한 비',
+      66: '가벼운 어는 비',
+      67: '강한 어는 비',
+      71: '약한 눈',
+      73: '눈',
+      75: '강한 눈',
+      77: '싸락눈',
+      80: '약한 소나기',
+      81: '소나기',
+      82: '강한 소나기',
+      85: '약한 눈 소나기',
+      86: '강한 눈 소나기',
+      95: '천둥번개',
+      96: '약한 우박',
+      99: '강한 우박'
+    };
+    return descriptions[code] || '알 수 없음';
+  },
+
+  // WMO Weather Code에서 날씨 아이콘 가져오기
+  getWeatherIcon(weatherCode) {
+    // WMO Weather interpretation codes
+    if (weatherCode === 0) return '☀️'; // Clear sky
+    if (weatherCode === 1) return '🌤️'; // Mainly clear
+    if (weatherCode === 2) return '⛅'; // Partly cloudy
+    if (weatherCode === 3) return '☁️'; // Overcast
+    if (weatherCode === 45 || weatherCode === 48) return '🌫️'; // Fog
+    if (weatherCode >= 51 && weatherCode <= 57) return '🌧️'; // Drizzle
+    if (weatherCode >= 61 && weatherCode <= 67) return '🌧️'; // Rain
+    if (weatherCode >= 71 && weatherCode <= 77) return '❄️'; // Snow
+    if (weatherCode >= 80 && weatherCode <= 82) return '🌦️'; // Rain showers
+    if (weatherCode >= 85 && weatherCode <= 86) return '🌨️'; // Snow showers
+    if (weatherCode === 95) return '⛈️'; // Thunderstorm
+    if (weatherCode === 96 || weatherCode === 99) return '⛈️'; // Thunderstorm with hail
+    return '🌤️'; // Default
+  },
+
+  // 날씨 상태 한글 번역 (하위 호환성)
+  getWeatherDescription(description) {
+    return description;
+  },
+
+  // 날씨 렌더링
+  renderWeather() {
+    const weatherWidget = document.getElementById('weather-widget');
+    if (!weatherWidget || !this.weatherData) return;
+
+    const { main, weather, wind, name } = this.weatherData;
+    const temp = Math.round(main.temp);
+    const feelsLike = Math.round(main.feels_like);
+    const icon = this.getWeatherIcon(weather[0].code);
+    const description = weather[0].description;
+
+    weatherWidget.innerHTML = `
+      <div class="weather-content">
+        <div class="weather-header">
+          <div class="weather-location">
+            <span class="location-icon">📍</span>
+            <span class="location-name">${this.escapeHtml(name)}</span>
+          </div>
+          <button class="weather-refresh-btn" id="weather-refresh-btn" aria-label="새로고침">
+            🔄
+          </button>
+        </div>
+
+        <div class="weather-main">
+          <div class="weather-icon">${icon}</div>
+          <div class="weather-temp-group">
+            <div class="weather-temp">${temp}°C</div>
+            <div class="weather-description">${description}</div>
+          </div>
+        </div>
+
+        <div class="weather-details">
+          <div class="weather-detail-item">
+            <span class="detail-label">체감</span>
+            <span class="detail-value">${feelsLike}°C</span>
+          </div>
+          <div class="weather-detail-item">
+            <span class="detail-label">습도</span>
+            <span class="detail-value">${main.humidity}%</span>
+          </div>
+          <div class="weather-detail-item">
+            <span class="detail-label">풍속</span>
+            <span class="detail-value">${wind.speed}m/s</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // 새로고침 버튼 이벤트
+    const refreshBtn = document.getElementById('weather-refresh-btn');
+    refreshBtn?.addEventListener('click', () => {
+      this.initWeather();
+    });
+  },
+
+  // 날씨 에러 렌더링
+  renderWeatherError(message) {
+    const weatherWidget = document.getElementById('weather-widget');
+    if (!weatherWidget) return;
+
+    weatherWidget.innerHTML = `
+      <div class="weather-error">
+        <div class="weather-error-icon">⚠️</div>
+        <p class="weather-error-message">${this.escapeHtml(message)}</p>
+        <button class="btn-primary" id="weather-retry-btn">다시 시도</button>
+      </div>
+    `;
+
+    // 재시도 버튼 이벤트
+    const retryBtn = document.getElementById('weather-retry-btn');
+    retryBtn?.addEventListener('click', () => {
+      // 로딩 상태로 변경
+      weatherWidget.innerHTML = `
+        <div class="weather-loading">
+          <div class="loading"></div>
+          <p>날씨 정보를 불러오는 중...</p>
+        </div>
+      `;
+      this.initWeather();
+    });
   },
 
   // 화면 정리
