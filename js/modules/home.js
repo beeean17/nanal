@@ -68,7 +68,7 @@ const HomeScreen = {
         <!-- 타임라인 -->
         <section class="timeline-section">
           <div class="section-header">
-            <h2>오늘의 일정</h2>
+            <h2>오늘의 타임라인</h2>
             <button class="add-btn" id="add-event-btn" aria-label="일정 추가">+</button>
           </div>
 
@@ -422,7 +422,11 @@ const HomeScreen = {
     if (!user) return;
 
     try {
+      // 기존 데이터 가져오기 (events, budgets 보존)
+      const existingData = await FirebaseDB.get('users', user.uid);
+
       await FirebaseDB.set('users', user.uid, {
+        ...existingData,
         todos: this.todos,
         updatedAt: new Date().toISOString()
       });
@@ -723,8 +727,11 @@ const HomeScreen = {
     if (!user) return;
 
     try {
+      // 기존 데이터 가져오기 (todos, budgets 보존)
+      const existingData = await FirebaseDB.get('users', user.uid);
+
       await FirebaseDB.set('users', user.uid, {
-        todos: this.todos,
+        ...existingData,
         events: this.events,
         updatedAt: new Date().toISOString()
       });
@@ -755,18 +762,24 @@ const HomeScreen = {
 
   // 이벤트 불러오기
   async loadEvents() {
+    console.log('[Home] loadEvents() 시작');
     const user = FirebaseAuth.getCurrentUser();
 
     if (user) {
+      console.log('[Home] 로그인 상태 - Firebase 시도:', user.email);
       const firebaseEvents = await this.loadEventsFromFirebase();
+      console.log('[Home] Firebase에서 로드:', firebaseEvents);
+
       if (firebaseEvents.length > 0) {
         this.events = firebaseEvents;
-        this.saveEventsToLocal();
+        console.log('[Home] Firebase 데이터 사용 (LocalStorage 백업 제거)');
+        // this.saveEventsToLocal(); // ← 제거: Calendar 데이터를 덮어쓰는 원인!
         return;
       }
     }
 
     this.events = this.loadEventsFromLocal();
+    console.log('[Home] LocalStorage 데이터 사용:', this.events);
   },
 
   // 이벤트 입력창 표시/숨김
