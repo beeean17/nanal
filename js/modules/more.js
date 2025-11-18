@@ -5,10 +5,68 @@ import { AppState, toggleTheme } from '../app.js';
 import { FirebaseAuth } from '../firebase-config.js';
 
 const MoreScreen = {
+  // 통계 계산
+  getStatistics() {
+    try {
+      const goals = JSON.parse(localStorage.getItem('nanal_goals') || '[]');
+      const habits = JSON.parse(localStorage.getItem('nanal_habits') || '[]');
+      const events = JSON.parse(localStorage.getItem('nanal_events') || '[]');
+      const timetable = JSON.parse(localStorage.getItem('nanal_timetable') || '[]');
+
+      // 이번 주 습관 달성률 계산
+      const today = new Date();
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay());
+      startOfWeek.setHours(0, 0, 0, 0);
+
+      let totalHabitChecks = 0;
+      let expectedHabitChecks = 0;
+
+      habits.forEach(habit => {
+        const daysInWeek = today.getDay() + 1; // 일요일부터 오늘까지의 일수
+
+        if (habit.frequency === 'daily') {
+          expectedHabitChecks += daysInWeek;
+        } else {
+          expectedHabitChecks += Math.min(habit.targetDays, daysInWeek);
+        }
+
+        const thisWeekChecks = (habit.checks || []).filter(check => {
+          const checkDate = new Date(check);
+          return checkDate >= startOfWeek;
+        });
+
+        totalHabitChecks += thisWeekChecks.length;
+      });
+
+      const habitCompletionRate = expectedHabitChecks > 0
+        ? Math.round((totalHabitChecks / expectedHabitChecks) * 100)
+        : 0;
+
+      return {
+        goalsCount: goals.length,
+        habitsCount: habits.length,
+        eventsCount: events.length,
+        timetableCount: timetable.length,
+        habitCompletionRate
+      };
+    } catch (error) {
+      console.error('Statistics error:', error);
+      return {
+        goalsCount: 0,
+        habitsCount: 0,
+        eventsCount: 0,
+        timetableCount: 0,
+        habitCompletionRate: 0
+      };
+    }
+  },
+
   // 화면 렌더링
   render() {
     const currentTheme = AppState.theme;
     const user = AppState.user;
+    const stats = this.getStatistics();
 
     return `
       <div class="more-screen fade-in">
@@ -38,26 +96,30 @@ const MoreScreen = {
           `}
         </section>
 
-        <!-- 빠른 기능 -->
-        <section class="quick-features">
-          <h2>빠른 기능</h2>
-          <div class="feature-grid">
-            <button class="feature-card">
-              <span class="icon">📝</span>
-              <span class="label">빠른 메모</span>
-            </button>
-            <button class="feature-card">
-              <span class="icon">📊</span>
-              <span class="label">통계</span>
-            </button>
-            <button class="feature-card">
-              <span class="icon">🔍</span>
-              <span class="label">전체 검색</span>
-            </button>
-            <button class="feature-card">
-              <span class="icon">⏰</span>
-              <span class="label">D-Day</span>
-            </button>
+        <!-- 통계 대시보드 -->
+        <section class="statistics-section">
+          <h2>📊 내 데이터 통계</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">🎯</div>
+              <div class="stat-value">${stats.goalsCount}</div>
+              <div class="stat-label">진행 중인 목표</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">✅</div>
+              <div class="stat-value">${stats.habitsCount}</div>
+              <div class="stat-label">등록된 습관</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📅</div>
+              <div class="stat-value">${stats.eventsCount + stats.timetableCount}</div>
+              <div class="stat-label">총 일정</div>
+            </div>
+            <div class="stat-card ${stats.habitCompletionRate >= 80 ? 'success' : stats.habitCompletionRate >= 50 ? 'warning' : ''}">
+              <div class="stat-icon">🔥</div>
+              <div class="stat-value">${stats.habitCompletionRate}%</div>
+              <div class="stat-label">이번 주 습관 달성률</div>
+            </div>
           </div>
         </section>
 
@@ -77,26 +139,29 @@ const MoreScreen = {
 
             <div class="setting-item">
               <div class="setting-info">
-                <span class="icon">🔔</span>
-                <span class="label">알림</span>
-              </div>
-              <span class="setting-value">개발 예정</span>
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-info">
                 <span class="icon">💾</span>
                 <span class="label">데이터 백업</span>
+                <span class="setting-desc">모든 데이터를 JSON 파일로 다운로드</span>
               </div>
-              <button class="action-btn">백업</button>
+              <button class="action-btn" id="backup-btn">💾 백업</button>
             </div>
 
             <div class="setting-item">
               <div class="setting-info">
                 <span class="icon">📥</span>
                 <span class="label">데이터 복원</span>
+                <span class="setting-desc">백업 파일에서 데이터 복원</span>
               </div>
-              <button class="action-btn">복원</button>
+              <button class="action-btn" id="restore-btn">📥 복원</button>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="icon">🗑️</span>
+                <span class="label">전체 데이터 삭제</span>
+                <span class="setting-desc">모든 로컬 데이터 삭제 (복구 불가)</span>
+              </div>
+              <button class="action-btn danger" id="delete-all-btn">🗑️ 삭제</button>
             </div>
           </div>
         </section>
@@ -105,7 +170,20 @@ const MoreScreen = {
         <section class="app-info">
           <p class="app-version">나날 (Nanal) v1.0.0</p>
           <p class="app-description">일상 관리 허브</p>
+          <div class="app-links">
+            <a href="https://github.com/beeean17/nanal" target="_blank" class="app-link">
+              <span class="icon">📦</span>
+              <span>GitHub</span>
+            </a>
+            <a href="https://github.com/beeean17/nanal/issues" target="_blank" class="app-link">
+              <span class="icon">❓</span>
+              <span>도움말</span>
+            </a>
+          </div>
         </section>
+
+        <!-- File input for restore (hidden) -->
+        <input type="file" id="restore-file-input" accept=".json" style="display: none;" />
 
         <!-- 로그인 모달 -->
         <div class="auth-modal" id="auth-modal" style="display: none;">
@@ -171,6 +249,96 @@ const MoreScreen = {
         </div>
       </div>
     `;
+  },
+
+  // 데이터 백업 (JSON 다운로드)
+  backupData() {
+    try {
+      const allData = {
+        version: '1.0.0',
+        exportedAt: new Date().toISOString(),
+        data: {
+          todos: JSON.parse(localStorage.getItem('nanal_todos') || '[]'),
+          events: JSON.parse(localStorage.getItem('nanal_events') || '[]'),
+          goals: JSON.parse(localStorage.getItem('nanal_goals') || '[]'),
+          habits: JSON.parse(localStorage.getItem('nanal_habits') || '[]'),
+          timetable: JSON.parse(localStorage.getItem('nanal_timetable') || '[]'),
+          budgets: JSON.parse(localStorage.getItem('nanal_budgets') || '[]')
+        }
+      };
+
+      const dataStr = JSON.stringify(allData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `nanal-backup-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+
+      URL.revokeObjectURL(url);
+      alert('데이터가 백업되었습니다!');
+    } catch (error) {
+      console.error('Backup error:', error);
+      alert('백업에 실패했습니다.');
+    }
+  },
+
+  // 데이터 복원 (JSON 업로드)
+  async restoreData(file) {
+    try {
+      const text = await file.text();
+      const backupData = JSON.parse(text);
+
+      if (!backupData.data) {
+        throw new Error('올바른 백업 파일이 아닙니다.');
+      }
+
+      if (!confirm('현재 데이터를 백업 파일로 덮어쓰시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!')) {
+        return;
+      }
+
+      // LocalStorage에 복원
+      const { data } = backupData;
+      if (data.todos) localStorage.setItem('nanal_todos', JSON.stringify(data.todos));
+      if (data.events) localStorage.setItem('nanal_events', JSON.stringify(data.events));
+      if (data.goals) localStorage.setItem('nanal_goals', JSON.stringify(data.goals));
+      if (data.habits) localStorage.setItem('nanal_habits', JSON.stringify(data.habits));
+      if (data.timetable) localStorage.setItem('nanal_timetable', JSON.stringify(data.timetable));
+      if (data.budgets) localStorage.setItem('nanal_budgets', JSON.stringify(data.budgets));
+
+      alert('데이터가 복원되었습니다!\n\n페이지를 새로고침합니다.');
+      window.location.reload();
+    } catch (error) {
+      console.error('Restore error:', error);
+      alert('복원에 실패했습니다. 올바른 백업 파일인지 확인해주세요.');
+    }
+  },
+
+  // 전체 데이터 삭제
+  deleteAllData() {
+    if (!confirm('정말로 모든 데이터를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!')) {
+      return;
+    }
+
+    if (!confirm('마지막 확인: 백업하지 않은 데이터는 복구할 수 없습니다.\n\n계속하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      localStorage.removeItem('nanal_todos');
+      localStorage.removeItem('nanal_events');
+      localStorage.removeItem('nanal_goals');
+      localStorage.removeItem('nanal_habits');
+      localStorage.removeItem('nanal_timetable');
+      localStorage.removeItem('nanal_budgets');
+
+      alert('모든 데이터가 삭제되었습니다.\n\n페이지를 새로고침합니다.');
+      window.location.reload();
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('삭제에 실패했습니다.');
+    }
   },
 
   // 초기화
@@ -254,6 +422,39 @@ const MoreScreen = {
     if (googleLoginBtn) {
       googleLoginBtn.addEventListener('click', async () => {
         await this.handleGoogleLogin();
+      });
+    }
+
+    // 백업 버튼
+    const backupBtn = document.getElementById('backup-btn');
+    if (backupBtn) {
+      backupBtn.addEventListener('click', () => {
+        this.backupData();
+      });
+    }
+
+    // 복원 버튼
+    const restoreBtn = document.getElementById('restore-btn');
+    const restoreFileInput = document.getElementById('restore-file-input');
+    if (restoreBtn && restoreFileInput) {
+      restoreBtn.addEventListener('click', () => {
+        restoreFileInput.click();
+      });
+
+      restoreFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          await this.restoreData(file);
+          restoreFileInput.value = ''; // Reset input
+        }
+      });
+    }
+
+    // 전체 삭제 버튼
+    const deleteAllBtn = document.getElementById('delete-all-btn');
+    if (deleteAllBtn) {
+      deleteAllBtn.addEventListener('click', () => {
+        this.deleteAllData();
       });
     }
   },
