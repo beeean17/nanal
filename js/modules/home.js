@@ -497,11 +497,16 @@ const HomeScreen = {
   // 카테고리별 색상
   getCategoryColor(category) {
     const colors = {
+      // Timeline 카테고리
       study: '#007AFF',
       work: '#34C759',
       personal: '#FF9500',
       meeting: '#FF3B30',
-      other: '#8E8E93'
+      other: '#8E8E93',
+      // Timetable 카테고리
+      lecture: '#007AFF',
+      lab: '#AF52DE',
+      exercise: '#FF3B30'
     };
     return colors[category] || colors.other;
   },
@@ -529,10 +534,49 @@ const HomeScreen = {
   },
 
   // 오늘 이벤트만 필터링
+  // 오늘 요일의 시간표 수업 가져오기
+  getTodayTimetableClasses() {
+    try {
+      const timetableData = localStorage.getItem('nanal_timetable');
+      if (!timetableData) return [];
+
+      const allClasses = JSON.parse(timetableData);
+      const today = new Date();
+      const todayDayOfWeek = today.getDay(); // 0 (일) ~ 6 (토)
+
+      // 오늘 요일의 수업들을 타임라인 이벤트 형식으로 변환
+      return allClasses
+        .filter(c => c.dayOfWeek === todayDayOfWeek)
+        .map(c => ({
+          id: `timetable-${c.id}`, // timetable- 접두사로 구분
+          title: c.title,
+          startTime: c.startTime,
+          endTime: c.endTime,
+          category: c.category,
+          location: c.location,
+          date: today.toISOString().split('T')[0],
+          isFromTimetable: true // 시간표에서 온 이벤트 표시
+        }));
+    } catch (error) {
+      console.error('Timetable load error:', error);
+      return [];
+    }
+  },
+
   getTodayEvents() {
     const today = new Date().toISOString().split('T')[0];
-    return this.events.filter(e => e.date === today)
-                      .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+    // 일회성 이벤트
+    const regularEvents = this.events
+      .filter(e => e.date === today)
+      .map(e => ({ ...e, isFromTimetable: false }));
+
+    // 시간표 수업
+    const timetableEvents = this.getTodayTimetableClasses();
+
+    // 병합 후 시간순 정렬
+    return [...regularEvents, ...timetableEvents]
+      .sort((a, b) => a.startTime.localeCompare(b.startTime));
   },
 
   // 시간을 분 단위로 변환 (00:00 = 0, 23:59 = 1439)
@@ -561,14 +605,18 @@ const HomeScreen = {
     const isOngoing = this.isEventOngoing(event);
     const color = this.getCategoryColor(event.category);
     const position = this.calculateEventPosition(event);
+    const isTimetable = event.isFromTimetable ? 'from-timetable' : '';
+
+    // 시간표 이벤트는 반복 아이콘 추가
+    const timetableIcon = event.isFromTimetable ? '<span style="font-size: 10px; opacity: 0.8;">🔁</span> ' : '';
 
     return `
       <div
-        class="timeline-event-block ${isOngoing ? 'ongoing' : ''}"
+        class="timeline-event-block ${isOngoing ? 'ongoing' : ''} ${isTimetable}"
         data-id="${event.id}"
         style="top: ${position.top}%; height: ${position.height}%; background-color: ${color};"
       >
-        <div class="event-block-time">${event.startTime}</div>
+        <div class="event-block-time">${timetableIcon}${event.startTime}</div>
         <div class="event-block-title">${this.escapeHtml(event.title)}</div>
       </div>
     `;
@@ -577,11 +625,16 @@ const HomeScreen = {
   // 카테고리 레이블
   getCategoryLabel(category) {
     const labels = {
+      // Timeline 카테고리
       study: '📚 공부',
       work: '💼 업무',
       personal: '🎯 개인',
       meeting: '👥 미팅',
-      other: '📌 기타'
+      other: '📌 기타',
+      // Timetable 카테고리
+      lecture: '📚 강의',
+      lab: '🔬 실습',
+      exercise: '🏃 운동'
     };
     return labels[category] || labels.other;
   },
@@ -803,7 +856,9 @@ const HomeScreen = {
 
   // 이벤트 상세 모달 표시
   showEventModal(eventId) {
-    const event = this.events.find(e => e.id === eventId);
+    // 시간표 이벤트 포함하여 검색
+    const allEvents = this.getTodayEvents();
+    const event = allEvents.find(e => e.id === eventId);
     if (!event) return;
 
     const modal = document.getElementById('event-detail-modal');
@@ -811,15 +866,32 @@ const HomeScreen = {
     const modalTime = document.getElementById('modal-event-time-text');
     const modalCategory = document.getElementById('modal-event-category-text');
 
+    // 기본 정보 표시
     modalTitle.textContent = event.title;
     modalTime.textContent = `${event.startTime} ~ ${event.endTime}`;
-    modalCategory.textContent = this.getCategoryLabel(event.category);
+
+    // 카테고리 표시 (시간표 이벤트는 한글 레이블 추가)
+    let categoryText = this.getCategoryLabel(event.category);
+    if (event.location) {
+      categoryText += ` • ${event.location}`;
+    }
+    if (event.isFromTimetable) {
+      categoryText += ' 📌 고정 시간표';
+    }
+    modalCategory.textContent = categoryText;
 
     modal.style.display = 'flex';
 
-    // 모달 삭제 버튼에 이벤트 ID 저장
+    // 삭제 버튼 처리
     const deleteBtn = document.getElementById('modal-delete-btn');
-    deleteBtn.dataset.eventId = eventId;
+    if (event.isFromTimetable) {
+      // 시간표 이벤트는 삭제 불가
+      deleteBtn.style.display = 'none';
+    } else {
+      // 일회성 이벤트는 삭제 가능
+      deleteBtn.style.display = 'block';
+      deleteBtn.dataset.eventId = eventId;
+    }
   },
 
   // 이벤트 상세 모달 닫기

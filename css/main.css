@@ -2155,6 +2155,13 @@ body {
   border-left: 3px solid rgba(255, 255, 255, 0.5);
 }
 
+/* Timetable Event (from fixed schedule) */
+.timeline-event-block.from-timetable {
+  border-left: 3px solid rgba(255, 255, 255, 0.9);
+  border-right: 3px solid rgba(255, 255, 255, 0.3);
+  opacity: 0.95;
+}
+
 .timeline-event-block:hover {
   transform: scale(1.02);
   box-shadow: var(--shadow-md);
@@ -2624,4 +2631,305 @@ body {
 
 [data-theme="dark"] .btn-google:hover {
   background-color: var(--color-bg-tertiary);
+}
+
+/* ====================================
+   Timetable Screen
+   ==================================== */
+
+.timetable-screen {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.timetable-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-bottom: var(--space-2xl);
+}
+
+.add-class-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  background: linear-gradient(135deg, var(--color-primary), #0051D5);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  align-self: flex-start;
+}
+
+.add-class-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.add-class-btn:active {
+  transform: translateY(0);
+}
+
+.add-class-btn .btn-icon {
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-bold);
+}
+
+/* Timetable Grid Section */
+.timetable-grid-section {
+  margin-bottom: var(--space-2xl);
+}
+
+.timetable-grid-container {
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+/* Grid Header - Day Labels */
+.timetable-grid-header {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  background-color: var(--color-bg-tertiary);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.time-column-header {
+  padding: var(--space-md);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  border-right: 1px solid var(--color-border);
+}
+
+.day-column-header {
+  padding: var(--space-md);
+  text-align: center;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  border-right: 1px solid var(--color-border);
+  transition: all var(--transition-fast);
+}
+
+.day-column-header:last-child {
+  border-right: none;
+}
+
+.day-column-header:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+/* Timetable Grid */
+.timetable-grid {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  min-height: 800px;
+  max-height: 1000px;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Time Column */
+.time-column {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-tertiary);
+  border-right: 2px solid var(--color-border);
+  position: sticky;
+  left: 0;
+  z-index: 10;
+}
+
+.time-label {
+  height: 60px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  font-weight: var(--font-weight-medium);
+  padding-top: 4px;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg-tertiary);
+}
+
+.time-label:last-child {
+  border-bottom: none;
+}
+
+/* Day Columns */
+.day-column {
+  position: relative;
+  min-height: 960px; /* 16 hours × 60px (8시~23시) */
+  border-right: 1px solid var(--color-border);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent calc(60px - 1px),
+    var(--color-border) calc(60px - 1px),
+    var(--color-border) 60px
+  );
+  background-size: 100% 60px;
+  background-repeat: repeat-y;
+  transition: background-color var(--transition-fast);
+}
+
+.day-column:last-child {
+  border-right: none;
+}
+
+.day-column:hover {
+  background-color: rgba(0, 122, 255, 0.02);
+}
+
+/* Class Blocks */
+.class-block {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs);
+  color: white;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  z-index: 5;
+}
+
+.class-block:hover {
+  transform: scale(1.03);
+  box-shadow: var(--shadow-md);
+  z-index: 15;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.class-block:active {
+  transform: scale(0.98);
+}
+
+.class-block-time {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  opacity: 0.9;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.class-block-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
+  margin-bottom: 2px;
+  word-wrap: break-word;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.class-block-location {
+  font-size: var(--font-size-xs);
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Category Colors */
+.class-block[style*="#007AFF"] {
+  background-color: #007AFF !important;
+}
+
+.class-block[style*="#AF52DE"] {
+  background-color: #AF52DE !important;
+}
+
+.class-block[style*="#34C759"] {
+  background-color: #34C759 !important;
+}
+
+.class-block[style*="#FF9500"] {
+  background-color: #FF9500 !important;
+}
+
+.class-block[style*="#FF3B30"] {
+  background-color: #FF3B30 !important;
+}
+
+.class-block[style*="#5856D6"] {
+  background-color: #5856D6 !important;
+}
+
+.class-block[style*="#8E8E93"] {
+  background-color: #8E8E93 !important;
+}
+
+/* Empty State */
+.timetable-empty {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl);
+  text-align: center;
+  min-height: 400px;
+}
+
+.timetable-empty .icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-md);
+  opacity: 0.3;
+}
+
+.timetable-empty p {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-base);
+}
+
+/* Class Modal - Additional Styles */
+#class-modal .form-select option {
+  padding: var(--space-sm);
+}
+
+#class-modal .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+/* Delete Button in Modal */
+.delete-class-btn {
+  background: linear-gradient(135deg, #FF3B30, #D32F2F);
+  color: white;
+  border: none;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.delete-class-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.delete-class-btn:active {
+  transform: translateY(0);
 }
