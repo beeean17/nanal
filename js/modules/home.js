@@ -585,14 +585,31 @@ const HomeScreen = {
     return hours * 60 + minutes;
   },
 
-  // 이벤트 위치 계산 (0-24시 타임라인에서의 top, height)
+  // 시간을 08:00 기준 분으로 변환 (08:00 = 0, 07:59 = 1439)
+  timeToMinutesFrom8AM(timeString) {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    let totalMinutes = hours * 60 + minutes;
+    // 08:00을 기준점(0)으로 변환
+    totalMinutes = totalMinutes - 8 * 60;
+    if (totalMinutes < 0) {
+      totalMinutes += 24 * 60; // 00:00~07:59는 다음날로 취급
+    }
+    return totalMinutes;
+  },
+
+  // 이벤트 위치 계산 (08:00~다음날 07:59 타임라인에서의 top, height)
   calculateEventPosition(event) {
-    const startMinutes = this.timeToMinutes(event.startTime);
-    const endMinutes = this.timeToMinutes(event.endTime);
+    const startMinutes = this.timeToMinutesFrom8AM(event.startTime);
+    const endMinutes = this.timeToMinutesFrom8AM(event.endTime);
     const totalMinutesInDay = 24 * 60; // 1440분
 
     const topPercent = (startMinutes / totalMinutesInDay) * 100;
-    const heightPercent = ((endMinutes - startMinutes) / totalMinutesInDay) * 100;
+    let heightPercent = ((endMinutes - startMinutes) / totalMinutesInDay) * 100;
+
+    // 자정을 넘어가는 이벤트 처리 (예: 23:00 ~ 01:00)
+    if (heightPercent < 0) {
+      heightPercent += 100;
+    }
 
     return {
       top: topPercent,
@@ -639,13 +656,19 @@ const HomeScreen = {
     return labels[category] || labels.other;
   },
 
-  // 시간 라벨 렌더링 (0-24시)
+  // 시간 라벨 렌더링 (08:00 ~ 다음날 07:00)
   renderTimelineHours() {
     const hoursContainer = document.getElementById('timeline-hours');
     if (!hoursContainer) return;
 
     const hours = [];
-    for (let i = 0; i < 24; i++) {
+    // 08:00부터 23:00까지 (16시간)
+    for (let i = 8; i < 24; i++) {
+      const hourLabel = String(i).padStart(2, '0') + ':00';
+      hours.push(`<div class="timeline-hour-label">${hourLabel}</div>`);
+    }
+    // 00:00부터 07:00까지 (8시간)
+    for (let i = 0; i < 8; i++) {
       const hourLabel = String(i).padStart(2, '0') + ':00';
       hours.push(`<div class="timeline-hour-label">${hourLabel}</div>`);
     }
@@ -653,10 +676,17 @@ const HomeScreen = {
     hoursContainer.innerHTML = hours.join('');
   },
 
-  // Red Line (현재 시간 인디케이터) 위치 업데이트
+  // Red Line (현재 시간 인디케이터) 위치 업데이트 (08:00 기준)
   updateCurrentTimeLine() {
     const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    let currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    // 08:00을 기준점(0)으로 변환
+    currentMinutes = currentMinutes - 8 * 60;
+    if (currentMinutes < 0) {
+      currentMinutes += 24 * 60; // 00:00~07:59는 다음날로 취급
+    }
+
     const totalMinutesInDay = 24 * 60;
     const topPercent = (currentMinutes / totalMinutesInDay) * 100;
 
