@@ -2065,19 +2065,23 @@ body {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  width: 60px;
+  width: 50px;
   position: relative;
+  min-height: 720px; /* 24 hours × 30px - 타임라인과 동기화 */
 }
 
 .timeline-hour-label {
-  height: 60px;
+  height: 30px; /* 타임라인의 1시간 칸과 동일한 높이 */
+  min-height: 30px;
   display: flex;
   align-items: flex-start;
-  font-size: var(--font-size-sm);
+  justify-content: flex-start;
+  font-size: var(--font-size-xs);
   color: var(--color-text-tertiary);
   font-weight: var(--font-weight-medium);
   padding-top: 2px;
   border-top: 1px solid var(--color-border);
+  box-sizing: border-box;
 }
 
 .timeline-hour-label:first-child {
@@ -2087,7 +2091,7 @@ body {
 .timeline-events-track {
   flex: 1;
   position: relative;
-  min-height: 1440px; /* 24 hours × 60px */
+  min-height: 720px; /* 24 hours × 30px */
   background: linear-gradient(
     to bottom,
     transparent 0%,
