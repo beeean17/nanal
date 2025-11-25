@@ -488,13 +488,184 @@ body {
 }
 
 /* ====================================
-   Home Screen - Weather Widget
+   Home Screen - Header & Weather Widget
    ==================================== */
 
+/* Home Header - 날짜/시간 전체 너비 + 날씨 오버레이 */
+.home-header {
+  margin-bottom: var(--space-2xl);
+  position: relative;
+}
+
+/* 날짜/시간 표시 영역 - 전체 너비 */
+.home-datetime {
+  width: 100%;
+  /* 전체 너비 그라데이션 */
+  background: linear-gradient(90deg,
+    var(--color-primary-light) 0%,
+    var(--color-primary) 50%,
+    #0066CC 100%);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  box-shadow: var(--shadow-md);
+  animation: fadeIn 0.3s ease;
+  position: relative;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-lg);
+}
+
+/* 날짜/시간 컨텐츠 - 왼쪽 고정 */
+.datetime-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0; /* 축소 방지 */
+  min-width: 260px; /* 최소 너비 */
+}
+
+/* 시간을 위로, 크게 강조 */
+.home-time {
+  font-size: 2.5rem; /* 큰 디지털 시계 스타일 */
+  font-weight: var(--font-weight-bold);
+  color: white;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  line-height: 1;
+}
+
+/* 날짜를 아래로, 작게 */
+.home-date {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 기존 weather-widget (사용하지 않음) */
 .weather-widget {
   margin-bottom: var(--space-2xl);
 }
 
+/* 날씨 위젯 오버레이 - 오른쪽 배치 */
+.weather-widget-overlay {
+  flex: 1; /* 남은 공간 차지 */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+  min-width: 0; /* flex 축소 허용 */
+}
+
+/* 오버레이 날씨 위젯의 로딩 상태 */
+.weather-widget-overlay .weather-loading {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  gap: var(--space-xs);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.weather-widget-overlay .weather-loading p {
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+/* 오버레이 날씨 위젯의 컨텐츠 */
+.weather-widget-overlay .weather-content {
+  display: inline-flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease;
+  min-width: fit-content;
+}
+
+.weather-widget-overlay .weather-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.weather-widget-overlay .weather-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: 0;
+  padding: 0;
+}
+
+.weather-widget-overlay .weather-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.weather-widget-overlay .weather-temp {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  margin-bottom: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.weather-widget-overlay .weather-description {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  opacity: 0.95;
+}
+
+.weather-widget-overlay .weather-details {
+  display: none; /* 오버레이에서는 상세 정보 숨김 */
+}
+
+.weather-widget-overlay .weather-location {
+  display: none; /* 오버레이에서는 위치 정보 숨김 */
+}
+
+.weather-widget-overlay .weather-refresh-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: var(--radius-full);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all var(--transition-fast);
+}
+
+.weather-widget-overlay .weather-refresh-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg) scale(1.1);
+}
+
+.weather-widget-overlay .weather-refresh-btn:active {
+  transform: rotate(90deg) scale(0.95);
+}
+
+/* 기본 날씨 위젯 로딩 (사용하지 않지만 하위 호환성) */
 .weather-loading {
   display: flex;
   flex-direction: column;
@@ -1677,11 +1848,23 @@ body {
 }
 
 /* ====================================
+   Home Screen - Grid Container (반응형)
+   ==================================== */
+
+/* 모바일: 세로 스택 (기본값) */
+.home-grid-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+/* ====================================
    Home Screen - To-Do List
    ==================================== */
 
 .todo-section {
-  margin-bottom: var(--space-2xl);
+  margin-bottom: 0; /* grid-container가 이제 여백 관리 */
 }
 
 .todo-input-container {
@@ -1836,26 +2019,10 @@ body {
    ==================================== */
 
 .timeline-section {
-  margin-bottom: var(--space-2xl);
+  margin-bottom: 0; /* grid-container가 이제 여백 관리 */
 }
 
-/* Current Time Display */
-.current-time-display {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-md);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-  border-radius: var(--radius-lg);
-  margin-bottom: var(--space-md);
-  color: white;
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-}
-
-.current-time-display .time-icon {
-  font-size: 1.5rem;
-}
+/* Current Time Display - 제거됨 (헤더로 통합) */
 
 /* Event Input Container */
 .event-input-container {
@@ -2055,10 +2222,34 @@ body {
   background-color: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
   padding: var(--space-md);
-  min-height: 600px;
-  max-height: 800px;
+  /* 08:00부터 01:00까지 표시 (18시간 × 30px = 540px) */
+  height: 540px;
+  max-height: 540px;
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
+  /* 스크롤바 스타일링 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--color-bg-tertiary);
+}
+
+/* 웹킷 브라우저용 스크롤바 스타일 */
+.timeline-visual::-webkit-scrollbar {
+  width: 8px;
+}
+
+.timeline-visual::-webkit-scrollbar-track {
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.timeline-visual::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: var(--radius-sm);
+}
+
+.timeline-visual::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-dark);
 }
 
 .timeline-hours {
@@ -2103,44 +2294,56 @@ body {
   background-repeat: repeat-y;
 }
 
-/* Red Line - Current Time Indicator */
+/* Current Time Indicator - 개선된 디자인 */
 .timeline-current-line {
   position: absolute;
-  left: -8px;
+  left: 0;
   right: 0;
-  height: 2px;
-  background-color: #FF3B30;
+  height: 3px; /* 두께 증가 */
+  background: linear-gradient(90deg, #FF2D55, #FF6B6B); /* 그라데이션 적용 */
   z-index: var(--z-sticky);
   transition: top 0.3s ease;
   pointer-events: none;
+  box-shadow: 0 0 10px rgba(255, 45, 85, 0.4); /* 빛나는 효과 */
 }
 
 .timeline-current-dot {
   position: absolute;
-  left: -6px;
+  right: -6px; /* 오른쪽으로 이동 */
   top: 50%;
   transform: translateY(-50%);
-  width: 12px;
-  height: 12px;
-  background-color: #FF3B30;
+  width: 14px; /* 크기 증가 */
+  height: 14px;
+  background: linear-gradient(135deg, #FF2D55, #FF6B6B);
   border-radius: var(--radius-full);
-  border: 2px solid var(--color-bg-secondary);
-  box-shadow: 0 0 8px rgba(255, 59, 48, 0.5);
+  border: 2px solid var(--color-bg-primary);
+  box-shadow: 0 0 12px rgba(255, 45, 85, 0.6);
+  animation: pulse 2s ease-in-out infinite; /* 펄스 애니메이션 */
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(255, 45, 85, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 45, 85, 0.9);
+  }
 }
 
 .timeline-current-label {
   position: absolute;
-  left: 12px;
+  right: 4px; /* 오른쪽 끝으로 이동 */
   top: 50%;
   transform: translateY(-50%);
-  background-color: #FF3B30;
+  background: linear-gradient(135deg, #FF2D55, #FF6B6B);
   color: white;
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  padding: 2px 6px;
+  font-weight: var(--font-weight-bold);
+  padding: 4px 8px;
   border-radius: var(--radius-sm);
   white-space: nowrap;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(255, 45, 85, 0.3);
+  letter-spacing: 0.02em;
 }
 
 /* Event Blocks */
@@ -2243,10 +2446,11 @@ body {
   align-items: center;
   justify-content: center;
   padding: var(--space-md);
+  isolation: isolate; /* 새로운 stacking context 생성 */
 }
 
 .modal-overlay {
-  position: absolute;
+  position: fixed; /* absolute에서 fixed로 변경 */
   top: 0;
   left: 0;
   right: 0;
@@ -2254,17 +2458,18 @@ body {
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   animation: fadeIn 0.2s ease;
+  z-index: 1;
 }
 
 .modal-content {
   position: relative;
   background-color: var(--color-bg-primary);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-xl);
   max-width: 500px;
   width: 100%;
   animation: slideUp 0.3s ease;
-  z-index: 1;
+  z-index: 2; /* 오버레이(z-index: 1)보다 위 */
 }
 
 @keyframes slideUp {

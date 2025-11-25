@@ -25,57 +25,57 @@ const HomeScreen = {
     return `
       <div class="home-screen fade-in">
         <div class="home-header">
-          <h1 class="screen-title">홈</h1>
-          <p class="screen-subtitle">오늘 하루를 시작해보세요</p>
+          <!-- 날짜 및 시간 표시 (전체 너비) -->
+          <div class="home-datetime">
+            <div class="datetime-content">
+              <p class="home-time" id="home-time">00:00:00</p>
+              <h2 class="home-date" id="home-date">2025년 1월 1일</h2>
+            </div>
+            <!-- 날씨 위젯 (오버레이) -->
+            <section class="weather-widget-overlay" id="weather-widget">
+              <div class="weather-loading" id="weather-loading">
+                <div class="loading"></div>
+                <p>날씨 정보를 불러오는 중...</p>
+              </div>
+            </section>
+          </div>
         </div>
 
-        <!-- 날씨 위젯 -->
-        <section class="weather-widget" id="weather-widget">
-          <div class="weather-loading" id="weather-loading">
-            <div class="loading"></div>
-            <p>날씨 정보를 불러오는 중...</p>
-          </div>
-        </section>
-
-        <!-- To-Do List -->
-        <section class="todo-section">
-          <div class="section-header">
-            <h2>오늘의 할 일</h2>
-            <button class="add-btn" id="add-todo-btn" aria-label="할 일 추가">+</button>
-          </div>
-
-          <!-- To-Do 입력 영역 -->
-          <div class="todo-input-container" style="display: none;">
-            <input
-              type="text"
-              id="todo-input"
-              class="todo-input"
-              placeholder="할 일을 입력하세요..."
-              maxlength="100"
-            />
-            <div class="todo-input-actions">
-              <button class="btn-primary" id="save-todo-btn">저장</button>
-              <button class="btn-secondary" id="cancel-todo-btn">취소</button>
+        <!-- To-Do & Timeline Grid Container (데스크탑에서 좌우 배치) -->
+        <div class="home-grid-container">
+          <!-- To-Do List -->
+          <section class="todo-section">
+            <div class="section-header">
+              <h2>오늘의 할 일</h2>
+              <button class="add-btn" id="add-todo-btn" aria-label="할 일 추가">+</button>
             </div>
-          </div>
 
-          <!-- To-Do 목록 -->
-          <div class="todo-list" id="todo-list">
-            <!-- To-Do 아이템들이 여기에 동적으로 추가됩니다 -->
-          </div>
-        </section>
+            <!-- To-Do 입력 영역 -->
+            <div class="todo-input-container" style="display: none;">
+              <input
+                type="text"
+                id="todo-input"
+                class="todo-input"
+                placeholder="할 일을 입력하세요..."
+                maxlength="100"
+              />
+              <div class="todo-input-actions">
+                <button class="btn-primary" id="save-todo-btn">저장</button>
+                <button class="btn-secondary" id="cancel-todo-btn">취소</button>
+              </div>
+            </div>
 
-        <!-- 타임라인 -->
-        <section class="timeline-section">
+            <!-- To-Do 목록 -->
+            <div class="todo-list" id="todo-list">
+              <!-- To-Do 아이템들이 여기에 동적으로 추가됩니다 -->
+            </div>
+          </section>
+
+          <!-- 타임라인 -->
+          <section class="timeline-section">
           <div class="section-header">
             <h2>오늘의 타임라인</h2>
             <button class="add-btn" id="add-event-btn" aria-label="일정 추가">+</button>
-          </div>
-
-          <!-- 현재 시간 표시 -->
-          <div class="current-time-display">
-            <span class="time-icon">🕐</span>
-            <span id="current-time">--:--</span>
           </div>
 
           <!-- 일정 입력 영역 -->
@@ -119,7 +119,9 @@ const HomeScreen = {
               <!-- 이벤트 블록들이 여기에 절대 위치로 배치됩니다 -->
             </div>
           </div>
-        </section>
+          </section>
+        </div>
+        <!-- End of home-grid-container -->
 
         <!-- 집중 타이머 -->
         <section class="pomodoro-section">
@@ -509,17 +511,6 @@ const HomeScreen = {
       exercise: '#FF3B30'
     };
     return colors[category] || colors.other;
-  },
-
-  // 현재 시간 업데이트
-  updateCurrentTime() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const timeElement = document.getElementById('current-time');
-    if (timeElement) {
-      timeElement.textContent = `${hours}:${minutes}`;
-    }
   },
 
   // 이벤트가 진행 중인지 확인
@@ -930,9 +921,42 @@ const HomeScreen = {
     modal.style.display = 'none';
   },
 
+  // 홈 화면 날짜/시간 업데이트
+  updateHomeDateTime() {
+    const now = new Date();
+
+    // 날짜 포맷: 2025년 1월 1일 (수요일)
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
+    const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    const dayName = dayNames[now.getDay()];
+
+    const dateElement = document.getElementById('home-date');
+    if (dateElement) {
+      dateElement.textContent = `${year}년 ${month}월 ${date}일 (${dayName})`;
+    }
+
+    // 시간 포맷: 00:00:00
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    const timeElement = document.getElementById('home-time');
+    if (timeElement) {
+      timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+    }
+  },
+
   // 초기화 및 이벤트 리스너 설정
   async init() {
     console.log('Home screen initialized');
+
+    // 날짜/시간 초기화 및 1초마다 업데이트
+    this.updateHomeDateTime();
+    this.dateTimeInterval = setInterval(() => {
+      this.updateHomeDateTime();
+    }, 1000);
 
     // To-Do 불러오기
     await this.loadTodos();
@@ -989,11 +1013,9 @@ const HomeScreen = {
     await this.loadEvents();
     this.renderTimeline();
 
-    // 현재 시간 업데이트 (1분마다)
-    this.updateCurrentTime();
+    // 타임라인 Red Line 및 이벤트 업데이트 (1분마다)
     this.updateCurrentTimeLine(); // Red Line 초기 위치
     this.currentTimeInterval = setInterval(() => {
-      this.updateCurrentTime();
       this.updateCurrentTimeLine(); // Red Line 위치 업데이트
       this.renderTimeline(); // 진행 중인 이벤트 업데이트
     }, 60000); // 1분
@@ -1570,6 +1592,12 @@ const HomeScreen = {
   destroy() {
     console.log('Home screen destroyed');
     this.editingId = null;
+
+    // 날짜/시간 interval 정리
+    if (this.dateTimeInterval) {
+      clearInterval(this.dateTimeInterval);
+      this.dateTimeInterval = null;
+    }
 
     // Timeline interval 정리
     if (this.currentTimeInterval) {
