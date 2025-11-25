@@ -194,6 +194,40 @@
    Screen-Specific Responsive Rules
    ==================================== */
 
+/* Weekly Timeline - 반응형 레이아웃 */
+/* 모바일: 오늘만 표시 */
+@media (max-width: 767px) {
+  .timeline-day-column:not(.today) {
+    display: none;
+  }
+
+  .timeline-day-column.today {
+    min-width: 100%;
+  }
+
+  .weekly-timeline {
+    min-width: 100%;
+  }
+}
+
+/* 태블릿 (768px ~ 1023px): 3일 표시 (어제-오늘-내일) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .timeline-day-column {
+    min-width: 150px;
+  }
+}
+
+/* 데스크탑 (1024px+): 전체 주간 표시 */
+@media (min-width: 1024px) {
+  .weekly-timeline {
+    min-width: 800px;
+  }
+
+  .timeline-day-column {
+    min-width: 120px;
+  }
+}
+
 /* Home Screen - 반응형 레이아웃 */
 /* 모바일: 세로 스택 (기본값, 별도 스타일 불필요) */
 
@@ -280,6 +314,200 @@
 @media (min-width: 1280px) {
   .home-grid-container {
     gap: var(--space-2xl);
+  }
+}
+
+/* Home Timeline - 반응형 요일 표시 */
+/* 기본 스타일: 자동으로 너비 조정 */
+.home-timeline .timeline-days-container {
+  display: flex;
+  gap: 8px;
+}
+
+.home-timeline .timeline-day-column {
+  flex: 1; /* 자동으로 균등 분할 */
+  min-width: 0; /* flex 항목이 너무 작아지는 것 방지 */
+}
+
+/* 모바일 (<500px): 1일 표시 (오늘만) */
+@media (max-width: 499px) {
+  .home-timeline .timeline-header-cell {
+    min-height: 34px;
+    padding: 4px 2px;
+  }
+
+  .home-timeline .timeline-day-header {
+    min-height: 36px;
+    padding: 8px 4px;
+  }
+
+  .home-timeline .day-name {
+    font-size: 0.625rem;
+  }
+
+  .home-timeline .day-date {
+    font-size: 0.5rem;
+    margin-top: 1px;
+  }
+
+  .home-timeline .timeline-days-container {
+    gap: 0;
+  }
+}
+
+/* 작은 태블릿 (500px-799px): 3일 표시 */
+@media (min-width: 500px) and (max-width: 799px) {
+  .home-timeline .timeline-header-cell {
+    min-height: 40px;
+    padding: 6px 4px;
+  }
+
+  .home-timeline .timeline-day-header {
+    min-height: 40px;
+    padding: 10px 6px;
+  }
+
+  .home-timeline .timeline-days-container {
+    gap: 6px;
+  }
+}
+
+/* 중간 태블릿 (800px-1099px): 5일 표시 */
+@media (min-width: 800px) and (max-width: 1099px) {
+  .home-timeline .timeline-header-cell {
+    min-height: 44px;
+    padding: 8px 6px;
+  }
+
+  .home-timeline .timeline-day-header {
+    min-height: 44px;
+    padding: 12px 8px;
+  }
+
+  .home-timeline .timeline-days-container {
+    gap: 8px;
+  }
+}
+
+/* 큰 화면 (1100px+): 7일 표시 */
+@media (min-width: 1100px) {
+  .home-timeline .timeline-header-cell {
+    min-height: 48px;
+    padding: 10px 8px;
+  }
+
+  .home-timeline .timeline-day-header {
+    min-height: 48px;
+    padding: 14px 10px;
+  }
+
+  .home-timeline .timeline-days-container {
+    gap: 12px;
+  }
+}
+
+/* ====================================
+   Timeline Layout Fixes (타임라인 정렬 및 너비 수정)
+   ==================================== */
+
+/* 1. 전체 타임라인 컨테이너를 Flex로 설정하여 좌우 배치 강제 */
+.home-timeline {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: stretch; /* 높이 강제 일치 */
+}
+
+/* 2. 시간 열 (왼쪽 08:00, 09:00...) 스타일 고정 */
+.timeline-time-column {
+  flex: 0 0 60px; /* 너비 60px로 고정 (줄어들지 않음) */
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--color-border, #eee); /* 구분선 추가 */
+}
+
+/* 시간 열의 헤더 빈칸 높이 강제 (중요: 요일 헤더와 높이 일치) */
+.timeline-header-cell {
+  flex: 0 0 auto; /* 늘어나거나 줄어들지 않음 */
+  /* media query에서 설정된 요일 헤더 높이와 맞춰야 함 */
+  border-bottom: 1px solid var(--color-border, #eee);
+  box-sizing: border-box;
+}
+
+/* 3. 요일 컨테이너 (오른쪽) 스타일 수정 */
+.timeline-days-container {
+  flex: 1; /* 남은 공간 모두 차지 */
+  display: flex;
+  flex-direction: row;
+  min-width: 0; /* Flexbox 내에서 말줄임표나 넘침 방지 hack */
+  /* gap: 8px; <- 기존 responsive.css의 gap 설정 유지 */
+}
+
+/* 각 요일 기둥 */
+.timeline-day-column {
+  flex: 1; /* 균등 분할 */
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* 내부 컨텐츠 넘침 방지 */
+  border-right: 1px solid transparent; /* 시각적 균형 */
+}
+
+/* 요일 헤더 높이 고정 및 박스 모델링 */
+.timeline-day-header {
+  flex: 0 0 auto;
+  box-sizing: border-box; /* 패딩 포함 높이 계산 */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border, #eee);
+  overflow: hidden; /* 넘치는 텍스트 숨김 */
+}
+
+/* 슬롯 컨테이너 (이벤트가 들어갈 공간) */
+.timeline-day-slots {
+  flex: 1; /* 남은 높이 모두 차지 */
+  position: relative; /* 절대 위치 이벤트 블록을 위해 */
+}
+
+/* ====================================
+   미디어 쿼리: 헤더 높이 강제 일치
+   ==================================== */
+
+/* 모바일 (<500px) */
+@media (max-width: 499px) {
+  .timeline-header-cell,
+  .timeline-day-header {
+    height: 50px !important; /* 높이 강제 일치 */
+    min-height: 50px !important;
+  }
+}
+
+/* 작은 태블릿 (500px-799px) */
+@media (min-width: 500px) and (max-width: 799px) {
+  .timeline-header-cell,
+  .timeline-day-header {
+    height: 60px !important;
+    min-height: 60px !important;
+  }
+}
+
+/* 중간 태블릿 (800px-1099px) */
+@media (min-width: 800px) and (max-width: 1099px) {
+  .timeline-header-cell,
+  .timeline-day-header {
+    height: 70px !important;
+    min-height: 70px !important;
+  }
+}
+
+/* 큰 화면 (1100px+) */
+@media (min-width: 1100px) {
+  .timeline-header-cell,
+  .timeline-day-header {
+    height: 80px !important;
+    min-height: 80px !important;
   }
 }
 

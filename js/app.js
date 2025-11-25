@@ -2,6 +2,7 @@
 
 import { FirebaseDB, FirebaseAuth } from './firebase-config.js';
 import HomeScreen from './modules/home.js';
+import WeeklyScreen from './modules/weekly.js';
 import CalendarScreen from './modules/calendar.js';
 import GrowthScreen from './modules/growth.js';
 import TimetableScreen from './modules/timetable.js';
@@ -34,6 +35,7 @@ class Router {
     this.currentModule = null;
     this.screens = {
       home: HomeScreen,
+      weekly: WeeklyScreen,
       calendar: CalendarScreen,
       growth: GrowthScreen,
       timetable: TimetableScreen,
@@ -103,6 +105,7 @@ class Router {
   getScreenTitle(screenName) {
     const titles = {
       home: '홈',
+      weekly: '주간',
       calendar: '캘린더',
       growth: '성장 트래킹',
       timetable: '시간표',
