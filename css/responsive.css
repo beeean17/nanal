@@ -195,37 +195,91 @@
    ==================================== */
 
 /* Home Screen - 반응형 레이아웃 */
-@media (min-width: 768px) {
-  .home-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-lg);
+/* 모바일: 세로 스택 (기본값, 별도 스타일 불필요) */
+
+/* 모바일: 날짜/시간 폰트 크기 조정 */
+@media (max-width: 767px) {
+  .home-time {
+    font-size: 2rem; /* 모바일에서도 큰 시간 표시 */
   }
 
-  .home-weather {
-    grid-column: 1 / -1; /* 전체 너비 */
+  .home-date {
+    font-size: var(--font-size-sm);
+  }
+
+  /* 모바일에서 세로 배치 */
+  .home-datetime {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-md);
+    min-height: auto;
+  }
+
+  .datetime-content {
+    min-width: auto;
+  }
+
+  /* 모바일에서 날씨 위젯 전체 너비 */
+  .weather-widget-overlay {
+    justify-content: center;
+  }
+
+  .weather-widget-overlay .weather-content,
+  .weather-widget-overlay .weather-loading {
+    width: 100%;
+  }
+
+  .weather-widget-overlay .weather-icon {
+    font-size: 1.25rem;
+  }
+
+  .weather-widget-overlay .weather-temp {
+    font-size: 1rem;
+  }
+
+  .weather-widget-overlay .weather-description {
+    font-size: 0.625rem;
   }
 }
 
+/* 태블릿 (768px+): To-Do와 Timeline을 좌우 배치 */
+@media (min-width: 768px) {
+  .home-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+
+  .todo-section,
+  .timeline-section {
+    height: 100%;
+  }
+
+  .home-time {
+    font-size: 2.5rem; /* 큰 시계 스타일 유지 */
+  }
+
+  .home-date {
+    font-size: var(--font-size-base);
+  }
+
+  .home-header {
+    align-items: stretch;
+  }
+}
+
+/* 데스크탑 (1024px+): 간격 증가 및 최적화 */
 @media (min-width: 1024px) {
-  .home-layout {
-    grid-template-columns: 1fr 1.5fr 1fr;
+  .home-grid-container {
+    gap: var(--space-xl);
   }
+}
 
-  .home-weather {
-    grid-column: auto; /* 기본값으로 복원 */
-  }
-
-  .home-todo {
-    grid-column: 1;
-  }
-
-  .home-timeline {
-    grid-column: 2;
-  }
-
-  .home-pomodoro {
-    grid-column: 3;
+/* 대형 화면 (1280px+): 더 넓은 간격 */
+@media (min-width: 1280px) {
+  .home-grid-container {
+    gap: var(--space-2xl);
   }
 }
 

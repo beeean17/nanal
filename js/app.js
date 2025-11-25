@@ -153,14 +153,7 @@ function setupEventListeners() {
     });
   }
 
-  // 테마 전환 버튼
-  const themeToggleBtn = document.getElementById('theme-toggle');
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-      toggleTheme();
-      console.log('Theme toggled to:', AppState.theme);
-    });
-  }
+  // 테마 전환 버튼 제거됨 (2025-11-25)
 }
 
 // 다크모드

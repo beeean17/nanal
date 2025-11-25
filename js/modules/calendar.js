@@ -363,30 +363,7 @@ const CalendarScreen = {
     });
   },
 
-  // 이벤트 리스너 추가
-  attachEventListeners(dateStr) {
-    // "+ 새 일정" 버튼
-    const addBtn = document.getElementById('add-event-btn');
-    addBtn?.addEventListener('click', () => this.openEventModal('add', dateStr));
 
-    // 수정 버튼들
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const eventId = btn.dataset.id;
-        this.openEventModal('edit', dateStr, eventId);
-      });
-    });
-
-    // 삭제 버튼들
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const eventId = btn.dataset.id;
-        await this.deleteEvent(eventId);
-      });
-    });
-  },
 
   // 상세 패널 닫기
   closeDetailPanel() {
