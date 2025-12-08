@@ -8,8 +8,15 @@ const HomeScreen = {
   todos: [],
   editingId: null,
   events: [], // Timeline events
+  timetableEvents: [], // 고정 시간표
   currentTimeInterval: null, // For updating current time
   weatherData: null, // Weather data
+  selectedEventId: null, // 선택된 이벤트 ID
+
+  // Drag-to-create event states
+  dragStartTime: null,
+  dragEndTime: null,
+  isDragging: false,
 
   // Focus Timer state (formerly Pomodoro)
   pomodoroTimer: null,
@@ -71,54 +78,37 @@ const HomeScreen = {
             </div>
           </section>
 
-          <!-- 타임라인 -->
+          <!-- 통합 타임라인 (반응형: 오늘 → 주간) -->
           <section class="timeline-section">
-          <div class="section-header">
-            <h2>오늘의 타임라인</h2>
-            <button class="add-btn" id="add-event-btn" aria-label="일정 추가">+</button>
-          </div>
-
-          <!-- 일정 입력 영역 -->
-          <div class="event-input-container" style="display: none;">
-            <input
-              type="text"
-              id="event-title"
-              class="event-input"
-              placeholder="일정 제목"
-              maxlength="50"
-            />
-            <div class="event-time-inputs">
-              <input type="time" id="event-start-time" class="time-input" />
-              <span>~</span>
-              <input type="time" id="event-end-time" class="time-input" />
-            </div>
-            <select id="event-category" class="event-select">
-              <option value="study">📚 공부</option>
-              <option value="work">💼 업무</option>
-              <option value="personal">🎯 개인</option>
-              <option value="meeting">👥 미팅</option>
-              <option value="other">📌 기타</option>
-            </select>
-            <div class="event-input-actions">
-              <button class="btn-primary" id="save-event-btn">저장</button>
-              <button class="btn-secondary" id="cancel-event-btn">취소</button>
-            </div>
-          </div>
-
-          <!-- 시각적 타임라인 (0-24시) -->
-          <div class="timeline-visual" id="timeline-visual">
-            <div class="timeline-hours" id="timeline-hours">
-              <!-- 시간 라벨들이 여기에 생성됩니다 -->
-            </div>
-            <div class="timeline-events-track" id="timeline-events-track">
-              <!-- Red Line (현재 시간 인디케이터) -->
-              <div class="timeline-current-line" id="timeline-current-line">
-                <div class="timeline-current-dot"></div>
-                <div class="timeline-current-label"></div>
+            <div class="section-header">
+              <div>
+                <h2 id="timeline-title">타임라인</h2>
+                <p class="timeline-hint">드래그하여 일정 추가</p>
               </div>
-              <!-- 이벤트 블록들이 여기에 절대 위치로 배치됩니다 -->
+              <div class="timeline-header-buttons">
+                <button class="btn-icon" id="edit-timetable-btn" aria-label="시간표 편집" title="시간표 편집">
+                  <span class="icon">📚</span>
+                </button>
+              </div>
             </div>
-          </div>
+
+            <!-- 통합 타임라인 컨테이너 -->
+            <div class="home-timeline-container">
+              <div class="home-timeline" id="home-timeline">
+                <!-- 시간 라벨 열 -->
+                <div class="timeline-time-column">
+                  <div class="timeline-header-cell"></div>
+                  <div class="timeline-hours-column" id="timeline-hours-column">
+                    <!-- 시간 라벨들이 여기에 생성됩니다 -->
+                  </div>
+                </div>
+
+                <!-- 요일별 열들 (반응형으로 개수 조정) -->
+                <div class="timeline-days-container" id="timeline-days-container">
+                  <!-- 요일 열들이 여기에 생성됩니다 -->
+                </div>
+              </div>
+            </div>
           </section>
         </div>
         <!-- End of home-grid-container -->
@@ -244,6 +234,55 @@ const HomeScreen = {
             <div class="modal-footer">
               <button class="btn-danger" id="modal-delete-btn">삭제</button>
               <button class="btn-secondary" id="modal-cancel-btn">닫기</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 시간표 편집 모달 -->
+        <div class="modal" id="timetable-modal" style="display: none;">
+          <div class="modal-overlay"></div>
+          <div class="modal-content timetable-modal-content">
+            <div class="modal-header">
+              <h3>시간표 편집</h3>
+              <button class="modal-close-btn" id="close-timetable-modal" aria-label="닫기">×</button>
+            </div>
+            <div class="modal-body">
+              <div class="timetable-form">
+                <input
+                  type="text"
+                  id="timetable-title"
+                  class="event-input"
+                  placeholder="과목명 (예: 데이터베이스)"
+                  maxlength="50"
+                />
+                <div class="timetable-day-select">
+                  <label>요일 선택 (복수 선택 가능)</label>
+                  <div class="day-checkboxes">
+                    <label><input type="checkbox" value="1" /> 월</label>
+                    <label><input type="checkbox" value="2" /> 화</label>
+                    <label><input type="checkbox" value="3" /> 수</label>
+                    <label><input type="checkbox" value="4" /> 목</label>
+                    <label><input type="checkbox" value="5" /> 금</label>
+                    <label><input type="checkbox" value="6" /> 토</label>
+                    <label><input type="checkbox" value="0" /> 일</label>
+                  </div>
+                </div>
+                <div class="event-time-inputs">
+                  <input type="time" id="timetable-start-time" class="time-input" />
+                  <span>~</span>
+                  <input type="time" id="timetable-end-time" class="time-input" />
+                </div>
+                <select id="timetable-category" class="event-select">
+                  <option value="lecture">📚 강의</option>
+                  <option value="lab">🔬 실습</option>
+                  <option value="exercise">🏃 운동</option>
+                  <option value="other">📌 기타</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-primary" id="save-timetable-btn">저장</button>
+              <button class="btn-secondary" id="cancel-timetable-btn">취소</button>
             </div>
           </div>
         </div>
@@ -649,101 +688,432 @@ const HomeScreen = {
 
   // 시간 라벨 렌더링 (08:00 ~ 다음날 07:00)
   renderTimelineHours() {
-    const hoursContainer = document.getElementById('timeline-hours');
-    if (!hoursContainer) return;
+    const hoursColumn = document.getElementById('timeline-hours-column');
+    if (!hoursColumn) return;
 
     const hours = [];
-    // 08:00부터 23:00까지 (16시간)
-    for (let i = 8; i < 24; i++) {
-      const hourLabel = String(i).padStart(2, '0') + ':00';
-      hours.push(`<div class="timeline-hour-label">${hourLabel}</div>`);
-    }
-    // 00:00부터 07:00까지 (8시간)
-    for (let i = 0; i < 8; i++) {
-      const hourLabel = String(i).padStart(2, '0') + ':00';
-      hours.push(`<div class="timeline-hour-label">${hourLabel}</div>`);
+    for (let h = 0; h < 24; h++) {
+      const actualHour = (h + 8) % 24; // 08:00부터 시작
+      const hourLabel = String(actualHour).padStart(2, '0') + ':00';
+      hours.push(`
+        <div class="timeline-hour-row">
+          <div class="timeline-hour-label">${hourLabel}</div>
+        </div>
+      `);
     }
 
-    hoursContainer.innerHTML = hours.join('');
+    hoursColumn.innerHTML = hours.join('');
   },
 
-  // Red Line (현재 시간 인디케이터) 위치 업데이트 (08:00 기준)
-  updateCurrentTimeLine() {
-    const now = new Date();
-    let currentMinutes = now.getHours() * 60 + now.getMinutes();
+  // 요일별 열 렌더링 (반응형: 1~7일)
+  renderDayColumns() {
+    const container = document.getElementById('timeline-days-container');
+    if (!container) return;
 
-    // 08:00을 기준점(0)으로 변환
-    currentMinutes = currentMinutes - 8 * 60;
-    if (currentMinutes < 0) {
-      currentMinutes += 24 * 60; // 00:00~07:59는 다음날로 취급
-    }
+    const today = new Date();
+    const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+    const columns = [];
 
-    const totalMinutesInDay = 24 * 60;
-    const topPercent = (currentMinutes / totalMinutesInDay) * 100;
+    // 화면 너비에 따라 표시할 날짜 수 결정
+    const dayCount = this.getResponsiveDayCount();
+    console.log(`[Timeline] Rendering ${dayCount} days for width ${window.innerWidth}px`);
 
-    const currentLine = document.getElementById('timeline-current-line');
-    if (currentLine) {
-      currentLine.style.top = `${topPercent}%`;
+    if (dayCount === 1) {
+      // 모바일: 오늘만 표시
+      const dateStr = this.formatDate(today);
+      const todayDayName = dayNames[today.getDay()];
+      const displayDate = `${today.getMonth() + 1}/${today.getDate()}`;
 
-      const label = currentLine.querySelector('.timeline-current-label');
-      if (label) {
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        label.textContent = `${hours}:${minutes}`;
+      columns.push(`
+        <div class="timeline-day-column today" data-date="${dateStr}" data-day="today">
+          <div class="timeline-day-header">
+            <div class="day-name">${todayDayName}</div>
+            <div class="day-date">${displayDate}</div>
+          </div>
+          <div class="timeline-day-slots" data-date="${dateStr}">
+            ${this.renderDaySlots()}
+          </div>
+        </div>
+      `);
+    } else if (dayCount === 3) {
+      // 3일: 어제-오늘-내일 (오늘 중심)
+      for (let offset = -1; offset <= 1; offset++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + offset);
+
+        const isToday = offset === 0;
+        const dateStr = this.formatDate(date);
+        const dayName = dayNames[date.getDay()];
+        const displayDate = `${date.getMonth() + 1}/${date.getDate()}`;
+
+        columns.push(`
+          <div class="timeline-day-column ${isToday ? 'today' : ''}" data-date="${dateStr}" data-day="${offset}">
+            <div class="timeline-day-header">
+              <div class="day-name">${dayName}</div>
+              <div class="day-date">${displayDate}</div>
+            </div>
+            <div class="timeline-day-slots" data-date="${dateStr}">
+              ${this.renderDaySlots()}
+            </div>
+          </div>
+        `);
+      }
+    } else if (dayCount === 5) {
+      // 5일: 오늘 중심으로 전후 2일씩
+      for (let offset = -2; offset <= 2; offset++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + offset);
+
+        const isToday = offset === 0;
+        const dateStr = this.formatDate(date);
+        const dayName = dayNames[date.getDay()];
+        const displayDate = `${date.getMonth() + 1}/${date.getDate()}`;
+
+        columns.push(`
+          <div class="timeline-day-column ${isToday ? 'today' : ''}" data-date="${dateStr}" data-day="${offset}">
+            <div class="timeline-day-header">
+              <div class="day-name">${dayName}</div>
+              <div class="day-date">${displayDate}</div>
+            </div>
+            <div class="timeline-day-slots" data-date="${dateStr}">
+              ${this.renderDaySlots()}
+            </div>
+          </div>
+        `);
+      }
+    } else {
+      // 7일: 이번 주 전체 (월~일)
+      const currentDayOfWeek = today.getDay();
+      const monday = new Date(today);
+      const daysSinceMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+      monday.setDate(today.getDate() - daysSinceMonday);
+
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + i);
+
+        const isToday = this.isSameDay(date, today);
+        const dateStr = this.formatDate(date);
+        const dayName = dayNames[date.getDay()];
+        const displayDate = `${date.getMonth() + 1}/${date.getDate()}`;
+
+        columns.push(`
+          <div class="timeline-day-column ${isToday ? 'today' : ''}" data-date="${dateStr}" data-day="${i}">
+            <div class="timeline-day-header">
+              <div class="day-name">${dayName}</div>
+              <div class="day-date">${displayDate}</div>
+            </div>
+            <div class="timeline-day-slots" data-date="${dateStr}">
+              ${this.renderDaySlots()}
+            </div>
+          </div>
+        `);
       }
     }
+
+    container.innerHTML = columns.join('');
+    console.log(`[Timeline] Rendered ${columns.length} columns in DOM`);
   },
 
-  // 시각적 타임라인 렌더링
-  renderTimeline() {
-    // 시간 라벨 렌더링
-    this.renderTimelineHours();
+  // 화면 너비에 따라 표시할 날짜 수 결정
+  getResponsiveDayCount() {
+    const width = window.innerWidth;
 
-    // Red Line 업데이트
-    this.updateCurrentTimeLine();
-
-    // 이벤트 렌더링
-    const eventsTrack = document.getElementById('timeline-events-track');
-    if (!eventsTrack) return;
-
-    const todayEvents = this.getTodayEvents();
-
-    // Red Line 제외하고 기존 이벤트 블록들 제거
-    const eventBlocks = eventsTrack.querySelectorAll('.timeline-event-block');
-    eventBlocks.forEach(block => block.remove());
-
-    if (todayEvents.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'timeline-empty-visual';
-      empty.innerHTML = `
-        <span class="icon">📅</span>
-        <p>오늘 일정이 없습니다</p>
-      `;
-      eventsTrack.appendChild(empty);
-      return;
+    if (width < 500) {
+      return 1; // 모바일: 오늘만
+    } else if (width < 800) {
+      return 3; // 작은 태블릿: 3일
+    } else if (width < 1100) {
+      return 5; // 큰 태블릿: 5일 (평일)
+    } else {
+      return 7; // 데스크탑: 전체 주간 (7일)
     }
+  },
 
-    // 빈 상태 메시지 제거
-    const emptyMsg = eventsTrack.querySelector('.timeline-empty-visual');
-    if (emptyMsg) emptyMsg.remove();
+  // 하루 전체 슬롯 렌더링 (24시간 × 12개 = 288개 슬롯)
+  renderDaySlots() {
+    const slots = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 5) {
+        const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        slots.push(`<div class="timeline-slot" data-time="${timeStr}"></div>`);
+      }
+    }
+    return slots.join('');
+  },
 
-    // 이벤트 블록 추가
-    todayEvents.forEach(event => {
-      const blockHTML = this.renderVisualEventBlock(event);
-      eventsTrack.insertAdjacentHTML('beforeend', blockHTML);
+  // 타임라인 구조 렌더링
+  renderTimelineStructure() {
+    this.renderTimelineHours();
+    this.renderDayColumns();
+  },
+
+  // 모든 이벤트 렌더링 (시간표 + 일정)
+  renderAllEvents() {
+    // 각 요일 열에 이벤트 렌더링
+    const dayColumns = document.querySelectorAll('.timeline-day-column');
+    dayColumns.forEach(column => {
+      const dateStr = column.dataset.date;
+      const dayOfWeek = new Date(dateStr).getDay();
+
+      // 해당 날짜의 이벤트들 가져오기
+      const dayEvents = this.getEventsForDate(dateStr);
+      const dayTimetable = this.getTimetableForDay(dayOfWeek);
+
+      // 이벤트 블록 렌더링
+      const slotsContainer = column.querySelector('.timeline-day-slots');
+      if (slotsContainer) {
+        // 기존 이벤트 블록 제거
+        slotsContainer.querySelectorAll('.timeline-event-block').forEach(block => block.remove());
+
+        // 시간표 렌더링 (고정, 배경)
+        dayTimetable.forEach(event => {
+          const block = this.createEventBlock(event, dateStr, true);
+          slotsContainer.appendChild(block);
+        });
+
+        // 일정 렌더링 (가변, 전경)
+        dayEvents.forEach(event => {
+          const block = this.createEventBlock(event, dateStr, false);
+          slotsContainer.appendChild(block);
+        });
+      }
+    });
+  },
+
+  // 이벤트 블록 생성
+  createEventBlock(event, dateStr, isTimetable) {
+    const block = document.createElement('div');
+    block.className = `timeline-event-block ${isTimetable ? 'timetable-event' : 'regular-event'} category-${event.category}`;
+    block.dataset.eventId = event.id;
+    block.dataset.isTimetable = isTimetable;
+
+    // 시작/종료 시간 계산 (08:00 기준)
+    const startMinutes = this.timeToMinutesFrom8AM(event.startTime);
+    const endMinutes = this.timeToMinutesFrom8AM(event.endTime);
+    const duration = endMinutes >= startMinutes ? endMinutes - startMinutes : (24 * 60) - startMinutes + endMinutes;
+
+    // 위치 계산 (08:00~07:59 기준)
+    const topPercent = (startMinutes / (24 * 60)) * 100;
+    const heightPercent = (duration / (24 * 60)) * 100;
+
+    block.style.top = `${topPercent}%`;
+    block.style.height = `${heightPercent}%`;
+
+    // 내용
+    const categoryLabel = this.getCategoryLabel(event.category);
+    block.innerHTML = `
+      <div class="event-block-content">
+        <div class="event-time">${event.startTime} - ${event.endTime}</div>
+        <div class="event-title">${this.escapeHtml(event.title)}</div>
+        <div class="event-category">${categoryLabel}</div>
+      </div>
+    `;
+
+    // 클릭 이벤트
+    block.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.showEventDetail(event, isTimetable);
     });
 
+    return block;
+  },
+
+  // 현재 시간 인디케이터 업데이트 (08:00 기준)
+    updateCurrentTimeLine() {
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMin = now.getMinutes();
+        const currentTimeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
+        const currentMinutes = this.timeToMinutesFrom8AM(currentTimeStr);
+        const topPercent = (currentMinutes / (24 * 60)) * 100;
+
+        // 타임라인 컨테이너에서 기존 전체 가로선 제거
+        const container = document.querySelector('.home-timeline-container');
+        if (!container) return;
+
+        // 기존 현재 시간 라인들 모두 제거
+        document.querySelectorAll('.timeline-current-line').forEach(line => line.remove());
+
+        // ★ 새로운 방식: 모든 요일 열에 현재 시간 라인 추가
+        const dayColumns = document.querySelectorAll('.timeline-day-column');
+        dayColumns.forEach(column => {
+            const slotsContainer = column.querySelector('.timeline-day-slots');
+            if (!slotsContainer) return;
+
+            // 오늘인지 확인
+            const dateStr = column.dataset.date;
+            const columnDate = new Date(dateStr);
+            const isToday = this.isSameDay(columnDate, now);
+
+            // 현재 시간 라인 생성
+            const currentLine = document.createElement('div');
+            currentLine.className = 'timeline-current-line';
+
+            // 오늘 열에만 시간 라벨과 점 표시
+            if (isToday) {
+                currentLine.classList.add('today-line');
+                currentLine.innerHTML = `
+        <div class="timeline-current-dot"></div>
+        <div class="timeline-current-label">${currentTimeStr}</div>
+      `;
+            }
+
+            currentLine.style.top = `${topPercent}%`;
+            slotsContainer.appendChild(currentLine);
+        });
+    },
+    scrollToCurrentTime() {
+        const container = document.querySelector('.home-timeline-container');
+        if (!container) return;
+
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMin = now.getMinutes();
+        const currentTimeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
+
+        // 현재 시간의 위치 계산 (08:00 기준)
+        const currentMinutes = this.timeToMinutesFrom8AM(currentTimeStr);
+        const totalHeight = 1440; // 24시간 × 60px
+        const currentPosition = (currentMinutes / (24 * 60)) * totalHeight;
+
+        // 컨테이너 높이의 절반을 빼서 현재 시간이 중앙에 오도록
+        const containerHeight = container.clientHeight;
+        const scrollPosition = currentPosition - (containerHeight / 2);
+
+        // 스크롤 위치가 음수면 0으로, 최대값을 넘으면 최대값으로
+        const maxScroll = container.scrollHeight - containerHeight;
+        const finalPosition = Math.max(0, Math.min(scrollPosition, maxScroll));
+
+        // 부드러운 스크롤 (즉시 이동하려면 'auto'로 변경)
+        container.scrollTo({
+            top: finalPosition,
+            behavior: 'auto' // 초기 로드 시에는 즉시 이동
+        });
+    },
+
+  // 통합 타임라인 렌더링
+  renderTimeline() {
+    this.renderTimelineStructure();
+    this.renderAllEvents();
+    this.updateCurrentTimeLine();
     this.attachTimelineListeners();
   },
 
   // 타임라인 이벤트 리스너
   attachTimelineListeners() {
-    document.querySelectorAll('.timeline-event-block').forEach(block => {
-      block.addEventListener('click', (e) => {
-        const id = block.dataset.id;
-        this.showEventModal(id);
+    // 드래그로 이벤트 생성
+    this.attachDragListeners();
+  },
+
+  // 드래그 리스너 등록 (주간 타임라인 방식)
+  attachDragListeners() {
+    const dayColumns = document.querySelectorAll('.timeline-day-slots');
+
+    dayColumns.forEach(slotsContainer => {
+      let dragOverlay = null;
+
+      slotsContainer.addEventListener('mousedown', (e) => {
+        // 이벤트 블록 클릭은 무시
+        if (e.target.closest('.timeline-event-block')) return;
+
+        this.isDragging = true;
+        this.dragStartTime = this.getTimeFromPosition(slotsContainer, e);
+
+        // 드래그 오버레이 생성
+        dragOverlay = document.createElement('div');
+        dragOverlay.className = 'drag-overlay';
+        dragOverlay.style.top = `${(this.timeToMinutesFrom8AM(this.dragStartTime) / (24 * 60)) * 100}%`;
+        dragOverlay.style.height = '0%';
+        slotsContainer.appendChild(dragOverlay);
+      });
+
+      slotsContainer.addEventListener('mousemove', (e) => {
+        if (!this.isDragging || !dragOverlay) return;
+
+        this.dragEndTime = this.getTimeFromPosition(slotsContainer, e);
+
+        // 최소 5분
+        const startMin = this.timeToMinutesFrom8AM(this.dragStartTime);
+        const endMin = this.timeToMinutesFrom8AM(this.dragEndTime);
+
+        if (endMin > startMin) {
+          const duration = endMin - startMin;
+          dragOverlay.style.height = `${(duration / (24 * 60)) * 100}%`;
+        }
+      });
+
+      slotsContainer.addEventListener('mouseup', (e) => {
+        if (!this.isDragging) return;
+
+        this.dragEndTime = this.getTimeFromPosition(slotsContainer, e);
+
+        // 드래그 오버레이 제거
+        if (dragOverlay) {
+          dragOverlay.remove();
+          dragOverlay = null;
+        }
+
+        // 이벤트 생성
+        const startMin = this.timeToMinutesFrom8AM(this.dragStartTime);
+        const endMin = this.timeToMinutesFrom8AM(this.dragEndTime);
+
+        if (endMin > startMin && (endMin - startMin) >= 5) {
+          const dateStr = slotsContainer.dataset.date;
+          this.createEventFromDrag(dateStr, this.dragStartTime, this.dragEndTime);
+        }
+
+        this.isDragging = false;
+        this.dragStartTime = null;
+        this.dragEndTime = null;
+      });
+
+      slotsContainer.addEventListener('mouseleave', () => {
+        if (this.isDragging && dragOverlay) {
+          dragOverlay.remove();
+          dragOverlay = null;
+        }
+        this.isDragging = false;
       });
     });
+  },
+
+  // 마우스 위치에서 시간 계산 (5분 단위로 스냅, 08:00 기준)
+  getTimeFromPosition(container, event) {
+    const rect = container.getBoundingClientRect();
+    const y = event.clientY - rect.top;
+    const percent = y / rect.height;
+    const totalMinutes = Math.round(percent * 24 * 60); // 08:00부터의 분
+
+    // 5분 단위로 스냅
+    const snappedMinutes = Math.round(totalMinutes / 5) * 5;
+
+    // 08:00 기준이므로 8시간(480분)을 더해서 실제 시간으로 변환
+    const actualMinutes = (snappedMinutes + 8 * 60) % (24 * 60);
+    const hours = Math.floor(actualMinutes / 60);
+    const minutes = actualMinutes % 60;
+
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+  },
+
+  // 드래그로 이벤트 생성
+  createEventFromDrag(dateStr, startTime, endTime) {
+    const title = prompt('일정 제목을 입력하세요:');
+    if (!title || title.trim() === '') return;
+
+    const event = {
+      id: Date.now().toString(),
+      title: title.trim(),
+      date: dateStr,
+      startTime,
+      endTime,
+      category: 'other',
+      createdAt: new Date().toISOString()
+    };
+
+    this.events.push(event);
+    this.saveEvents();
+    this.renderTimeline();
   },
 
   // 이벤트 추가
@@ -948,6 +1318,23 @@ const HomeScreen = {
     }
   },
 
+  // 타임라인 제목 업데이트 (반응형)
+  updateTimelineTitle() {
+    const titleElement = document.getElementById('timeline-title');
+    if (!titleElement) return;
+
+    const dayCount = this.getResponsiveDayCount();
+    if (dayCount === 1) {
+      titleElement.textContent = '오늘의 타임라인';
+    } else if (dayCount === 3) {
+      titleElement.textContent = '3일 타임라인';
+    } else if (dayCount === 5) {
+      titleElement.textContent = '주중 타임라인';
+    } else {
+      titleElement.textContent = '주간 타임라인';
+    }
+  },
+
   // 초기화 및 이벤트 리스너 설정
   async init() {
     console.log('Home screen initialized');
@@ -1009,79 +1396,90 @@ const HomeScreen = {
 
     // ===== Timeline 초기화 =====
 
-    // Timeline 불러오기
+    // Timeline 데이터 불러오기
     await this.loadEvents();
+    this.loadTimetable();
     this.renderTimeline();
+    this.updateTimelineTitle();
 
     // 타임라인 Red Line 및 이벤트 업데이트 (1분마다)
-    this.updateCurrentTimeLine(); // Red Line 초기 위치
+    this.updateCurrentTimeLine();
     this.currentTimeInterval = setInterval(() => {
-      this.updateCurrentTimeLine(); // Red Line 위치 업데이트
-      this.renderTimeline(); // 진행 중인 이벤트 업데이트
+      this.updateCurrentTimeLine();
     }, 60000); // 1분
 
-    // Timeline 추가 버튼 클릭
-    const addEventBtn = document.getElementById('add-event-btn');
-    addEventBtn?.addEventListener('click', () => {
-      const inputContainer = document.querySelector('.event-input-container');
-      const isVisible = inputContainer.style.display === 'block';
-      this.toggleEventInput(!isVisible);
+    // 화면 크기 변경 시 타임라인 다시 렌더링
+    //this.resizeHandler = () => {
+    //  this.renderTimeline();
+    //  this.updateTimelineTitle();
+    //};
+    //window.addEventListener('resize', this.resizeHandler);
+      let resizeTimeout = null;
+      this.resizeHandler = () => {
+          // 이전 타임아웃 취소
+          if (resizeTimeout) {
+              clearTimeout(resizeTimeout);
+          }
+
+          // 200ms 후에 렌더링 (빈번한 호출 방지)
+          resizeTimeout = setTimeout(() => {
+              console.log('[Timeline] Resize triggered, re-rendering...');
+              this.renderTimeline();
+              this.updateTimelineTitle();
+          }, 200);
+      };
+      window.addEventListener('resize', this.resizeHandler);
+
+    // 시간표 편집 버튼
+    const editTimetableBtn = document.getElementById('edit-timetable-btn');
+    editTimetableBtn?.addEventListener('click', () => {
+      this.showTimetableModal();
     });
 
-    // Timeline 저장 버튼 클릭
-    const saveEventBtn = document.getElementById('save-event-btn');
-    saveEventBtn?.addEventListener('click', async () => {
-      const title = document.getElementById('event-title').value.trim();
-      const startTime = document.getElementById('event-start-time').value;
-      const endTime = document.getElementById('event-end-time').value;
-      const category = document.getElementById('event-category').value;
+    // ===== 시간표 Modal 이벤트 =====
 
-      if (title && startTime && endTime) {
-        if (startTime >= endTime) {
-          alert('종료 시간은 시작 시간보다 늦어야 합니다.');
-          return;
-        }
-        await this.addEvent(title, startTime, endTime, category);
-        this.toggleEventInput(false);
-      } else {
-        alert('모든 필드를 입력해주세요.');
-      }
+    // 시간표 모달 닫기
+    const closeTimetableModal = document.getElementById('close-timetable-modal');
+    closeTimetableModal?.addEventListener('click', () => {
+      this.hideTimetableModal();
     });
 
-    // Timeline 취소 버튼 클릭
-    const cancelEventBtn = document.getElementById('cancel-event-btn');
-    cancelEventBtn?.addEventListener('click', () => {
-      this.toggleEventInput(false);
+    // 시간표 저장
+    const saveTimetableBtn = document.getElementById('save-timetable-btn');
+    saveTimetableBtn?.addEventListener('click', () => {
+      this.saveTimetable();
     });
 
-    // ===== Modal 이벤트 =====
+    // 시간표 취소
+    const cancelTimetableBtn = document.getElementById('cancel-timetable-btn');
+    cancelTimetableBtn?.addEventListener('click', () => {
+      this.hideTimetableModal();
+    });
 
-    // 모달 닫기 버튼
+    // ===== 이벤트 상세 Modal 이벤트 =====
+
+    // 이벤트 모달 닫기 버튼
     const modalCloseBtn = document.getElementById('modal-close-btn');
     modalCloseBtn?.addEventListener('click', () => {
-      this.closeEventModal();
+      this.hideEventDetailModal();
     });
 
-    // 모달 취소 버튼
+    // 이벤트 모달 취소 버튼
     const modalCancelBtn = document.getElementById('modal-cancel-btn');
     modalCancelBtn?.addEventListener('click', () => {
-      this.closeEventModal();
+      this.hideEventDetailModal();
     });
 
-    // 모달 오버레이 클릭 시 닫기
+    // 이벤트 모달 오버레이 클릭 시 닫기
     const modalOverlay = document.getElementById('modal-overlay');
     modalOverlay?.addEventListener('click', () => {
-      this.closeEventModal();
+      this.hideEventDetailModal();
     });
 
-    // 모달 삭제 버튼
+    // 이벤트 모달 삭제 버튼
     const modalDeleteBtn = document.getElementById('modal-delete-btn');
     modalDeleteBtn?.addEventListener('click', async () => {
-      const eventId = modalDeleteBtn.dataset.eventId;
-      if (eventId) {
-        this.closeEventModal();
-        await this.deleteEvent(eventId);
-      }
+      this.deleteSelectedEvent();
     });
 
     // ===== Weather Widget 초기화 =====
@@ -1589,6 +1987,156 @@ const HomeScreen = {
   },
 
   // 화면 정리
+  // 유틸리티 함수들
+  isSameDay(date1, date2) {
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate();
+  },
+
+  formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  },
+
+  getEventsForDate(dateStr) {
+    return this.events.filter(e => e.date === dateStr);
+  },
+
+  getTimetableForDay(dayOfWeek) {
+    return this.timetableEvents.filter(e => e.dayOfWeek === dayOfWeek);
+  },
+
+  // 시간표 관련 함수들
+  loadTimetable() {
+    const stored = localStorage.getItem('timetable_events');
+    if (stored) {
+      try {
+        this.timetableEvents = JSON.parse(stored);
+      } catch (error) {
+        console.error('Failed to load timetable:', error);
+        this.timetableEvents = [];
+      }
+    }
+  },
+
+  saveTimetableToStorage() {
+    localStorage.setItem('timetable_events', JSON.stringify(this.timetableEvents));
+  },
+
+  showTimetableModal() {
+    const modal = document.getElementById('timetable-modal');
+    if (modal) {
+      modal.style.display = 'block';
+      setTimeout(() => modal.classList.add('show'), 10);
+    }
+  },
+
+  hideTimetableModal() {
+    const modal = document.getElementById('timetable-modal');
+    if (modal) {
+      modal.classList.remove('show');
+      setTimeout(() => modal.style.display = 'none', 300);
+      this.clearTimetableForm();
+    }
+  },
+
+  clearTimetableForm() {
+    const titleInput = document.getElementById('timetable-title');
+    const startInput = document.getElementById('timetable-start-time');
+    const endInput = document.getElementById('timetable-end-time');
+    const categoryInput = document.getElementById('timetable-category');
+
+    if (titleInput) titleInput.value = '';
+    if (startInput) startInput.value = '';
+    if (endInput) endInput.value = '';
+    if (categoryInput) categoryInput.value = 'lecture';
+
+    document.querySelectorAll('.day-checkboxes input[type="checkbox"]').forEach(cb => {
+      cb.checked = false;
+    });
+  },
+
+  saveTimetable() {
+    const title = document.getElementById('timetable-title').value.trim();
+    const startTime = document.getElementById('timetable-start-time').value;
+    const endTime = document.getElementById('timetable-end-time').value;
+    const category = document.getElementById('timetable-category').value;
+
+    const selectedDays = Array.from(document.querySelectorAll('.day-checkboxes input[type="checkbox"]:checked'))
+      .map(cb => parseInt(cb.value));
+
+    if (!title || !startTime || !endTime || selectedDays.length === 0) {
+      alert('모든 필드를 입력해주세요.');
+      return;
+    }
+
+    // 각 요일에 대해 시간표 이벤트 생성
+    selectedDays.forEach(dayOfWeek => {
+      const timetableEvent = {
+        id: `timetable_${Date.now()}_${dayOfWeek}`,
+        title,
+        dayOfWeek, // 0: 일, 1: 월, 2: 화, ..., 6: 토
+        startTime,
+        endTime,
+        category,
+        createdAt: new Date().toISOString()
+      };
+
+      this.timetableEvents.push(timetableEvent);
+    });
+
+    this.saveTimetableToStorage();
+    this.hideTimetableModal();
+    this.renderTimeline();
+  },
+
+  showEventDetail(event, isTimetable) {
+    this.selectedEventId = event.id;
+
+    const modal = document.getElementById('event-detail-modal');
+    if (!modal) return;
+
+    const titleEl = document.getElementById('modal-event-title');
+    const timeEl = document.getElementById('modal-event-time-text');
+    const categoryEl = document.getElementById('modal-event-category-text');
+
+    if (titleEl) titleEl.textContent = event.title;
+    if (timeEl) timeEl.textContent = `${event.startTime} ~ ${event.endTime}`;
+    if (categoryEl) categoryEl.textContent = this.getCategoryLabel(event.category);
+
+    // 시간표 이벤트는 삭제 불가
+    const deleteBtn = document.getElementById('modal-delete-btn');
+    if (deleteBtn) {
+      deleteBtn.style.display = isTimetable ? 'none' : 'block';
+    }
+
+    modal.style.display = 'block';
+    setTimeout(() => modal.classList.add('show'), 10);
+  },
+
+  hideEventDetailModal() {
+    const modal = document.getElementById('event-detail-modal');
+    if (modal) {
+      modal.classList.remove('show');
+      setTimeout(() => modal.style.display = 'none', 300);
+    }
+    this.selectedEventId = null;
+  },
+
+  deleteSelectedEvent() {
+    if (!this.selectedEventId) return;
+
+    if (!confirm('이 일정을 삭제하시겠습니까?')) return;
+
+    this.events = this.events.filter(e => e.id !== this.selectedEventId);
+    this.saveEvents();
+    this.hideEventDetailModal();
+    this.renderTimeline();
+  },
+
   destroy() {
     console.log('Home screen destroyed');
     this.editingId = null;
@@ -1603,6 +2151,12 @@ const HomeScreen = {
     if (this.currentTimeInterval) {
       clearInterval(this.currentTimeInterval);
       this.currentTimeInterval = null;
+    }
+
+    // Resize listener 정리
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+      this.resizeHandler = null;
     }
 
     // Pomodoro timer 정리

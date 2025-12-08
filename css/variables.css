@@ -9,6 +9,7 @@
   --color-primary: #007AFF;      /* iOS Blue */
   --color-primary-light: #5AC8FA;
   --color-primary-dark: #0051D5;
+  --color-primary-rgb: 0, 122, 255;  /* RGB version for rgba() */
 
   /* Semantic Colors */
   --color-success: #34C759;      /* Green */

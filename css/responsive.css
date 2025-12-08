@@ -1,19 +1,18 @@
 /* ====================================
-   Responsive Styles
+   Responsive Styles - Final Version
    Mobile First Approach
    ==================================== */
 
 /* ====================================
-   Utility Classes for Responsive Display
+   Utility Classes
    ==================================== */
 
-/* Mobile only (hide on tablet and above) */
 .mobile-only {
-  display: block;
+    display: block;
 }
 
 .desktop-only {
-  display: none;
+    display: none;
 }
 
 /* ====================================
@@ -21,40 +20,35 @@
    ==================================== */
 
 @media (min-width: 768px) {
-  /* Main Content */
-  .main-content {
-    padding: var(--space-lg);
-    padding-bottom: calc(var(--bottom-nav-height) + var(--space-lg));
-  }
+    .main-content {
+        padding: var(--space-lg);
+        padding-bottom: calc(var(--bottom-nav-height) + var(--space-lg));
+    }
 
-  /* Typography */
-  body {
-    font-size: var(--font-size-base);
-  }
+    body {
+        font-size: var(--font-size-base);
+    }
 
-  /* Cards - 2열 그리드 */
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-lg);
-  }
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-lg);
+    }
 
-  /* Bottom Nav - 아이콘 크기 증가 */
-  .nav-item .icon {
-    font-size: 1.75rem;
-  }
+    .nav-item .icon {
+        font-size: 1.75rem;
+    }
 
-  .nav-item .label {
-    font-size: var(--font-size-sm);
-  }
+    .nav-item .label {
+        font-size: var(--font-size-sm);
+    }
 
-  /* Floating Button - 위치 조정 */
-  .floating-btn {
-    width: 64px;
-    height: 64px;
-    bottom: calc(var(--bottom-nav-height) + var(--space-xl));
-    right: var(--space-xl);
-  }
+    .floating-btn {
+        width: 64px;
+        height: 64px;
+        bottom: calc(var(--bottom-nav-height) + var(--space-xl));
+        right: var(--space-xl);
+    }
 }
 
 /* ====================================
@@ -62,92 +56,90 @@
    ==================================== */
 
 @media (min-width: 1024px) {
-  /* App Layout - 사이드바 등장 */
-  #app {
-    flex-direction: row;
-  }
+    #app {
+        flex-direction: row;
+    }
 
-  /* Sidebar 표시 */
-  .sidebar {
-    display: block;
-  }
+    .sidebar {
+        display: block;
+    }
 
-  .sidebar .nav-menu {
-    display: flex;
-    flex-direction: column;
-    padding: var(--space-lg);
-    gap: var(--space-sm);
-  }
+    .sidebar .nav-menu {
+        display: flex;
+        flex-direction: column;
+        padding: var(--space-lg);
+        gap: var(--space-sm);
+    }
 
-  .sidebar .nav-item {
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: var(--space-md);
-    padding: var(--space-md);
-    border-radius: var(--radius-md);
-    width: 100%;
-  }
+    .sidebar .nav-item {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: var(--space-md);
+        padding: var(--space-md);
+        border-radius: var(--radius-md);
+        width: 100%;
+    }
 
-  .sidebar .nav-item .icon {
-    font-size: 1.5rem;
-  }
+    .sidebar .nav-item .icon {
+        font-size: 1.5rem;
+    }
 
-  .sidebar .nav-item .label {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-medium);
-  }
+    .sidebar .nav-item .label {
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-medium);
+    }
 
-  .sidebar .nav-item:hover {
-    background-color: var(--color-bg-tertiary);
-  }
+    .sidebar .nav-item:hover {
+        background-color: var(--color-bg-tertiary);
+    }
 
-  .sidebar .nav-item.active {
-    background-color: var(--color-primary);
-    color: white;
-  }
+    .sidebar .nav-item.active {
+        background-color: var(--color-primary);
+        color: white;
+    }
 
-  /* Main Content - 사이드바 공간만큼 여백 */
-  .main-content {
-    margin-left: var(--sidebar-width);
-    padding: var(--space-xl);
-    padding-bottom: var(--space-xl); /* 하단 네비 없으므로 일반 패딩 */
-  }
+    .main-content {
+        margin-left: var(--sidebar-width);
+        padding: var(--space-xl);
+        padding-bottom: var(--space-xl);
+        max-width: none;
+        width: calc(100% - var(--sidebar-width));
+    }
 
-  /* Bottom Nav 숨김 */
-  .bottom-nav {
-    display: none;
-  }
+    .bottom-nav {
+        display: none;
+    }
 
-  /* Floating Button - 위치 재조정 */
-  .floating-btn {
-    bottom: var(--space-xl);
-    right: var(--space-xl);
-  }
+    .floating-btn {
+        bottom: var(--space-xl);
+        right: var(--space-xl);
+    }
 
-  /* Utility Classes - Desktop */
-  .mobile-only {
-    display: none;
-  }
+    .mobile-only {
+        display: none;
+    }
 
-  .desktop-only {
-    display: block;
-  }
+    .desktop-only {
+        display: block;
+    }
 
-  /* Cards - 3열 그리드 */
-  .card-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-xl);
-  }
+    .card-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-xl);
+    }
 
-  /* Hover Effects 활성화 */
-  .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
 
-  .card:hover {
-    transform: translateY(-4px);
-  }
+    .card:hover {
+        transform: translateY(-4px);
+    }
+
+    .home-grid-container {
+        gap: var(--space-xl);
+    }
 }
 
 /* ====================================
@@ -155,24 +147,29 @@
    ==================================== */
 
 @media (min-width: 1280px) {
-  /* Container 최대 너비 제한 */
-  .main-content {
-    max-width: var(--container-xl);
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: calc(var(--sidebar-width) + var(--space-xl));
-  }
+    .main-content {
+        max-width: 1800px;
+        margin-left: var(--sidebar-width);
+        margin-right: auto;
+        padding: var(--space-xl) var(--space-2xl);
+        width: calc(100% - var(--sidebar-width));
+    }
 
-  /* Cards - 최대 4열 */
-  .card-grid {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    max-width: var(--container-xl);
-  }
+    .card-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
 
-  /* Typography 크기 증가 */
-  body {
-    font-size: var(--font-size-lg);
-  }
+    body {
+        font-size: var(--font-size-lg);
+    }
+
+    .home-grid-container {
+        gap: var(--space-2xl);
+    }
+
+    .timeline-section {
+        min-width: 500px;
+    }
 }
 
 /* ====================================
@@ -180,154 +177,568 @@
    ==================================== */
 
 @media (min-width: 1536px) {
-  /* 여백 증가 */
-  .main-content {
-    padding: var(--space-3xl);
-  }
+    .main-content {
+        max-width: 2000px;
+        padding: var(--space-2xl) var(--space-3xl);
+    }
 
-  .sidebar .nav-menu {
-    padding: var(--space-xl);
-  }
+    .sidebar .nav-menu {
+        padding: var(--space-xl);
+    }
+
+    .home-grid-container {
+        gap: var(--space-3xl);
+    }
 }
 
 /* ====================================
-   Screen-Specific Responsive Rules
+   Ultra Wide Desktop (1920px+)
    ==================================== */
 
-/* Home Screen - 반응형 레이아웃 */
-/* 모바일: 세로 스택 (기본값, 별도 스타일 불필요) */
+@media (min-width: 1920px) {
+    .main-content {
+        max-width: 2400px;
+        margin-left: var(--sidebar-width);
+        margin-right: auto;
+    }
+}
 
-/* 모바일: 날짜/시간 폰트 크기 조정 */
-@media (max-width: 767px) {
-  .home-time {
-    font-size: 2rem; /* 모바일에서도 큰 시간 표시 */
-  }
+/* ====================================
+   Weekly Timeline (주간 화면 전용)
+   ==================================== */
 
-  .home-date {
-    font-size: var(--font-size-sm);
-  }
+@media (max-width: 499px) {
+    .weekly-timeline .timeline-day-column:not(.today) {
+        display: none;
+    }
 
-  /* 모바일에서 세로 배치 */
-  .home-datetime {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-md);
-    min-height: auto;
-  }
+    .weekly-timeline .timeline-day-column.today {
+        min-width: 100%;
+    }
 
-  .datetime-content {
-    min-width: auto;
-  }
+    .weekly-timeline {
+        min-width: 100%;
+    }
+}
 
-  /* 모바일에서 날씨 위젯 전체 너비 */
-  .weather-widget-overlay {
-    justify-content: center;
-  }
+@media (min-width: 500px) and (max-width: 799px) {
+    .weekly-timeline .timeline-day-column {
+        min-width: 100px;
+    }
+}
 
-  .weather-widget-overlay .weather-content,
-  .weather-widget-overlay .weather-loading {
+@media (min-width: 800px) and (max-width: 1099px) {
+    .weekly-timeline .timeline-day-column {
+        min-width: 80px;
+    }
+}
+
+@media (min-width: 1100px) {
+    .weekly-timeline {
+        min-width: 800px;
+    }
+
+    .weekly-timeline .timeline-day-column {
+        min-width: 100px;
+    }
+}
+
+/* ====================================
+   Home Screen - 반응형 레이아웃
+   ==================================== */
+
+@media (max-width: 499px) {
+    .home-time {
+        font-size: 2rem;
+    }
+
+    .home-date {
+        font-size: var(--font-size-sm);
+    }
+
+    .home-datetime {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-md);
+        min-height: auto;
+    }
+
+    .datetime-content {
+        min-width: auto;
+    }
+
+    .weather-widget-overlay {
+        justify-content: center;
+    }
+
+    .weather-widget-overlay .weather-content,
+    .weather-widget-overlay .weather-loading {
+        width: 100%;
+    }
+
+    .weather-widget-overlay .weather-icon {
+        font-size: 1.25rem;
+    }
+
+    .weather-widget-overlay .weather-temp {
+        font-size: 1rem;
+    }
+
+    .weather-widget-overlay .weather-description {
+        font-size: 0.625rem;
+    }
+}
+
+@media (min-width: 500px) {
+    .home-grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-lg);
+        align-items: start;
+    }
+
+    .todo-section,
+    .timeline-section {
+        height: 100%;
+    }
+
+    .home-time {
+        font-size: 2.5rem;
+    }
+
+    .home-date {
+        font-size: var(--font-size-base);
+    }
+
+    .home-header {
+        align-items: stretch;
+    }
+}
+
+/* ====================================
+   Timeline Height & Scroll
+   ==================================== */
+
+.home-timeline-container {
+    max-height: 640px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: var(--radius-md, 8px);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border, #ddd) transparent;
+}
+
+.home-timeline-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.home-timeline-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.home-timeline-container::-webkit-scrollbar-thumb {
+    background-color: var(--color-border, #ddd);
+    border-radius: 3px;
+}
+
+.home-timeline-container::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-text-secondary, #999);
+}
+
+@media (max-width: 499px) {
+    .home-timeline-container {
+        max-height: 400px;
+    }
+}
+
+@media (min-width: 500px) and (max-width: 799px) {
+    .home-timeline-container {
+        max-height: 500px;
+    }
+}
+
+@media (min-width: 800px) and (max-width: 1099px) {
+    .home-timeline-container {
+        max-height: 560px;
+    }
+}
+
+@media (min-width: 1100px) {
+    .home-timeline-container {
+        max-height: 640px;
+    }
+}
+
+.timeline-hour-row {
+    height: 60px;
+    min-height: 60px;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 4px;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--color-border-light, #f0f0f0);
+}
+
+.timeline-hour-label {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary, #666);
+    text-align: right;
+    padding-right: 8px;
     width: 100%;
-  }
-
-  .weather-widget-overlay .weather-icon {
-    font-size: 1.25rem;
-  }
-
-  .weather-widget-overlay .weather-temp {
-    font-size: 1rem;
-  }
-
-  .weather-widget-overlay .weather-description {
-    font-size: 0.625rem;
-  }
 }
 
-/* 태블릿 (768px+): To-Do와 Timeline을 좌우 배치 */
-@media (min-width: 768px) {
-  .home-grid-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-lg);
-    align-items: start;
-  }
+.timeline-day-slots {
+    height: 1440px;
+    min-height: 1440px;
+    position: relative;
+}
 
-  .todo-section,
-  .timeline-section {
-    height: 100%;
-  }
+/* ====================================
+   ★ Current Time Line Styles (NEW)
+   현재 시간 가로선 - 모든 열에 표시
+   ==================================== */
 
-  .home-time {
-    font-size: 2.5rem; /* 큰 시계 스타일 유지 */
-  }
+/* 현재 시간 라인 - 기본 (모든 열에 적용) */
+.timeline-current-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #FF3B30;
+    z-index: 10;
+    pointer-events: none;
+}
 
-  .home-date {
-    font-size: var(--font-size-base);
-  }
+/* 오늘 열의 현재 시간 라인 - 점과 라벨 포함 */
+.timeline-current-line.today-line {
+    z-index: 15;
+}
 
-  .home-header {
+/* 현재 시간 점 (오늘 열에만 표시) */
+.timeline-current-dot {
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background-color: #FF3B30;
+    border-radius: 50%;
+}
+
+/* 현재 시간 라벨 (오늘 열에만 표시) */
+.timeline-current-label {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #FF3B30;
+    color: white;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+@media (max-width: 499px) {
+    .timeline-current-label {
+        font-size: 0.625rem;
+        padding: 1px 4px;
+    }
+
+    .timeline-current-dot {
+        width: 6px;
+        height: 6px;
+        right: -3px;
+    }
+}
+
+@media (min-width: 500px) and (max-width: 799px) {
+    .timeline-current-label {
+        font-size: 0.6875rem;
+    }
+}
+
+/* ====================================
+   Home Timeline - 반응형 요일 표시
+   ==================================== */
+
+.home-timeline .timeline-days-container {
+    display: flex;
+    gap: 8px;
+}
+
+.home-timeline .timeline-day-column {
+    flex: 1;
+    min-width: 0;
+    display: flex !important;
+}
+
+@media (max-width: 499px) {
+    .home-timeline .timeline-header-cell {
+        min-height: 50px;
+        padding: 8px 4px;
+    }
+
+    .home-timeline .timeline-day-header {
+        min-height: 50px;
+        padding: 8px 4px;
+    }
+
+    .home-timeline .day-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .home-timeline .day-date {
+        font-size: 0.75rem;
+        margin-top: 2px;
+    }
+
+    .home-timeline .timeline-days-container {
+        gap: 0;
+    }
+}
+
+@media (min-width: 500px) and (max-width: 799px) {
+    .home-timeline .timeline-header-cell {
+        min-height: 56px;
+        padding: 8px 6px;
+    }
+
+    .home-timeline .timeline-day-header {
+        min-height: 56px;
+        padding: 10px 8px;
+    }
+
+    .home-timeline .day-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .home-timeline .day-date {
+        font-size: 0.75rem;
+        margin-top: 2px;
+    }
+
+    .home-timeline .timeline-days-container {
+        gap: 6px;
+    }
+}
+
+@media (min-width: 800px) and (max-width: 1099px) {
+    .home-timeline .timeline-header-cell {
+        min-height: 60px;
+        padding: 10px 8px;
+    }
+
+    .home-timeline .timeline-day-header {
+        min-height: 60px;
+        padding: 12px 10px;
+    }
+
+    .home-timeline .day-name {
+        font-size: 0.9375rem;
+        font-weight: 600;
+    }
+
+    .home-timeline .day-date {
+        font-size: 0.8125rem;
+        margin-top: 3px;
+    }
+
+    .home-timeline .timeline-days-container {
+        gap: 8px;
+    }
+}
+
+@media (min-width: 1100px) {
+    .home-timeline .timeline-header-cell {
+        min-height: 64px;
+        padding: 12px 10px;
+    }
+
+    .home-timeline .timeline-day-header {
+        min-height: 64px;
+        padding: 14px 12px;
+    }
+
+    .home-timeline .day-name {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .home-timeline .day-date {
+        font-size: 0.875rem;
+        margin-top: 4px;
+    }
+
+    .home-timeline .timeline-days-container {
+        gap: 10px;
+    }
+}
+
+/* ====================================
+   Timeline Layout Fixes
+   ==================================== */
+
+.home-timeline {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
     align-items: stretch;
-  }
 }
 
-/* 데스크탑 (1024px+): 간격 증가 및 최적화 */
-@media (min-width: 1024px) {
-  .home-grid-container {
-    gap: var(--space-xl);
-  }
+.timeline-time-column {
+    flex: 0 0 50px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--color-border, #eee);
 }
 
-/* 대형 화면 (1280px+): 더 넓은 간격 */
-@media (min-width: 1280px) {
-  .home-grid-container {
-    gap: var(--space-2xl);
-  }
+@media (min-width: 500px) {
+    .timeline-time-column {
+        flex: 0 0 60px;
+    }
 }
 
-/* Calendar Screen - 반응형 */
+.timeline-header-cell {
+    flex: 0 0 auto;
+    border-bottom: 1px solid var(--color-border, #eee);
+    box-sizing: border-box;
+}
+
+.timeline-days-container {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.timeline-day-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-right: 1px solid transparent;
+}
+
+.timeline-day-header {
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border, #eee);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.timeline-day-header .day-name {
+    font-weight: 600;
+    color: var(--color-text-primary, #333);
+    line-height: 1.2;
+}
+
+.timeline-day-header .day-date {
+    color: var(--color-text-secondary, #666);
+    line-height: 1.2;
+}
+
+.timeline-day-column.today .timeline-day-header {
+    background-color: var(--color-primary, #007AFF);
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.timeline-day-column.today .timeline-day-header .day-name,
+.timeline-day-column.today .timeline-day-header .day-date {
+    color: white;
+}
+
+/* 헤더 높이 강제 일치 */
+@media (max-width: 499px) {
+    .home-timeline .timeline-header-cell,
+    .home-timeline .timeline-day-header {
+        height: 50px !important;
+        min-height: 50px !important;
+    }
+}
+
+@media (min-width: 500px) and (max-width: 799px) {
+    .home-timeline .timeline-header-cell,
+    .home-timeline .timeline-day-header {
+        height: 56px !important;
+        min-height: 56px !important;
+    }
+}
+
+@media (min-width: 800px) and (max-width: 1099px) {
+    .home-timeline .timeline-header-cell,
+    .home-timeline .timeline-day-header {
+        height: 60px !important;
+        min-height: 60px !important;
+    }
+}
+
+@media (min-width: 1100px) {
+    .home-timeline .timeline-header-cell,
+    .home-timeline .timeline-day-header {
+        height: 64px !important;
+        min-height: 64px !important;
+    }
+}
+
+/* ====================================
+   Calendar & Growth Screen
+   ==================================== */
+
 @media (min-width: 768px) {
-  .calendar-layout {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: var(--space-lg);
-  }
+    .calendar-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: var(--space-lg);
+    }
 }
 
 @media (min-width: 1024px) {
-  .calendar-layout {
-    grid-template-columns: 200px 2fr 1fr;
-  }
+    .calendar-layout {
+        grid-template-columns: 200px 2fr 1fr;
+    }
 
-  .calendar-stats {
-    display: block; /* 통계 사이드바 표시 */
-  }
+    .calendar-stats {
+        display: block;
+    }
+
+    .growth-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: var(--space-xl);
+    }
+
+    .growth-list {
+        border-right: 1px solid var(--color-border);
+        padding-right: var(--space-lg);
+    }
 }
 
-/* Growth Screen - 마스터-디테일 */
-@media (min-width: 1024px) {
-  .growth-layout {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: var(--space-xl);
-  }
-
-  .growth-list {
-    border-right: 1px solid var(--color-border);
-    padding-right: var(--space-lg);
-  }
-}
-
-/* Timetable - 그리드 변환 */
+/* Timetable */
 @media (min-width: 768px) {
-  .timetable-mobile {
-    display: none;
-  }
+    .timetable-mobile {
+        display: none;
+    }
 
-  .timetable-grid {
-    display: grid;
-    grid-template-columns: 80px repeat(7, 1fr);
-    gap: 1px;
-    background-color: var(--color-border);
-  }
+    .timetable-grid {
+        display: grid;
+        grid-template-columns: 80px repeat(7, 1fr);
+        gap: 1px;
+        background-color: var(--color-border);
+    }
 }
 
 /* ====================================
@@ -335,26 +746,21 @@
    ==================================== */
 
 @media (hover: none) and (pointer: coarse) {
-  /* 터치 디바이스 */
+    .btn,
+    .nav-item,
+    .input {
+        min-height: 44px;
+        min-width: 44px;
+    }
 
-  /* 터치 영역 확대 */
-  .btn,
-  .nav-item,
-  .input {
-    min-height: 44px;
-    min-width: 44px;
-  }
+    .card:hover,
+    .btn:hover {
+        transform: none;
+    }
 
-  /* Hover 효과 제거 */
-  .card:hover,
-  .btn:hover {
-    transform: none;
-  }
-
-  /* 탭 피드백 강화 */
-  .btn:active {
-    transform: scale(0.95);
-  }
+    .btn:active {
+        transform: scale(0.95);
+    }
 }
 
 /* ====================================
@@ -362,37 +768,32 @@
    ==================================== */
 
 @media print {
-  /* 내비게이션 숨김 */
-  .sidebar,
-  .bottom-nav,
-  .floating-btn {
-    display: none;
-  }
+    .sidebar,
+    .bottom-nav,
+    .floating-btn {
+        display: none;
+    }
 
-  /* 메인 콘텐츠 전체 너비 */
-  .main-content {
-    margin: 0;
-    padding: 0;
-    max-width: 100%;
-  }
+    .main-content {
+        margin: 0;
+        padding: 0;
+        max-width: 100%;
+    }
 
-  /* 배경 제거 */
-  body {
-    background: white;
-    color: black;
-  }
+    body {
+        background: white;
+        color: black;
+    }
 
-  /* 그림자 제거 */
-  .card {
-    box-shadow: none;
-    border: 1px solid #ccc;
-  }
+    .card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
 
-  /* 페이지 나누기 */
-  .card,
-  .section {
-    page-break-inside: avoid;
-  }
+    .card,
+    .section {
+        page-break-inside: avoid;
+    }
 }
 
 /* ====================================
@@ -400,49 +801,44 @@
    ==================================== */
 
 @media (max-width: 1023px) and (orientation: landscape) {
-  /* 가로 모드에서 하단 네비 높이 축소 */
-  .bottom-nav {
-    height: 48px;
-    padding: var(--space-xs) 0;
-  }
+    .bottom-nav {
+        height: 48px;
+        padding: var(--space-xs) 0;
+    }
 
-  .bottom-nav .nav-item .label {
-    display: none; /* 라벨 숨김 */
-  }
+    .bottom-nav .nav-item .label {
+        display: none;
+    }
 
-  .main-content {
-    padding-bottom: calc(48px + var(--space-md));
-  }
+    .main-content {
+        padding-bottom: calc(48px + var(--space-md));
+    }
 }
 
 /* ====================================
-   Reduced Motion
+   Reduced Motion & High Contrast
    ==================================== */
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
-/* ====================================
-   High Contrast Mode
-   ==================================== */
-
 @media (prefers-contrast: high) {
-  :root {
-    --color-border: #000000;
-  }
+    :root {
+        --color-border: #000000;
+    }
 
-  .btn {
-    border: 2px solid currentColor;
-  }
+    .btn {
+        border: 2px solid currentColor;
+    }
 
-  .card {
-    border: 2px solid var(--color-border);
-  }
+    .card {
+        border: 2px solid var(--color-border);
+    }
 }

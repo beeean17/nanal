@@ -462,6 +462,14 @@ body {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.timeline-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  margin: 0;
+  font-weight: var(--font-weight-normal);
 }
 
 .add-btn {
@@ -1120,6 +1128,340 @@ body {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-primary);
+}
+
+/* ====================================
+   Weekly Timeline Screen
+   ==================================== */
+
+.weekly-screen {
+  max-width: 100%;
+  padding-bottom: var(--space-xl);
+}
+
+.weekly-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xl);
+}
+
+.weekly-header h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.weekly-timeline-container {
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.weekly-timeline {
+  display: flex;
+  gap: 0;
+  min-width: 100%;
+}
+
+/* 시간 라벨 열 */
+.timeline-time-column {
+  flex-shrink: 0;
+  width: 60px;
+  background-color: var(--color-bg-secondary);
+  border-right: 2px solid var(--color-border);
+}
+
+.timeline-header-cell {
+  height: 60px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.timeline-hours-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-hour-row {
+  height: 60px;
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+
+.timeline-hour-label {
+  position: sticky;
+  top: 0;
+  padding: var(--space-xs);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-align: center;
+  background-color: var(--color-bg-secondary);
+  z-index: 1;
+}
+
+/* 요일 열들 */
+.timeline-days-container {
+  display: flex;
+  flex: 1;
+  gap: 0;
+}
+
+.timeline-day-column {
+  flex: 1;
+  min-width: 100px;
+  border-right: 1px solid var(--color-border);
+  position: relative;
+}
+
+.timeline-day-column:last-child {
+  border-right: none;
+}
+
+.timeline-day-column.today {
+  background-color: rgba(var(--color-primary-rgb), 0.05);
+}
+
+.timeline-day-header {
+  height: 60px;
+  border-bottom: 2px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.timeline-day-column.today .timeline-day-header {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.day-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.day-date {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.timeline-day-column.today .day-date {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* 요일별 슬롯 컨테이너 */
+.timeline-day-slots {
+  position: relative;
+  height: 1440px; /* 24시간 × 60px */
+  cursor: crosshair;
+}
+
+.timeline-slot {
+  height: 5px; /* 5분 = 5px */
+  border-bottom: 1px solid transparent;
+}
+
+.timeline-slot:nth-child(12n) {
+  border-bottom-color: var(--color-border);
+}
+
+/* 이벤트 블록 */
+.timeline-event-block {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  overflow: hidden;
+  z-index: 3;
+}
+
+.timeline-event-block.regular-event {
+  background-color: var(--color-primary);
+  color: white;
+  border-left: 3px solid var(--color-primary-dark);
+  box-shadow: var(--shadow-sm);
+}
+
+.timeline-event-block.timetable-event {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  border-left: 3px solid var(--color-border);
+  opacity: 0.7;
+}
+
+.timeline-event-block:hover {
+  transform: translateX(2px);
+  box-shadow: var(--shadow-md);
+  z-index: 4;
+}
+
+.event-block-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.event-time {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  opacity: 0.9;
+}
+
+.event-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-category {
+  font-size: var(--font-size-xs);
+  opacity: 0.8;
+}
+
+/* 카테고리별 색상 */
+.timeline-event-block.category-study {
+  background-color: #4A90E2;
+  border-left-color: #2E5C8A;
+}
+
+.timeline-event-block.category-work {
+  background-color: #E94B3C;
+  border-left-color: #A13329;
+}
+
+.timeline-event-block.category-personal {
+  background-color: #9B59B6;
+  border-left-color: #6B3D7E;
+}
+
+.timeline-event-block.category-meeting {
+  background-color: #F39C12;
+  border-left-color: #A76A08;
+}
+
+.timeline-event-block.category-lecture {
+  background-color: #3498DB;
+  border-left-color: #226BA5;
+}
+
+.timeline-event-block.category-lab {
+  background-color: #1ABC9C;
+  border-left-color: #12826C;
+}
+
+.timeline-event-block.category-exercise {
+  background-color: #E74C3C;
+  border-left-color: #A1342A;
+}
+
+.timeline-event-block.category-other {
+  background-color: #95A5A6;
+  border-left-color: #687173;
+}
+
+/* 현재 시간 인디케이터 */
+.timeline-current-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #FF2D55, #FF6B6B);
+  box-shadow: 0 0 10px rgba(255, 45, 85, 0.4);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.timeline-current-dot {
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  background: #FF2D55;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(255, 45, 85, 0.7);
+}
+
+.timeline-current-label {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #FF2D55;
+  color: white;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+
+/* 드래그 오버레이 */
+.drag-overlay {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  background: linear-gradient(135deg,
+    rgba(var(--color-primary-rgb), 0.3),
+    rgba(var(--color-primary-rgb), 0.5));
+  border: 2px dashed var(--color-primary);
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  z-index: 10;
+  animation: fadeIn 0.1s ease-out;
+}
+
+/* 시간표 모달 */
+.timetable-modal-content {
+  max-width: 500px;
+}
+
+.timetable-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.timetable-day-select label {
+  display: block;
+  margin-bottom: var(--space-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.day-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.day-checkboxes label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.day-checkboxes label:hover {
+  background-color: var(--color-bg-hover);
+}
+
+.day-checkboxes input[type="checkbox"] {
+  cursor: pointer;
 }
 
 /* ====================================
@@ -2020,6 +2362,289 @@ body {
 
 .timeline-section {
   margin-bottom: 0; /* grid-container가 이제 여백 관리 */
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  overflow: hidden;
+}
+
+/* 타임라인 헤더 버튼 그룹 */
+.timeline-header-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-tertiary);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-icon:hover {
+  background-color: var(--color-primary);
+  transform: scale(1.05);
+}
+
+.btn-icon .icon {
+  font-size: 1.25rem;
+}
+
+/* 홈 타임라인 컨테이너 */
+.home-timeline-container {
+  overflow-x: auto;
+  overflow-y: visible;
+  background-color: var(--color-bg-primary);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-md);
+  width: 100%;
+}
+
+.home-timeline {
+  display: flex;
+  gap: 0;
+  min-width: fit-content;
+  width: 100%;
+}
+
+/* 시간 라벨 열 (홈 타임라인용) */
+.home-timeline .timeline-time-column {
+  flex-shrink: 0;
+  width: 50px;
+  background-color: var(--color-bg-secondary);
+  border-right: 2px solid var(--color-border);
+}
+
+.home-timeline .timeline-header-cell {
+  min-height: 40px;
+  height: auto;
+  border-bottom: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-timeline .timeline-hours-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-timeline .timeline-hour-row {
+  height: 60px;
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+
+.home-timeline .timeline-hour-label {
+  position: sticky;
+  top: 0;
+  padding: var(--space-xs);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-align: center;
+  background-color: var(--color-bg-secondary);
+  z-index: 1;
+}
+
+/* 요일 열들 (홈 타임라인용) */
+.home-timeline .timeline-days-container {
+  display: flex;
+  flex: 1;
+  gap: 0;
+}
+
+.home-timeline .timeline-day-column {
+  flex: 1;
+  min-width: 60px;
+  border-right: 1px solid var(--color-border);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.home-timeline .timeline-day-column:last-child {
+  border-right: none;
+}
+
+.home-timeline .timeline-day-column.today {
+  background-color: rgba(var(--color-primary-rgb), 0.05);
+  transition: background-color 0.2s ease;
+}
+
+.home-timeline .timeline-day-header {
+  min-height: 40px;
+  height: auto;
+  padding: 8px 6px;
+  margin: 0 -1px; /* Expand slightly to overlap borders */
+  border-bottom: 2px solid var(--color-border);
+  border-left: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  background-color: var(--color-bg-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  transition: all 0.2s ease;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.home-timeline .timeline-day-column.today .timeline-day-header {
+  background-color: var(--color-primary);
+  color: white;
+  z-index: 3;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.home-timeline .day-name {
+  font-size: clamp(0.625rem, 1.5vw, var(--font-size-xs));
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
+  line-height: 1.2;
+  padding: 0;
+  margin: 0;
+}
+
+.home-timeline .day-date {
+  font-size: clamp(0.5rem, 1.2vw, 0.625rem);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
+  margin-top: 2px;
+  line-height: 1.2;
+  padding: 0;
+}
+
+.home-timeline .timeline-day-column.today .day-date {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* 요일별 슬롯 컨테이너 (홈 타임라인용) */
+.home-timeline .timeline-day-slots {
+  position: relative;
+  height: 1440px; /* 24시간 × 60px */
+}
+
+.home-timeline .timeline-slot {
+  height: 5px; /* 5분 = 5px */
+  border-bottom: 1px solid transparent;
+}
+
+.home-timeline .timeline-slot:nth-child(12n) {
+  border-bottom-color: var(--color-border);
+}
+
+/* 이벤트 블록 (홈 타임라인용 - 주간 스타일과 같은 스타일 사용) */
+.home-timeline .timeline-event-block {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  overflow: hidden;
+  z-index: 3;
+}
+
+.home-timeline .timeline-event-block.regular-event {
+  background-color: var(--color-primary);
+  color: white;
+  border-left: 3px solid var(--color-primary-dark);
+  box-shadow: var(--shadow-sm);
+}
+
+.home-timeline .timeline-event-block.timetable-event {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  border-left: 3px solid var(--color-border);
+  opacity: 0.7;
+}
+
+.home-timeline .timeline-event-block:hover {
+  transform: translateX(2px);
+  box-shadow: var(--shadow-md);
+  z-index: 4;
+}
+
+.home-timeline .event-block-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.home-timeline .event-time {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  opacity: 0.9;
+}
+
+.home-timeline .event-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-timeline .event-category {
+  font-size: var(--font-size-xs);
+  opacity: 0.8;
+}
+
+/* 현재 시간 인디케이터 (홈 타임라인용) */
+.home-timeline .timeline-current-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #FF2D55, #FF6B6B);
+  box-shadow: 0 0 10px rgba(255, 45, 85, 0.4);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.home-timeline .timeline-current-dot {
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  background: #FF2D55;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(255, 45, 85, 0.7);
+}
+
+.home-timeline .timeline-current-label {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #FF2D55;
+  color: white;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
 }
 
 /* Current Time Display - 제거됨 (헤더로 통합) */
