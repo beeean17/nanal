@@ -1,0 +1,201 @@
+/* Apple-Style Design System */
+:root {
+    /* Colors */
+    --bg-color: #f5f5f7;
+    --card-bg: #ffffff;
+    --text-primary: #1d1d1f;
+    --text-secondary: #86868b;
+    --accent-color: #0071e3;
+    --danger-color: #ff3b30;
+    --success-color: #34c759;
+    --warning-color: #ffcc00;
+
+    /* Glassmorphism */
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(0, 0, 0, 0.05);
+    --glass-blur: 20px;
+
+    /* Spacing & Layout */
+    --header-height: 60px;
+    --nav-height: 80px; /* Mobile bottom nav */
+    --u-spacing: 20px;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-color: #000000;
+        --card-bg: #1c1c1e;
+        --text-primary: #f5f5f7;
+        --text-secondary: #86868b;
+        --glass-bg: rgba(28, 28, 30, 0.72);
+        --glass-border: rgba(255, 255, 255, 0.1);
+    }
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden; /* Prevent body scroll, handle in #app */
+    display: flex;
+    justify-content: center;
+}
+
+#app {
+    width: 100%;
+    height: 100vh;
+    max-width: 600px; /* Mobile-first view on Desktop */
+    background: var(--bg-color);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-left: 1px solid var(--glass-border);
+    border-right: 1px solid var(--glass-border);
+}
+
+/* Typography */
+h1, h2, h3 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+/* Glass Header */
+.app-header {
+    height: var(--header-height);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 0 var(--u-spacing);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border-bottom: 1px solid var(--glass-border);
+    z-index: 100;
+    transition: all 0.3s ease;
+}
+
+.app-header h1 {
+    font-size: 24px;
+}
+
+/* Main Content Area */
+.view-container {
+    flex: 1;
+    margin-top: var(--header-height);
+    margin-bottom: var(--nav-height);
+    overflow-y: auto;
+    padding: var(--u-spacing);
+    scroll-behavior: smooth;
+}
+
+/* Glass Navigation */
+.app-nav {
+    height: var(--nav-height);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 100;
+    padding-bottom: 20px; /* Safe area for home indicator */
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 500;
+    gap: 4px;
+    transition: color 0.2s ease, transform 0.1s ease;
+    width: 60px;
+}
+
+.nav-item.active {
+    color: var(--accent-color);
+}
+
+.nav-item:active {
+    transform: scale(0.95);
+}
+
+/* Icons (using SVG directly in HTML usually, or simple CSS shapes for now) */
+.icon {
+    width: 24px;
+    height: 24px;
+    background-color: currentColor;
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-position: center;
+}
+
+/* Utility Classes */
+.card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+button {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+button:active {
+    opacity: 0.8;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.view-container > * {
+    animation: fadeIn 0.4s ease-out;
+}
