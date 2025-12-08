@@ -17,7 +17,7 @@
 
     /* Spacing & Layout */
     --header-height: 60px;
-    --nav-height: 80px; /* Mobile bottom nav */
+    --nav-height: 80px;
     --u-spacing: 20px;
     --radius-lg: 18px;
     --radius-md: 12px;
@@ -49,7 +49,7 @@ body {
     color: var(--text-primary);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
-    overflow: hidden; /* Prevent body scroll, handle in #app */
+    overflow: hidden;
     display: flex;
     justify-content: center;
 }
@@ -57,7 +57,7 @@ body {
 #app {
     width: 100%;
     height: 100vh;
-    max-width: 600px; /* Mobile-first view on Desktop */
+    max-width: 600px;
     background: var(--bg-color);
     position: relative;
     display: flex;
@@ -67,13 +67,7 @@ body {
     border-right: 1px solid var(--glass-border);
 }
 
-/* Typography */
-h1, h2, h3 {
-    font-weight: 700;
-    letter-spacing: -0.02em;
-}
-
-/* Glass Header */
+/* Header & Nav */
 .app-header {
     height: var(--header-height);
     position: absolute;
@@ -89,24 +83,13 @@ h1, h2, h3 {
     -webkit-backdrop-filter: blur(var(--glass-blur));
     border-bottom: 1px solid var(--glass-border);
     z-index: 100;
-    transition: all 0.3s ease;
 }
 
 .app-header h1 {
-    font-size: 24px;
+    font-size: 20px;
+    font-weight: 600;
 }
 
-/* Main Content Area */
-.view-container {
-    flex: 1;
-    margin-top: var(--header-height);
-    margin-bottom: var(--nav-height);
-    overflow-y: auto;
-    padding: var(--u-spacing);
-    scroll-behavior: smooth;
-}
-
-/* Glass Navigation */
 .app-nav {
     height: var(--nav-height);
     position: absolute;
@@ -121,32 +104,25 @@ h1, h2, h3 {
     justify-content: space-around;
     align-items: center;
     z-index: 100;
-    padding-bottom: 20px; /* Safe area for home indicator */
+    padding-bottom: 20px;
 }
 
 .nav-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     color: var(--text-secondary);
     text-decoration: none;
     font-size: 10px;
     font-weight: 500;
     gap: 4px;
-    transition: color 0.2s ease, transform 0.1s ease;
-    width: 60px;
+    transition: color 0.2s;
 }
 
 .nav-item.active {
     color: var(--accent-color);
 }
 
-.nav-item:active {
-    transform: scale(0.95);
-}
-
-/* Icons (using SVG directly in HTML usually, or simple CSS shapes for now) */
 .icon {
     width: 24px;
     height: 24px;
@@ -159,43 +135,164 @@ h1, h2, h3 {
     -webkit-mask-position: center;
 }
 
-/* Utility Classes */
-.card {
-    background: var(--card-bg);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    padding: 20px;
-    margin-bottom: 20px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Main Content */
+.view-container {
+    flex: 1;
+    margin-top: var(--header-height);
+    margin-bottom: var(--nav-height);
+    overflow: hidden;
+    /* Important for inner scroll in home-layout */
+    position: relative;
 }
 
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+/* Home Layout */
+.home-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
 }
 
-button {
-    background: var(--accent-color);
+.timeline-container {
+    flex: 1;
+    display: flex;
+    overflow-y: auto;
+    position: relative;
+    padding-bottom: 150px;
+    /* Space for todo sheet */
+}
+
+.time-axis {
+    width: 60px;
+    flex-shrink: 0;
+    position: relative;
+    border-right: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.02);
+    min-height: 2000px;
+    /* Ensure scroll height */
+    height: 2400px;
+    /* 100px per hour example */
+}
+
+.timeline-content {
+    flex: 1;
+    position: relative;
+    min-height: 2000px;
+    height: 2400px;
+}
+
+/* Timeline Elements */
+.time-label {
+    position: absolute;
+    right: 10px;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.grid-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px solid var(--glass-border);
+}
+
+.task-block {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    font-size: 13px;
     color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 24px;
-    font-size: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.bg-blue {
+    background: rgba(0, 113, 227, 0.85);
+}
+
+.bg-orange {
+    background: rgba(255, 149, 0, 0.85);
+}
+
+.task-title {
     font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s;
+    margin-bottom: 2px;
 }
 
-button:active {
-    opacity: 0.8;
+.task-time {
+    font-size: 11px;
+    opacity: 0.9;
 }
 
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+.current-time-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 2px solid var(--danger-color);
+    z-index: 10;
 }
 
-.view-container > * {
-    animation: fadeIn 0.4s ease-out;
+.current-time-line::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: -5px;
+    width: 8px;
+    height: 8px;
+    background: var(--danger-color);
+    border-radius: 50%;
+}
+
+/* Todo Sheet */
+.todo-sheet {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    /* Start height */
+    background: var(--glass-bg);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    z-index: 50;
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+}
+
+.sheet-handle {
+    width: 40px;
+    height: 5px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    margin: 0 auto 15px auto;
+}
+
+.todo-list {
+    list-style: none;
+    overflow-y: auto;
+}
+
+.todo-list li {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.todo-list input[type="checkbox"] {
+    margin-right: 12px;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--accent-color);
 }
