@@ -90,6 +90,38 @@ export default class DataManager {
         this.saveData();
     }
 
+    // Backup & Restore
+    exportData() {
+        const dataStr = JSON.stringify(this.data, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `nanal_backup_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    importData(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const json = JSON.parse(e.target.result);
+                // Basic validation could go here
+                this.data = json;
+                this.saveData();
+                alert("✅ Data restored successfully! Reloading...");
+                window.location.reload();
+            } catch (err) {
+                console.error(err);
+                alert("❌ Failed to parse JSON file.");
+            }
+        };
+        reader.readAsText(file);
+    }
+
     /**
      * Core Logic: Get merged view for a specific date (08:00 - Next 07:59)
      * Combines Timetable (Weekly) and Tasks (Specific Date)
