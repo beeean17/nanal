@@ -1,11 +1,15 @@
 // Main Entry Point
 import DataManager from './dataManager.js';
-import { router } from './router.js'; // We will create router.js or put it here
 
 // Initialize App
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Nanal App Initializing...');
-  DataManager.getInstance().loadData();
+  console.log('🍎 Nanal App Initializing...');
+  const dm = DataManager.getInstance();
+  dm.loadData();
+
+  // Verification: Log today's data
+  const today = new Date().toISOString().split('T')[0];
+  console.log('DEBUG: Today View Data:', dm.getTodayViewData(today));
 
   // Initial Route
   window.location.hash = window.location.hash || '#home';
@@ -31,9 +35,26 @@ function handleRoute() {
     ideas: 'Incubator',
     settings: 'Settings'
   };
-  document.getElementById('page-title').textContent = titles[hash] || 'Nanal';
+  const titleEl = document.getElementById('page-title');
+  if (titleEl) titleEl.textContent = titles[hash] || 'Nanal';
 
-  // Load View (Placeholder)
+  // Load View (Placeholder logic)
+  renderView(hash);
+}
+
+// TODO: Move this to a proper Router class in Phase 2
+async function renderView(viewName) {
   const main = document.getElementById('main-view');
-  main.innerHTML = `<div class="card"><h2>${titles[hash]}</h2><p>Content for ${hash} goes here.</p></div>`;
+  main.innerHTML = `<div class="card" style="animation: fadeIn 0.3s ease;">
+        <h2>${viewName.charAt(0).toUpperCase() + viewName.slice(1)}</h2>
+        <p>Loading view...</p>
+    </div>`;
+
+  try {
+    // Dynamic import attempt (will be implemented fully in Phase 2)
+    // const module = await import(`./views/${viewName}.js`);
+    // module.render(main);
+  } catch (e) {
+    console.error('View load error:', e);
+  }
 }
