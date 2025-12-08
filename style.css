@@ -90,6 +90,20 @@ body {
     font-weight: 600;
 }
 
+.add-btn {
+    background: var(--accent-color);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    border: none;
+}
+
 .app-nav {
     height: var(--nav-height);
     position: absolute;
@@ -140,26 +154,27 @@ body {
     flex: 1;
     margin-top: var(--header-height);
     margin-bottom: var(--nav-height);
-    overflow: hidden;
-    /* Important for inner scroll in home-layout */
+    overflow-y: auto;
+    /* Default for list views */
     position: relative;
 }
 
-/* Home Layout */
 .home-layout {
+    height: 100%;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    position: relative;
 }
 
+/* Special layout for home */
+
+/* Home Timeline */
 .timeline-container {
     flex: 1;
     display: flex;
     overflow-y: auto;
     position: relative;
     padding-bottom: 150px;
-    /* Space for todo sheet */
 }
 
 .time-axis {
@@ -169,9 +184,7 @@ body {
     border-right: 1px solid var(--glass-border);
     background: rgba(0, 0, 0, 0.02);
     min-height: 2000px;
-    /* Ensure scroll height */
     height: 2400px;
-    /* 100px per hour example */
 }
 
 .timeline-content {
@@ -181,7 +194,6 @@ body {
     height: 2400px;
 }
 
-/* Timeline Elements */
 .time-label {
     position: absolute;
     right: 10px;
@@ -256,7 +268,6 @@ body {
     left: 0;
     right: 0;
     height: 30%;
-    /* Start height */
     background: var(--glass-bg);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
@@ -295,4 +306,167 @@ body {
     width: 20px;
     height: 20px;
     accent-color: var(--accent-color);
+}
+
+/* Calendar Styles */
+.calendar-container {
+    padding: 20px;
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    row-gap: 20px;
+}
+
+.day-cell {
+    text-align: center;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.day-cell.active {
+    background: var(--accent-color);
+    color: white;
+}
+
+.day-dots {
+    display: flex;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.7;
+}
+
+.day-cell:not(.active) .dot {
+    background: var(--accent-color);
+}
+
+/* Goals Styles */
+.goals-list {
+    padding: 20px;
+}
+
+.card.glass {
+    background: var(--glass-bg);
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    margin-top: 20px;
+}
+
+.habits-row {
+    margin-top: 15px;
+}
+
+.habits-grid {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.habit-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.habit-circle.done {
+    background: var(--success-color);
+    border-color: transparent;
+    color: white;
+}
+
+.goal-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.goal-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--accent-color);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+/* Ideas (Masonry) */
+.ideas-container {
+    padding: 20px;
+    column-count: 2;
+    column-gap: 15px;
+}
+
+.idea-card {
+    break-inside: avoid;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.idea-card h4 {
+    font-size: 14px;
+    margin: 0;
+}
+
+.idea-card p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
 }
