@@ -1,25 +1,24 @@
 // app.js - 메인 진입점
 
 import { FirebaseDB, FirebaseAuth } from './firebase-config.js';
-import HomeScreen from './modules/home.js';
-import WeeklyScreen from './modules/weekly.js';
-import CalendarScreen from './modules/calendar.js';
-import GrowthScreen from './modules/growth.js';
-import TimetableScreen from './modules/timetable.js';
-import MoreScreen from './modules/more.js';
+import { dataManager } from './state.js';
 
-// 전역 상태
+// New views (component-based architecture)
+import HomeView from './views/Home.js';
+import IdeasView from './views/Ideas.js';
+import CalendarView from './views/Calendar.js';
+import GoalsView from './views/Goals.js';
+import SettingsView from './views/Settings.js';
+
+// Legacy modules (to be refactored later if needed)
+// import WeeklyScreen from './modules/weekly.js';
+// import TimetableScreen from './modules/timetable.js';
+
+// 전역 상태 (legacy - will be replaced by dataManager)
 const AppState = {
   currentScreen: 'home',
   user: null,
   theme: 'light',
-
-  // 임시 데이터 (나중에 Firebase로 옮길 것)
-  todos: [],
-  events: [],
-  budget: [],
-  goals: [],
-  habits: [],
 
   setState(newState) {
     Object.assign(this, newState);
@@ -32,19 +31,27 @@ const AppState = {
 class Router {
   constructor() {
     this.currentScreen = 'home';
-    this.currentModule = null;
-    this.screens = {
-      home: HomeScreen,
-      weekly: WeeklyScreen,
-      calendar: CalendarScreen,
-      growth: GrowthScreen,
-      timetable: TimetableScreen,
-      more: MoreScreen
+    this.currentView = null;
+
+    // New views (class instances)
+    this.views = {
+      home: new HomeView(),
+      ideas: new IdeasView(),
+      calendar: new CalendarView(),
+      goals: new GoalsView(),
+      settings: new SettingsView()
     };
+
+    // Legacy modules (objects with render/init methods)
+    // this.legacyModules = {
+    //   weekly: WeeklyScreen,
+    //   timetable: TimetableScreen
+    // };
+    this.legacyModules = {};
   }
 
   navigateTo(screenName) {
-    console.log(`Navigating to: ${screenName}`);
+    console.log(`[Router] Navigating to: ${screenName}`);
 
     this.hideCurrentScreen();
     this.showScreen(screenName);
@@ -55,9 +62,12 @@ class Router {
   }
 
   hideCurrentScreen() {
-    // 이전 모듈 정리
-    if (this.currentModule && this.currentModule.destroy) {
-      this.currentModule.destroy();
+    // Clean up current view/module
+    if (this.currentView) {
+      if (this.currentView.destroy) {
+        this.currentView.destroy();
+      }
+      this.currentView = null;
     }
 
     const container = document.getElementById('screen-container');
@@ -66,37 +76,61 @@ class Router {
 
   showScreen(screenName) {
     const container = document.getElementById('screen-container');
-    const screenModule = this.screens[screenName];
 
-    if (screenModule) {
-      // 화면 렌더링
-      container.innerHTML = screenModule.render();
+    // Check if it's a new view
+    if (this.views[screenName]) {
+      const view = this.views[screenName];
 
-      // 모듈 초기화
-      if (screenModule.init) {
-        screenModule.init();
+      // Render view
+      container.innerHTML = view.render();
+
+      // Initialize view
+      if (view.init) {
+        view.init();
       }
 
-      // 현재 모듈 저장
-      this.currentModule = screenModule;
-    } else {
-      // 모듈이 없는 경우 플레이스홀더 표시
+      // Store current view
+      this.currentView = view;
+
+      console.log(`[Router] Loaded view: ${screenName}`);
+    }
+    // Check if it's a legacy module
+    else if (this.legacyModules[screenName]) {
+      const module = this.legacyModules[screenName];
+
+      // Render module (legacy pattern)
+      container.innerHTML = module.render();
+
+      // Initialize module
+      if (module.init) {
+        module.init();
+      }
+
+      // Store current module as view
+      this.currentView = module;
+
+      console.log(`[Router] Loaded legacy module: ${screenName}`);
+    }
+    // Screen not found
+    else {
       container.innerHTML = `
         <div class="screen-placeholder fade-in">
           <h1>${this.getScreenTitle(screenName)}</h1>
           <p>이 화면은 개발 중입니다.</p>
         </div>
       `;
+
+      console.warn(`[Router] Screen not found: ${screenName}`);
     }
   }
 
   updateNavigation(screenName) {
-    // 이전 active 제거
+    // Remove previous active state
     document.querySelectorAll('.nav-item').forEach(item => {
       item.classList.remove('active');
     });
 
-    // 새 active 추가
+    // Add new active state
     document.querySelectorAll(`[data-screen="${screenName}"]`).forEach(item => {
       item.classList.add('active');
     });
@@ -105,11 +139,12 @@ class Router {
   getScreenTitle(screenName) {
     const titles = {
       home: '홈',
+      ideas: '아이디어',
       weekly: '주간',
       calendar: '캘린더',
-      growth: '성장 트래킹',
+      goals: '성장',
       timetable: '시간표',
-      more: '더보기'
+      settings: '설정'
     };
     return titles[screenName] || '알 수 없는 화면';
   }
@@ -261,27 +296,52 @@ const router = new Router();
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('🚀 App initializing...');
 
-  setupEventListeners();
-  setupTheme();
-  setupAuth();
-
-  // Firebase 연결 테스트
   try {
-    console.log('Testing Firebase connection...');
-    const testData = {
-      message: 'Firebase connected!',
-      timestamp: new Date().toISOString()
-    };
-    await FirebaseDB.set('test', 'connection', testData);
-    console.log('✅ Firebase connected successfully');
+    // CRITICAL: Initialize dataManager first (runs migration if needed)
+    console.log('[App] Initializing dataManager...');
+    await dataManager.initialize();
+    console.log('✅ DataManager initialized');
+
+    // Setup event listeners and theme
+    setupEventListeners();
+    setupTheme();
+    setupAuth();
+
+    // Firebase 연결 테스트
+    try {
+      console.log('[App] Testing Firebase connection...');
+      const testData = {
+        message: 'Firebase connected!',
+        timestamp: new Date().toISOString()
+      };
+      await FirebaseDB.set('test', 'connection', testData);
+      console.log('✅ Firebase connected successfully');
+    } catch (error) {
+      console.error('⚠️ Firebase connection failed:', error);
+    }
+
+    // Navigate to initial screen
+    const hash = window.location.hash.slice(1) || 'home';
+    router.navigateTo(hash);
+
+    console.log('✅ App initialized successfully');
+
   } catch (error) {
-    console.error('Firebase connection failed:', error);
+    console.error('❌ App initialization failed:', error);
+
+    // Show error to user
+    const container = document.getElementById('screen-container');
+    if (container) {
+      container.innerHTML = `
+        <div class="error-screen fade-in">
+          <h1>⚠️ 초기화 오류</h1>
+          <p>앱을 시작하는 중 오류가 발생했습니다.</p>
+          <p class="error-detail">${error.message}</p>
+          <button class="btn-primary" onclick="location.reload()">다시 시도</button>
+        </div>
+      `;
+    }
   }
-
-  const hash = window.location.hash.slice(1) || 'home';
-  router.navigateTo(hash);
-
-  console.log('✅ App initialized successfully');
 });
 
 // 다른 파일에서 쓸 것들
