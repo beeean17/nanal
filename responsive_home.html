@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Nanal - Responsive Home</title>
+    <style>
+        /* 
+         * GLOBAL VARIABLES & RESET 
+         */
+        :root {
+            --bg-color: #F5F7FA;
+            --card-bg: #FFFFFF;
+            --primary-blue: #007AFF;
+            --primary-blue-light: #E0F0FF;
+            --text-main: #1C1C1E;
+            --text-sub: #8E8E93;
+            --border-color: #E5E5EA;
+            --radius-md: 16px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --nav-height-mobile: 80px;
+            --sidebar-width: 240px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            /* App-like feel */
+        }
+
+        /* 
+         * LAYOUT STRUCTURE 
+         */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            /* Mobile default */
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            padding-bottom: calc(var(--nav-height-mobile) + 24px);
+            /* Space for bottom nav */
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* 
+         * NAVIGATION 
+         */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--nav-height-mobile);
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: var(--text-sub);
+            font-size: 10px;
+            width: 60px;
+        }
+
+        .nav-item.active {
+            color: var(--primary-blue);
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            background-color: currentColor;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+        }
+
+        /* Simple SVG masks for icons */
+        .icon-home {
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E");
+        }
+
+        .icon-calendar {
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+        }
+
+        .icon-goals {
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Ccircle cx='12' cy='12' r='6'%3E%3C/circle%3E%3Ccircle cx='12' cy='12' r='2'%3E%3C/circle%3E%3C/svg%3E");
+        }
+
+        .icon-ideas {
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.1.2-2.2.5-3z'%3E%3C/path%3E%3C/svg%3E");
+        }
+
+        /* Lightbulb-ish */
+        .icon-more {
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='1'%3E%3C/circle%3E%3Ccircle cx='19' cy='12' r='1'%3E%3C/circle%3E%3Ccircle cx='5' cy='12' r='1'%3E%3C/circle%3E%3C/svg%3E");
+        }
+
+        .logo {
+            display: none;
+            /* Hidden on mobile */
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--primary-blue);
+            margin-bottom: 40px;
+            padding: 0 12px;
+        }
+
+        /* 
+         * HEADER 
+         */
+        .mobile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header-time {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .header-weather {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-sub);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .weather-icon {
+            width: 20px;
+            height: 20px;
+            /* Sun Icon */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F6A000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5'%3E%3C/circle%3E%3Cline x1='12' y1='1' x2='12' y2='3'%3E%3C/line%3E%3Cline x1='12' y1='21' x2='12' y2='23'%3E%3C/line%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'%3E%3C/line%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'%3E%3C/line%3E%3Cline x1='1' y1='12' x2='3' y2='12'%3E%3C/line%3E%3Cline x1='21' y1='12' x2='23' y2='12'%3E%3C/line%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'%3E%3C/line%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'%3E%3C/line%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        /* 
+         * CARDS 
+         */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        /* 
+         * TIMELINE (VERTICAL - Mobile/Tablet)
+         */
+        .timeline-vertical {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .current-time-line {
+            position: absolute;
+            left: 0;
+            top: 25%;
+            /* Arbitrary for demo */
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-blue);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+        }
+
+        .current-time-line::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary-blue);
+            border-radius: 50%;
+            position: absolute;
+            left: -5px;
+        }
+
+        .current-time-label {
+            position: absolute;
+            left: -60px;
+            background: var(--primary-blue);
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .timeline-track {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--border-color);
+        }
+
+        .time-block {
+            background-color: var(--primary-blue-light);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            margin-bottom: 12px;
+            margin-left: 16px;
+            border-left: 3px solid var(--primary-blue);
+            position: relative;
+        }
+
+        .time-block-time {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-bottom: 4px;
+        }
+
+        .time-block-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* 
+         * TODO LIST
+         */
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--bg-color);
+        }
+
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .checkbox.checked {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .checkbox.checked::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .todo-text {
+            font-size: 15px;
+        }
+
+        /* 
+         * TABLET & DESKTOP HELPERS
+         */
+        .desktop-only,
+        .tablet-only {
+            display: none;
+        }
+
+        /* 
+         * ----------------------------------------------------
+         * MEDIA QUERIES 
+         * ----------------------------------------------------
+         */
+
+        /* TABLET & UP (>= 768px) */
+        @media (min-width: 768px) {
+            .app-container {
+                flex-direction: row;
+            }
+
+            /* Move Nav to Side */
+            .nav-bar {
+                position: relative;
+                width: var(--sidebar-width);
+                height: 100vh;
+                flex-direction: column;
+                justify-content: flex-start;
+                padding: 40px 20px;
+                background-color: var(--card-bg);
+                border-top: none;
+                border-right: 1px solid var(--border-color);
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .logo {
+                display: block;
+            }
+
+            .nav-item {
+                flex-direction: row;
+                width: 100%;
+                padding: 12px 16px;
+                border-radius: var(--radius-sm);
+                font-size: 16px;
+                gap: 12px;
+            }
+
+            .nav-item:hover {
+                background-color: var(--bg-color);
+            }
+
+            .nav-item.active {
+                background-color: var(--primary-blue-light);
+            }
+
+            .main-content {
+                padding: 40px;
+                padding-bottom: 40px;
+            }
+
+            .mobile-header {
+                display: none;
+                /* We use a different header or integrate it */
+            }
+
+            /* Tablet Grid Layout */
+            .tablet-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+                height: 100%;
+            }
+
+            /* Adjust cards for full height in grid */
+            .timeline-card {
+                grid-column: 2;
+                grid-row: 1 / span 2;
+                height: 100%;
+            }
+
+            .todo-card {
+                grid-column: 1;
+                grid-row: 1;
+            }
+
+            /* Timeline 3-Day View (Tablet) */
+            .timeline-3day {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 12px;
+                height: 100%;
+            }
+
+            .day-col {
+                border-right: 1px solid var(--bg-color);
+                padding-right: 8px;
+            }
+
+            .day-col:last-child {
+                border-right: none;
+            }
+
+            .day-header {
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--text-sub);
+                margin-bottom: 16px;
+                text-align: center;
+            }
+
+            /* Header for Tablet/Desktop */
+            .desktop-header {
+                display: flex;
+                align-items: baseline;
+                gap: 16px;
+                margin-bottom: 32px;
+            }
+
+            .desktop-header h1 {
+                font-size: 32px;
+            }
+
+            .desktop-header span {
+                font-size: 16px;
+                color: var(--text-sub);
+            }
+        }
+
+        /* DESKTOP (>= 1024px) */
+        @media (min-width: 1024px) {
+            .tablet-grid {
+                display: block;
+                /* Reset tablet grid */
+            }
+
+            .main-content {
+                display: grid;
+                grid-template-rows: auto 1fr auto;
+                gap: 24px;
+                overflow: hidden;
+            }
+
+            /* Weekly Landscape Timeline */
+            .timeline-landscape {
+                display: grid;
+                grid-template-columns: 60px repeat(7, 1fr);
+                /* Time labels + 7 days */
+                border: 1px solid var(--border-color);
+                border-radius: var(--radius-md);
+                background: var(--card-bg);
+                overflow: hidden;
+                height: 400px;
+                /* Fixed height for scrollable area */
+                position: relative;
+            }
+
+            .grid-header {
+                grid-column: 2 / -1;
+                display: grid;
+                grid-template-columns: subgrid;
+                border-bottom: 1px solid var(--border-color);
+                background: #F9FAFC;
+            }
+
+            .grid-day-label {
+                padding: 12px;
+                text-align: center;
+                font-weight: 600;
+                font-size: 14px;
+                border-right: 1px solid var(--border-color);
+            }
+
+            .grid-body {
+                grid-column: 1 / -1;
+                display: grid;
+                grid-template-columns: subgrid;
+                overflow-y: auto;
+                height: 100%;
+            }
+
+            .time-labels {
+                grid-column: 1;
+                border-right: 1px solid var(--border-color);
+                background: #F9FAFC;
+            }
+
+            .time-label-slot {
+                height: 60px;
+                display: flex;
+                align-items: start;
+                justify-content: center;
+                font-size: 12px;
+                color: var(--text-sub);
+                padding-top: 8px;
+                border-bottom: 1px solid var(--bg-color);
+            }
+
+            .day-slots {
+                border-right: 1px solid var(--bg-color);
+                position: relative;
+            }
+
+            .slot-item {
+                position: absolute;
+                left: 4px;
+                right: 4px;
+                background: var(--primary-blue-light);
+                color: var(--primary-blue);
+                font-size: 12px;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-weight: 600;
+            }
+
+            /* Bottom Section: 2 Cols */
+            .bottom-dashboard {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+
+        <!-- NAVIGATION (Responsive: Bottom Grid / Side Bar) -->
+        <nav class="nav-bar">
+            <div class="logo">Diff-Nanal</div>
+            <a href="#" class="nav-item active">
+                <div class="nav-icon icon-home"></div>
+                <span>Home</span>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon icon-calendar"></div>
+                <span>Calendar</span>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon icon-goals"></div>
+                <span>Goals</span>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon icon-ideas"></div>
+                <span>Ideas</span>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon icon-more"></div>
+                <span>More</span>
+            </a>
+        </nav>
+
+        <!-- MAIN LAYOUT -->
+        <main class="main-content">
+
+            <!-- HEADER (Mobile) -->
+            <div class="mobile-header d-md-none">
+                <div>
+                    <div class="header-time">09:41 AM</div>
+                </div>
+                <div class="header-weather">
+                    <div class="weather-icon"></div>
+                    <span>Seoul 24°C</span>
+                </div>
+            </div>
+
+            <!-- HEADER (Desktop/Tablet) -->
+            <div class="desktop-header d-none d-md-flex" style="display: none;">
+                <h1>09:41 AM</h1>
+                <span>Wed, Oct 25 · Seoul, Sunny H 26° L 15°</span>
+            </div>
+
+            <!-- MOBILE CONTENT (<768px) -->
+            <div class="mobile-layout-content" id="mobile-view">
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-title">Today's Timeline</div>
+                    <div class="timeline-vertical" style="height: 300px;">
+                        <div class="timeline-track"></div>
+                        <div class="current-time-line">
+                            <span class="current-time-label">09:41 AM</span>
+                        </div>
+
+                        <div class="time-block" style="margin-top: 40px;">
+                            <div class="time-block-time">09:00 - 10:00</div>
+                            <div class="time-block-title">Team Meeting</div>
+                        </div>
+                        <div class="time-block" style="margin-top: 60px;">
+                            <div class="time-block-time">11:00 - 12:00</div>
+                            <div class="time-block-title">Design Review</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">To-Do List</div>
+                    <div class="todo-item">
+                        <div class="checkbox checked"></div>
+                        <span class="todo-text">Email</span>
+                    </div>
+                    <div class="todo-item">
+                        <div class="checkbox"></div>
+                        <span class="todo-text">Sync Up</span>
+                    </div>
+                    <div class="todo-item">
+                        <div class="checkbox"></div>
+                        <span class="todo-text">Project Analysis</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLET CONTENT (768px - 1024px) -->
+            <div class="tablet-layout-content" id="tablet-view" style="display: none;">
+                <div class="tablet-grid">
+                    <div class="card todo-card">
+                        <div class="card-title">Today's To-Do</div>
+                        <!-- More items for tablet -->
+                        <div class="todo-item">
+                            <div class="checkbox checked"></div><span class="todo-text">Email</span>
+                        </div>
+                        <div class="todo-item">
+                            <div class="checkbox checked"></div><span class="todo-text">Sync Up</span>
+                        </div>
+                        <div class="todo-item">
+                            <div class="checkbox checked"></div><span class="todo-text">Proact monstros</span>
+                        </div>
+                        <div class="todo-item">
+                            <div class="checkbox checked"></div><span class="todo-text">Add to streak list</span>
+                        </div>
+                        <div class="todo-item">
+                            <div class="checkbox"></div><span class="todo-text">Pan to emotion</span>
+                        </div>
+                        <div class="todo-item">
+                            <div class="checkbox checked"></div><span class="todo-text">Sync assessment</span>
+                        </div>
+                        <div class="todo-item">
+                            <div class="checkbox"></div><span class="todo-text">Create cummins</span>
+                        </div>
+                    </div>
+
+                    <div class="card timeline-card">
+                        <div class="card-title">3-Day Timeline</div>
+                        <div class="timeline-3day">
+                            <div class="day-col">
+                                <div class="day-header">Today</div>
+                                <!-- Reusing mobile style blocks but simpler -->
+                                <div class="time-block" style="margin-top: 40px; margin-left:0;">
+                                    <div class="time-block-title">[Meeting]</div>
+                                </div>
+                                <div class="time-block" style="margin-top: 100px; margin-left:0;">
+                                    <div class="time-block-title">[Meeting]</div>
+                                </div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">Tomorrow</div>
+                                <div class="time-block" style="margin-top: 80px; margin-left:0;">
+                                    <div class="time-block-title">[Meeting]</div>
+                                </div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">Day After</div>
+                                <div class="time-block" style="margin-top: 60px; margin-left:0;">
+                                    <div class="time-block-title">[Meeting]</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DESKTOP CONTENT (>= 1024px) -->
+            <div class="desktop-layout-content" id="desktop-view" style="display: none;">
+                <!-- Top: Landscape Timeline -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-title">Weekly Landscape Timeline</div>
+                    <div class="timeline-landscape">
+                        <div class="grid-header">
+                            <div class="grid-day-label">Mon</div>
+                            <div class="grid-day-label">Tue</div>
+                            <div class="grid-day-label">Wed</div>
+                            <div class="grid-day-label">Thu</div>
+                            <div class="grid-day-label">Fri</div>
+                            <div class="grid-day-label">Sat</div>
+                            <div class="grid-day-label">Sun</div>
+                        </div>
+                        <div class="grid-body">
+                            <div class="time-labels">
+                                <div class="time-label-slot">09:00</div>
+                                <div class="time-label-slot">10:00</div>
+                                <div class="time-label-slot">11:00</div>
+                                <div class="time-label-slot">12:00</div>
+                                <div class="time-label-slot">13:00</div>
+                            </div>
+                            <!-- 7 Days Columns -->
+                            <div class="day-slots">
+                                <div class="slot-item" style="top: 10px; height: 50px;">[Work]</div>
+                            </div>
+                            <div class="day-slots">
+                                <div class="slot-item" style="top: 10px; height: 50px;">[Work]</div>
+                                <div class="slot-item" style="top: 130px; height: 50px;">[Meeting]</div>
+                            </div>
+                            <div class="day-slots">
+                                <div class="slot-item" style="top: 10px; height: 50px;">[Work]</div>
+                            </div>
+                            <div class="day-slots">
+                                <div class="slot-item" style="top: 10px; height: 50px;">[Work]</div>
+                                <div class="slot-item" style="top: 130px; height: 50px;">[Meeting]</div>
+                            </div>
+                            <div class="day-slots">
+                                <div class="slot-item" style="top: 10px; height: 50px;">[Work]</div>
+                            </div>
+                            <div class="day-slots">
+                                <div class="slot-item" style="top: 70px; height: 50px;">[Meeting]</div>
+                            </div>
+                            <div class="day-slots"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom: 2 Cols -->
+                <div class="bottom-dashboard">
+                    <div class="card">
+                        <div class="card-title">All To-Do List</div>
+                        <div class="todo-item">
+                            <div class="checkbox checked"></div><span class="todo-text">Email</span>
+                        </div>
+                        <div class="todo-item">
+                            <div class="checkbox"></div><span class="todo-text">Sync Up</span>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Weekly Goal Summary</div>
+                        <div class="todo-item">
+                            <div class="checkbox"></div><span class="todo-text">Schedule</span>
+                        </div>
+                        <div class="todo-item">
+                            <div class="checkbox"></div><span class="todo-text">Team shine</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Styles for switching logic (CSS only approach) -->
+    <style>
+        /* Default mobile: show mobile-view, hide others */
+        #mobile-view {
+            display: block;
+        }
+
+        #tablet-view {
+            display: none;
+        }
+
+        #desktop-view {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            #mobile-view {
+                display: none;
+            }
+
+            #tablet-view {
+                display: block;
+            }
+
+            #desktop-view {
+                display: none;
+            }
+
+            /* Helper classes */
+            .d-md-none {
+                display: none !important;
+            }
+
+            .d-md-flex {
+                display: flex !important;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #mobile-view {
+                display: none;
+            }
+
+            #tablet-view {
+                display: none;
+            }
+
+            #desktop-view {
+                display: block;
+            }
+        }
+    </style>
+</body>
+
+</html>

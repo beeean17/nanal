@@ -3,69 +3,59 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Nanal - My Day</title>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nanal - Productivity App</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
     <div id="app">
-        <!-- Header -->
-        <header class="app-header">
-            <h1 id="page-title">Today</h1>
-            <div id="header-actions">
-                <!-- Dynamic Actions like 'Add', 'Edit' or Avatar -->
-            </div>
-        </header>
+        <!-- Sidebar / Navigation -->
+        <nav id="nav-container">
+            <div class="nav-item active" data-target="home">Start</div> <!-- Icon placeholder -->
+            <div class="nav-item" data-target="calendar">Cal</div>
+            <div class="nav-item" data-target="goals">Goal</div>
+            <div class="nav-item" data-target="ideas">Idea</div>
+            <div class="nav-item" data-target="settings">Set</div>
+        </nav>
 
-        <!-- Main View Area -->
-        <main id="main-view" class="view-container">
-            <!-- Views will be injected here by app.js -->
-            <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
-                <p>Loading Nanal...</p>
+        <!-- Main Content Area -->
+        <main id="main-content">
+            <!-- Dynamic Content will be injected here -->
+
+            <!-- Structure for Home View (for CSS testing) -->
+            <div id="view-home" class="view-container">
+
+                <!-- Desktop Top / Tablet Right / Mobile Top(Timeline) -->
+                <section class="section-timeline">
+                    <div class="timeline-header">Timeline</div>
+                    <div class="timeline-body">
+                        <!-- Mock Timeline Content -->
+                        <div class="time-slot"
+                            style="top: 20%; height: 100px; background: #e3f2fd; border-left: 4px solid #2196f3; position: absolute; width: 90%;">
+                            Event: Unix Programming
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Desktop Bottom / Tablet Left / Mobile Bottom(Todo) -->
+                <section class="section-todo">
+                    <div class="todo-header">Tasks</div>
+                    <div class="todo-list">
+                        <div class="todo-card">Buy Milk</div>
+                        <div class="todo-card">Finish Project</div>
+                    </div>
+                </section>
+
+                <section class="section-weekly-goals">
+                    <div class="goal-header">Weekly Goals</div>
+                    <div class="goal-card">Read 50 pages</div>
+                </section>
+
             </div>
         </main>
-
-        <!-- Navigation Bar -->
-        <nav class="app-nav">
-            <a href="#home" class="nav-item active" data-target="home">
-                <div class="icon"
-                    style="-webkit-mask-image: url('assets/home.svg'); mask-image: url('assets/home.svg'); background-color: currentColor;">
-                </div>
-                <span>투데이</span>
-            </a>
-            <a href="#calendar" class="nav-item" data-target="calendar">
-                <div class="icon"
-                    style="-webkit-mask-image: url('assets/calendar.svg'); mask-image: url('assets/calendar.svg'); background-color: currentColor;">
-                </div>
-                <span>캘린더</span>
-            </a>
-            <a href="#goals" class="nav-item" data-target="goals">
-                <div class="icon"
-                    style="-webkit-mask-image: url('assets/target.svg'); mask-image: url('assets/target.svg'); background-color: currentColor;">
-                </div>
-                <span>목표</span>
-            </a>
-            <a href="#ideas" class="nav-item" data-target="ideas">
-                <div class="icon"
-                    style="-webkit-mask-image: url('assets/idea.svg'); mask-image: url('assets/idea.svg'); background-color: currentColor;">
-                </div>
-                <span>아이디어</span>
-            </a>
-            <a href="#settings" class="nav-item" data-target="settings">
-                <div class="icon"
-                    style="-webkit-mask-image: url('assets/settings.svg'); mask-image: url('assets/settings.svg'); background-color: currentColor;">
-                </div>
-                <span>설정</span>
-            </a>
-        </nav>
     </div>
 
-    <!-- Scripts -->
     <script type="module" src="js/app.js"></script>
 </body>
 
