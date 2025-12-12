@@ -1,5 +1,6 @@
-// app.js - 메인 진입점
+import { dataManager } from './dataManager.js';
 
+<<<<<<< HEAD
 import { FirebaseDB, FirebaseAuth } from './firebase-config.js';
 import { dataManager } from './state.js';
 
@@ -347,3 +348,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 // 다른 파일에서 쓸 것들
 
 export { AppState, router, Storage, formatDate, debounce, toggleTheme };
+=======
+console.log('App Initialized'); // Log to verify loading
+
+// Verify DataManager loading
+const data = dataManager.getTasks();
+console.log('DataManager loaded tasks:', data);
+
+// Simple date check
+const today = new Date().toISOString().split('T')[0];
+console.log('Today tasks from DataManager:', dataManager.getTodayData(today));
+
+// Logic to switch views or init router would go here
+>>>>>>> main

@@ -22,7 +22,6 @@
 </head>
 
 <body>
-    <!-- 메인 컨테이너 -->
     <div id="app">
         <!-- 데스크탑 사이드바 (1024px+) -->
         <aside id="sidebar" class="sidebar">
@@ -50,10 +49,9 @@
             </nav>
         </aside>
 
-        <!-- 메인 콘텐츠 영역 -->
-        <main id="main-content" class="main-content">
-            <!-- 화면별 컨텐츠가 여기에 렌더링됨 -->
-            <div id="screen-container"></div>
+        <!-- Main Content Area -->
+        <main id="main-content">
+            <!-- Dynamic Content will be injected here -->
         </main>
 
         <!-- 모바일 하단 탭 바 (~ 1023px) -->
@@ -79,11 +77,6 @@
                 <span class="label">설정</span>
             </a>
         </nav>
-
-        <!-- 플로팅 액션 버튼 (선택적) -->
-        <button id="floating-action" class="floating-btn" aria-label="빠른 액션">
-            <span class="icon">+</span>
-        </button>
     </div>
 
     <!-- Modal Containers (used by components) -->
