@@ -1,0 +1,144 @@
+/* Todo List Component Styles (Refined) */
+
+.todo-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    width: 100%;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) 0;
+    /* Minimal vertical padding */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all var(--transition-fast);
+    background: transparent;
+    /* Clean look */
+    box-shadow: none;
+    /* remove default card shadow */
+}
+
+.todo-item:last-child {
+    border-bottom: none;
+}
+
+.todo-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    padding-left: var(--space-xs);
+    border-radius: var(--radius-sm);
+}
+
+/* Custom Checkbox */
+.checkbox-wrapper {
+    display: block;
+    position: relative;
+    padding-left: 24px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Hide default checkbox */
+.checkbox-wrapper input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Custom Checkmark Box */
+.checkmark {
+    position: absolute;
+    top: -10px;
+    /* Adjust centering */
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: transparent;
+    border: 2px solid var(--color-gray-400);
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.checkbox-wrapper:hover input~.checkmark {
+    border-color: var(--color-primary);
+}
+
+/* Checked State */
+.checkbox-wrapper input:checked~.checkmark {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+/* Checkmark Icon */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-wrapper input:checked~.checkmark:after {
+    display: block;
+}
+
+.checkbox-wrapper .checkmark:after {
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+/* Content */
+.todo-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.todo-title {
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+}
+
+.completed .todo-title {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+.task-time-badge {
+    font-size: 0.75rem;
+    color: var(--color-primary);
+    margin-top: 2px;
+}
+
+/* Actions */
+.todo-actions {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.todo-item:hover .todo-actions {
+    opacity: 1;
+}
+
+.todo-action-btn {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    padding: 4px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.todo-action-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}

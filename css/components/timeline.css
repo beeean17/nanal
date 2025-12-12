@@ -1,0 +1,162 @@
+/* Timeline Component Styles (Refined) */
+
+.timeline-grid {
+    display: flex;
+    height: 100%;
+    position: relative;
+    /* Remove self-border/bg as it now lives inside a glass card */
+    border: none;
+    background: transparent;
+    backdrop-filter: none;
+}
+
+/* Time Column */
+.timeline-time-column {
+    flex: 0 0 50px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 50px;
+    /* Offset for header */
+}
+
+.timeline-hour-label {
+    height: 60px;
+    /* Hour height */
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: var(--color-text-tertiary);
+    transform: translateY(-50%);
+}
+
+/* Days Container */
+.timeline-days-container {
+    flex: 1;
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* Scroll handled by .dashboard-left-col or specific container */
+    position: relative;
+}
+
+/* Day Column */
+.timeline-day-column {
+    flex: 1;
+    min-width: 100px;
+    /* Adjust for density */
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Header */
+.timeline-day-header {
+    height: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.timeline-day-column.today .day-name {
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+/* Slots */
+.timeline-slots {
+    flex: 1;
+    position: relative;
+    /* Background lines */
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 100% 60px;
+    /* Hour lines */
+}
+
+/* Events */
+.timeline-event {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    border-radius: 4px;
+    padding: 6px;
+    font-size: 0.75rem;
+    color: white;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Event Colors (based on category or default) */
+/* Create utility classes if JS injects them, otherwise rely on inline style */
+/* Here I provide some default styles for when inline styles aren't perfect */
+
+.timeline-event[data-type="fixed"] {
+    background-color: var(--color-tag-blue) !important;
+    /* Override inline if needed or used as fallback */
+    color: var(--color-primary-dark);
+}
+
+.timeline-event[data-type="event"] {
+    background-color: var(--color-tag-green) !important;
+    color: var(--color-success);
+    border: 1px solid var(--color-success);
+}
+
+/* Specific styling for "Task Confirmation" blocks seen in image (Blue/Green) */
+/* This requires Timeline.js to set specific classes or colors. 
+   Assuming Timeline.js uses `style="background-color: ..."` which works well.
+   We just ensure contrasting text color.
+*/
+
+.event-title {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.event-time {
+    opacity: 0.8;
+    font-size: 0.7rem;
+}
+
+/* Current Time Line - Explicit Red Style */
+.timeline-current-time {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #FF3B30;
+    /* iOS Red */
+    z-index: 20;
+    pointer-events: none;
+    box-shadow: 0 0 4px rgba(255, 59, 48, 0.4);
+}
+
+.timeline-current-time::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: -3px;
+    width: 7px;
+    height: 7px;
+    background-color: #FF3B30;
+    border-radius: 50%;
+}
+
+.current-time-label {
+    position: absolute;
+    left: -45px;
+    /* In time column */
+    top: -10px;
+    background: #FF3B30;
+    color: white;
+    font-size: 0.65rem;
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-weight: bold;
+}

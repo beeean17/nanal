@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infrastructure Test - Nanal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 2rem;
+      background: #f5f5f5;
+    }
+
+    h1 {
+      margin-bottom: 2rem;
+      color: #333;
+    }
+
+    .test-section {
+      background: white;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .test-section h2 {
+      margin-bottom: 1rem;
+      color: #2196F3;
+      font-size: 1.2rem;
+    }
+
+    .test-container {
+      border: 2px dashed #ddd;
+      padding: 1rem;
+      min-height: 100px;
+      border-radius: 4px;
+      background: #fafafa;
+    }
+
+    button {
+      background: #2196F3;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0.5rem 0.5rem 0.5rem 0;
+      font-size: 0.9rem;
+    }
+
+    button:hover {
+      background: #1976D2;
+    }
+
+    button.danger {
+      background: #F44336;
+    }
+
+    button.danger:hover {
+      background: #D32F2F;
+    }
+
+    .status {
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+
+    .status.success {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+
+    .status.error {
+      background: #FFEBEE;
+      color: #C62828;
+    }
+
+    .status.info {
+      background: #E3F2FD;
+      color: #1565C0;
+    }
+
+    .console-output {
+      background: #263238;
+      color: #ADBAC7;
+      padding: 1rem;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Infrastructure Test</h1>
+
+  <!-- Component Test -->
+  <section class="test-section">
+    <h2>1. Base Component Test</h2>
+    <div id="component-test" class="test-container"></div>
+    <button onclick="testComponent()">Mount Component</button>
+    <button onclick="updateComponent()">Update Component</button>
+    <button onclick="destroyComponent()" class="danger">Destroy Component</button>
+    <div id="component-status"></div>
+  </section>
+
+  <!-- EventBus Test -->
+  <section class="test-section">
+    <h2>2. EventBus Test</h2>
+    <button onclick="testEventBus()">Subscribe & Emit</button>
+    <button onclick="testEventBusOnce()">Test Once</button>
+    <button onclick="clearEventBus()">Clear Events</button>
+    <div id="eventbus-status"></div>
+  </section>
+
+  <!-- Logger Test -->
+  <section class="test-section">
+    <h2>3. Logger Test</h2>
+    <button onclick="testLogger()">Test All Levels</button>
+    <button onclick="testLoggerGroup()">Test Group</button>
+    <button onclick="testLoggerStats()">Show Stats</button>
+    <div id="logger-status"></div>
+  </section>
+
+  <!-- Router Test -->
+  <section class="test-section">
+    <h2>4. Router Test</h2>
+    <button onclick="navigateHome()">Home</button>
+    <button onclick="navigateAbout()">About</button>
+    <button onclick="navigateContact()">Contact</button>
+    <div id="router-container" class="test-container"></div>
+    <div id="router-status"></div>
+  </section>
+
+  <div class="console-output" id="console-output">
+    Console output will appear here...
+  </div>
+
+  <script type="module">
+    // Import infrastructure
+    import { Component } from './js/components/base/Component.js';
+    import { Router } from './js/core/Router.js';
+    import { EventBus } from './js/core/EventBus.js';
+    import { Logger } from './js/core/Logger.js';
+
+    // Make available globally for testing
+    window.Component = Component;
+    window.Router = Router;
+    window.EventBus = EventBus;
+    window.Logger = Logger;
+
+    // Console output capture
+    const consoleOutput = document.getElementById('console-output');
+    const originalLog = console.log;
+    const originalInfo = console.info;
+    const originalWarn = console.warn;
+    const originalError = console.error;
+
+    function addToConsoleOutput(type, ...args) {
+      const line = document.createElement('div');
+      line.textContent = `[${type}] ${args.join(' ')}`;
+      consoleOutput.appendChild(line);
+      consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+
+    console.log = (...args) => {
+      originalLog(...args);
+      addToConsoleOutput('LOG', ...args);
+    };
+
+    console.info = (...args) => {
+      originalInfo(...args);
+      addToConsoleOutput('INFO', ...args);
+    };
+
+    console.warn = (...args) => {
+      originalWarn(...args);
+      addToConsoleOutput('WARN', ...args);
+    };
+
+    console.error = (...args) => {
+      originalError(...args);
+      addToConsoleOutput('ERROR', ...args);
+    };
+
+    // Test Component
+    class TestComponent extends Component {
+      constructor(containerId, options) {
+        super(containerId, options);
+        this.clickCount = 0;
+      }
+
+      template() {
+        return `
+          <div style="padding: 1rem;">
+            <h3>Test Component</h3>
+            <p>Name: ${this.options.name || 'Unknown'}</p>
+            <p>Click count: ${this.clickCount}</p>
+            <button id="test-btn">Click Me</button>
+          </div>
+        `;
+      }
+
+      setupEventListeners() {
+        const btn = this.$('#test-btn');
+        if (btn) {
+          this.addEventListener(btn, 'click', () => {
+            this.clickCount++;
+            this.render();
+            this.setupEventListeners();
+            Logger.info('Button clicked', { count: this.clickCount });
+          });
+        }
+      }
+    }
+
+    window.testComponentInstance = null;
+
+    window.testComponent = () => {
+      try {
+        window.testComponentInstance = new TestComponent('component-test', {
+          name: 'Hello World'
+        });
+        window.testComponentInstance.mount();
+        showStatus('component-status', 'Component mounted successfully!', 'success');
+      } catch (error) {
+        showStatus('component-status', `Error: ${error.message}`, 'error');
+      }
+    };
+
+    window.updateComponent = () => {
+      if (window.testComponentInstance) {
+        window.testComponentInstance.update({ name: 'Updated Name' });
+        showStatus('component-status', 'Component updated!', 'success');
+      } else {
+        showStatus('component-status', 'Mount component first!', 'error');
+      }
+    };
+
+    window.destroyComponent = () => {
+      if (window.testComponentInstance) {
+        window.testComponentInstance.destroy();
+        window.testComponentInstance = null;
+        showStatus('component-status', 'Component destroyed!', 'success');
+      } else {
+        showStatus('component-status', 'No component to destroy!', 'error');
+      }
+    };
+
+    // Test EventBus
+    window.testEventBus = () => {
+      let receivedData = null;
+
+      EventBus.on('test:event', (data) => {
+        receivedData = data;
+        Logger.info('EventBus received:', data);
+      });
+
+      EventBus.emit('test:event', { message: 'Hello EventBus!' });
+
+      if (receivedData) {
+        showStatus('eventbus-status', `Event received: ${receivedData.message}`, 'success');
+      } else {
+        showStatus('eventbus-status', 'Event not received!', 'error');
+      }
+    };
+
+    window.testEventBusOnce = () => {
+      let count = 0;
+
+      EventBus.once('test:once', () => {
+        count++;
+        Logger.info('Once event fired', { count });
+      });
+
+      EventBus.emit('test:once');
+      EventBus.emit('test:once');
+      EventBus.emit('test:once');
+
+      showStatus('eventbus-status', `Once event fired ${count} time(s) (should be 1)`, count === 1 ? 'success' : 'error');
+    };
+
+    window.clearEventBus = () => {
+      EventBus.clear();
+      showStatus('eventbus-status', 'All events cleared!', 'info');
+    };
+
+    // Test Logger
+    window.testLogger = () => {
+      Logger.debug('This is a debug message', { debug: true });
+      Logger.info('This is an info message', { info: true });
+      Logger.warn('This is a warning message', { warn: true });
+      Logger.error('This is an error message', { error: true });
+      showStatus('logger-status', 'Check console for log output!', 'info');
+    };
+
+    window.testLoggerGroup = () => {
+      Logger.group('Test Group');
+      Logger.info('Message 1');
+      Logger.info('Message 2');
+      Logger.info('Message 3');
+      Logger.groupEnd();
+      showStatus('logger-status', 'Group logged! Check console.', 'info');
+    };
+
+    window.testLoggerStats = () => {
+      Logger.printStats();
+      showStatus('logger-status', 'Stats printed to console!', 'info');
+    };
+
+    // Test Router
+    class HomeView {
+      render() {
+        return '<div style="padding: 1rem;"><h3>🏠 Home View</h3><p>Welcome to the home page!</p></div>';
+      }
+      init() {
+        Logger.info('Home view initialized');
+      }
+      destroy() {
+        Logger.info('Home view destroyed');
+      }
+    }
+
+    class AboutView {
+      render() {
+        return '<div style="padding: 1rem;"><h3>ℹ️ About View</h3><p>This is the about page.</p></div>';
+      }
+      init() {
+        Logger.info('About view initialized');
+      }
+      destroy() {
+        Logger.info('About view destroyed');
+      }
+    }
+
+    class ContactView {
+      render() {
+        return '<div style="padding: 1rem;"><h3>📧 Contact View</h3><p>Contact us here!</p></div>';
+      }
+      init() {
+        Logger.info('Contact view initialized');
+      }
+      destroy() {
+        Logger.info('Contact view destroyed');
+      }
+    }
+
+    const router = new Router({
+      home: HomeView,
+      about: AboutView,
+      contact: ContactView
+    }, 'home', 'router-container');
+
+    router.init();
+
+    window.navigateHome = () => {
+      router.navigateTo('home');
+      showStatus('router-status', 'Navigated to Home', 'success');
+    };
+
+    window.navigateAbout = () => {
+      router.navigateTo('about');
+      showStatus('router-status', 'Navigated to About', 'success');
+    };
+
+    window.navigateContact = () => {
+      router.navigateTo('contact');
+      showStatus('router-status', 'Navigated to Contact', 'success');
+    };
+
+    // Helper function
+    function showStatus(elementId, message, type) {
+      const element = document.getElementById(elementId);
+      element.innerHTML = `<div class="status ${type}">${message}</div>`;
+    }
+
+    // Initial log
+    Logger.info('Infrastructure test page loaded successfully!');
+    console.log('✅ All modules imported successfully');
+    console.log('✅ Component, Router, EventBus, Logger ready to test');
+  </script>
+</body>
+</html>

@@ -4,58 +4,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nanal - Productivity App</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="나날 (Nanal) - 일상 관리 허브">
+    <title>나날 - Nanal</title>
+
+    <!-- Base URL for GitHub Pages (comment out for local development) -->
+    <!-- <base href="/nanal/"> -->
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components/weather.css">
+    <link rel="stylesheet" href="css/components/todo.css">
+    <link rel="stylesheet" href="css/components/navbar.css">
+    <link rel="stylesheet" href="css/components/timeline.css">
+    <link rel="stylesheet" href="css/views/home.css">
+    <link rel="stylesheet" href="css/responsive.css">
 </head>
 
 <body>
     <div id="app">
-        <!-- Sidebar / Navigation -->
-        <nav id="nav-container">
-            <div class="nav-item active" data-target="home">Start</div> <!-- Icon placeholder -->
-            <div class="nav-item" data-target="calendar">Cal</div>
-            <div class="nav-item" data-target="goals">Goal</div>
-            <div class="nav-item" data-target="ideas">Idea</div>
-            <div class="nav-item" data-target="settings">Set</div>
-        </nav>
+        <!-- 데스크탑 사이드바 (1024px+) -->
+        <aside id="sidebar" class="sidebar">
+            <nav class="nav-menu">
+                <a href="#home" class="nav-item active" data-screen="home">
+                    <span class="icon">🏠</span>
+                    <span class="label">홈</span>
+                </a>
+                <a href="#calendar" class="nav-item" data-screen="calendar">
+                    <span class="icon">📅</span>
+                    <span class="label">캘린더</span>
+                </a>
+                <a href="#goals" class="nav-item" data-screen="goals">
+                    <span class="icon">🎯</span>
+                    <span class="label">목표</span>
+                </a>
+                <a href="#ideas" class="nav-item" data-screen="ideas">
+                    <span class="icon">💡</span>
+                    <span class="label">아이디어</span>
+                </a>
+                <a href="#settings" class="nav-item" data-screen="settings">
+                    <span class="icon">⚙️</span>
+                    <span class="label">설정</span>
+                </a>
+            </nav>
+        </aside>
 
         <!-- Main Content Area -->
         <main id="main-content">
             <!-- Dynamic Content will be injected here -->
-
-            <!-- Structure for Home View (for CSS testing) -->
-            <div id="view-home" class="view-container">
-
-                <!-- Desktop Top / Tablet Right / Mobile Top(Timeline) -->
-                <section class="section-timeline">
-                    <div class="timeline-header">Timeline</div>
-                    <div class="timeline-body">
-                        <!-- Mock Timeline Content -->
-                        <div class="time-slot"
-                            style="top: 20%; height: 100px; background: #e3f2fd; border-left: 4px solid #2196f3; position: absolute; width: 90%;">
-                            Event: Unix Programming
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Desktop Bottom / Tablet Left / Mobile Bottom(Todo) -->
-                <section class="section-todo">
-                    <div class="todo-header">Tasks</div>
-                    <div class="todo-list">
-                        <div class="todo-card">Buy Milk</div>
-                        <div class="todo-card">Finish Project</div>
-                    </div>
-                </section>
-
-                <section class="section-weekly-goals">
-                    <div class="goal-header">Weekly Goals</div>
-                    <div class="goal-card">Read 50 pages</div>
-                </section>
-
-            </div>
         </main>
+
+        <!-- 모바일 하단 탭 바 (~ 1023px) -->
+        <nav id="bottom-nav" class="bottom-nav">
+            <a href="#home" class="nav-item active" data-screen="home">
+                <span class="icon">🏠</span>
+                <span class="label">홈</span>
+            </a>
+            <a href="#calendar" class="nav-item" data-screen="calendar">
+                <span class="icon">📅</span>
+                <span class="label">캘린더</span>
+            </a>
+            <a href="#goals" class="nav-item" data-screen="goals">
+                <span class="icon">🎯</span>
+                <span class="label">목표</span>
+            </a>
+            <a href="#ideas" class="nav-item" data-screen="ideas">
+                <span class="icon">💡</span>
+                <span class="label">아이디어</span>
+            </a>
+            <a href="#settings" class="nav-item" data-screen="settings">
+                <span class="icon">⚙️</span>
+                <span class="label">설정</span>
+            </a>
+        </nav>
     </div>
 
+    <!-- Modal Containers (used by components) -->
+    <div id="task-modal"></div>
+    <div id="goal-modal"></div>
+    <div id="habit-modal"></div>
+    <div id="idea-modal"></div>
+    <div id="timetable-modal"></div>
+
+    <!-- JavaScript Modules -->
     <script type="module" src="js/app.js"></script>
 </body>
 

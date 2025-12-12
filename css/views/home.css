@@ -1,0 +1,207 @@
+/* Home View Layout Styles (Visual Refinement) */
+
+/* App Header (Simple) */
+.app-header-simple {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+    padding: 0 var(--space-xs);
+}
+
+.app-logo-text {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--color-text-primary);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background var(--transition-fast);
+}
+
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    padding-bottom: 100px;
+    /* Space for bottom nav */
+}
+
+/* Glass Cards Common */
+.glass-card {
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header-row,
+.weather-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-sm);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.card-title {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+}
+
+.chevron {
+    font-size: 1.2rem;
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+}
+
+/* Weather Card Specifics */
+.weather-card {
+    min-height: 100px;
+    background: rgba(255, 255, 255, 0.3);
+    /* Slightly different opacity */
+}
+
+.weather-header {
+    margin-bottom: var(--space-xs);
+}
+
+.weather-main-text {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Checklist Card Specifics */
+.checklist-card {
+    min-height: 200px;
+    flex-shrink: 0;
+}
+
+.checklist-body {
+    /* Scrollable if too long */
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Timeline Card Specifics */
+.timeline-card {
+    flex: 1;
+    min-height: 400px;
+    /* Ensure height */
+    overflow: hidden;
+}
+
+.timeline-body {
+    flex: 1;
+    height: 100%;
+}
+
+/* Desktop Nav List (Hidden on Mobile/Tablet) */
+.desktop-nav-list {
+    display: none;
+}
+
+/* ==========================================================================
+   Responsive Layouts
+   ========================================================================== */
+
+/* Tablet (>= 768px): 2 Columns */
+@media (min-width: 768px) {
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        /* Left fixed, Right flex */
+        gap: var(--space-lg);
+        align-items: start;
+        height: calc(100vh - 100px);
+        overflow: hidden;
+        /* Main scroll handled inside timeline/checklist */
+        padding-bottom: 0;
+    }
+
+    /* Left Column */
+    .dashboard-left-col {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md);
+        height: 100%;
+        overflow-y: auto;
+        /* Scrollable left panel */
+    }
+
+    /* Right Column */
+    .dashboard-right-col {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .timeline-card {
+        height: 100%;
+        /* Fill right column */
+    }
+}
+
+/* Desktop (>= 1024px): 3 Columns Look (Left Panel includes Nav) */
+@media (min-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 320px 1fr;
+        /* Wider Left Panel */
+    }
+
+    /* Show Desktop Nav */
+    .desktop-nav-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs);
+        margin-top: auto;
+        /* Push to bottom of left col */
+        padding-top: var(--space-lg);
+    }
+
+    .nav-row {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md);
+        padding: var(--space-sm) var(--space-md);
+        border-radius: var(--radius-md);
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        transition: background var(--transition-fast);
+    }
+
+    .nav-row:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-row.active {
+        background: rgba(255, 255, 255, 0.2);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary);
+    }
+
+    .nav-icon {
+        font-size: 1.2rem;
+    }
+}
