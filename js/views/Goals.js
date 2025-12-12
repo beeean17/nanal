@@ -2,7 +2,11 @@
 // Manages goals, subgoals, and habits
 
 import { dataManager } from '../state.js';
-import { GoalModal, HabitModal, TaskModal } from '../components/Modal.js';
+import { GoalModal } from '../components/modals/GoalModal.js';
+import { HabitModal } from '../components/modals/HabitModal.js';
+import { TaskModal } from '../components/modals/TaskModal.js';
+import { GoalProgressBar } from '../components/progress/GoalProgressBar.js';
+import { HabitHeatmap } from '../components/habits/HabitHeatmap.js';
 import { DateUtils, ValidationUtils } from '../utils.js';
 
 /**
@@ -15,6 +19,8 @@ export default class GoalsView {
     this.goalModal = null;
     this.habitModal = null;
     this.taskModal = null;
+    this.goalProgressBars = new Map(); // Map of goalId -> GoalProgressBar component
+    this.goalDetailProgressBar = null; // Progress bar in detail modal
 
     // State
     this.activeTab = 'goals'; // 'goals' or 'habits'
@@ -217,6 +223,16 @@ export default class GoalsView {
   }
 
   /**
+   * Clean up goal progress bar components
+   */
+  cleanupGoalProgressBars() {
+    this.goalProgressBars.forEach((progressBar) => {
+      progressBar.destroy();
+    });
+    this.goalProgressBars.clear();
+  }
+
+  /**
    * Render goals list
    */
   renderGoals() {
@@ -224,6 +240,9 @@ export default class GoalsView {
     const emptyState = document.getElementById('goals-empty-state');
 
     if (!container) return;
+
+    // Clean up existing progress bar components
+    this.cleanupGoalProgressBars();
 
     // Filter goals
     let goals = [...dataManager.goals];
@@ -245,6 +264,21 @@ export default class GoalsView {
     if (emptyState) emptyState.style.display = 'none';
 
     container.innerHTML = goals.map(goal => this.renderGoalCard(goal)).join('');
+
+    // Mount GoalProgressBar components
+    goals.forEach(goal => {
+      const progressBar = new GoalProgressBar(`goal-progress-${goal.id}`, {
+        progress: goal.progress || 0,
+        label: '',
+        showLabel: false,
+        showValue: true,
+        color: goal.categoryColor || '#007AFF',
+        height: '8px',
+        animated: true
+      });
+      progressBar.mount();
+      this.goalProgressBars.set(goal.id, progressBar);
+    });
 
     // Attach goal card listeners
     this.attachGoalCardListeners();
@@ -290,11 +324,8 @@ export default class GoalsView {
           <div class="goal-progress-section">
             <div class="goal-progress-header">
               <span>진행률</span>
-              <span class="goal-progress-value">${progress}%</span>
             </div>
-            <div class="goal-progress-bar">
-              <div class="goal-progress-fill" style="width: ${progress}%; background-color: ${categoryColor};"></div>
-            </div>
+            <div id="goal-progress-${goal.id}"></div>
           </div>
 
           ${subGoals.length > 0 ? `
@@ -611,10 +642,8 @@ export default class GoalsView {
         ` : ''}
 
         <div class="goal-detail-section">
-          <h4>진행률: ${goal.progress || 0}%</h4>
-          <div class="goal-progress-bar">
-            <div class="goal-progress-fill" style="width: ${goal.progress || 0}%; background-color: ${goal.categoryColor || '#007AFF'};"></div>
-          </div>
+          <h4>진행률</h4>
+          <div id="goal-detail-progress"></div>
         </div>
 
         <div class="goal-detail-section">
@@ -630,6 +659,24 @@ export default class GoalsView {
 
     // Attach subgoal listeners
     this.attachSubGoalListeners();
+
+    // Clean up previous detail progress bar
+    if (this.goalDetailProgressBar) {
+      this.goalDetailProgressBar.destroy();
+      this.goalDetailProgressBar = null;
+    }
+
+    // Mount GoalProgressBar component
+    this.goalDetailProgressBar = new GoalProgressBar('goal-detail-progress', {
+      progress: goal.progress || 0,
+      label: '',
+      showLabel: false,
+      showValue: true,
+      color: goal.categoryColor || '#007AFF',
+      height: '12px',
+      animated: true
+    });
+    this.goalDetailProgressBar.mount();
 
     // Show modal
     modal.style.display = 'flex';
@@ -935,6 +982,14 @@ export default class GoalsView {
    */
   destroy() {
     console.log('[GoalsView] Destroying...');
+
+    // Clean up progress bar components
+    this.cleanupGoalProgressBars();
+
+    if (this.goalDetailProgressBar) {
+      this.goalDetailProgressBar.destroy();
+      this.goalDetailProgressBar = null;
+    }
 
     // Destroy components
     if (this.goalModal) {

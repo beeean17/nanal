@@ -1,0 +1,40 @@
+/* Weather Widget Styles (Refined) */
+
+.weather-card {
+    /* Inherits .glass-card properties */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.weather-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.weather-icon-small {
+    font-size: 1.2rem;
+}
+
+.weather-body {
+    margin-top: var(--space-xs);
+}
+
+.weather-main-text {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    letter-spacing: -0.5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    .weather-card {
+        min-height: 120px;
+    }
+}

@@ -2,7 +2,9 @@
 // Shows tasks and goals on calendar grid
 
 import { dataManager } from '../state.js';
-import { TaskModal, GoalModal } from '../components/Modal.js';
+import { TaskModal } from '../components/modals/TaskModal.js';
+import { GoalModal } from '../components/modals/GoalModal.js';
+import { CalendarGrid } from '../components/calendar/CalendarGrid.js';
 import { DateUtils, ValidationUtils } from '../utils.js';
 
 /**
@@ -14,6 +16,7 @@ export default class CalendarView {
     // Component instances
     this.taskModal = null;
     this.goalModal = null;
+    this.calendarGrid = null;
 
     // State
     this.currentDate = new Date();
@@ -56,27 +59,8 @@ export default class CalendarView {
         </div>
 
         <!-- Calendar Grid -->
-        <div class="calendar-container">
-          <!-- Day Headers -->
-          <div class="calendar-day-headers">
-            <div class="calendar-day-header">일</div>
-            <div class="calendar-day-header">월</div>
-            <div class="calendar-day-header">화</div>
-            <div class="calendar-day-header">수</div>
-            <div class="calendar-day-header">목</div>
-            <div class="calendar-day-header">금</div>
-            <div class="calendar-day-header">토</div>
-          </div>
-
-          <!-- Calendar Days Grid -->
-          <div class="calendar-grid" id="calendar-grid">
-            <!-- Calendar cells rendered here -->
-          </div>
-
-          <!-- Goal Bars Overlay -->
-          <div class="calendar-goals-overlay" id="calendar-goals-overlay">
-            <!-- Goal bars rendered here -->
-          </div>
+        <div id="calendar-grid-container">
+          <!-- CalendarGrid component will be mounted here -->
         </div>
 
         <!-- Quick Stats -->
@@ -153,6 +137,21 @@ export default class CalendarView {
    * Initialize component instances
    */
   initializeComponents() {
+    // CalendarGrid component
+    this.calendarGrid = new CalendarGrid('calendar-grid-container', {
+      currentDate: this.currentDate,
+      showGoalBars: true,
+      maxCellTasks: 3,
+      onDateClick: (dateStr) => this.showDayDetail(dateStr),
+      onGoalClick: (goalId) => this.handleEditGoal(goalId),
+      onNavigate: (newDate) => {
+        this.currentDate = newDate;
+        this.updateYearMonthDisplay();
+        this.updateStats();
+      }
+    });
+    this.calendarGrid.mount();
+
     // TaskModal
     this.taskModal = new TaskModal('task-modal', {
       onSave: (taskData) => this.handleSaveTask(taskData),
@@ -193,192 +192,13 @@ export default class CalendarView {
    * Refresh view with current data
    */
   refreshView() {
-    this.renderCalendarGrid();
-    this.renderGoalBars();
+    if (this.calendarGrid) {
+      this.calendarGrid.setCurrentDate(this.currentDate);
+      this.calendarGrid.refresh();
+    }
     this.updateStats();
   }
 
-  /**
-   * Render calendar grid
-   */
-  renderCalendarGrid() {
-    const grid = document.getElementById('calendar-grid');
-    if (!grid) return;
-
-    const year = this.currentDate.getFullYear();
-    const month = this.currentDate.getMonth();
-
-    // Get first day of month and number of days
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const daysInPrevMonth = new Date(year, month, 0).getDate();
-
-    // Get today for highlighting
-    const today = new Date();
-    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
-
-    const cells = [];
-
-    // Previous month's days
-    for (let i = firstDay - 1; i >= 0; i--) {
-      const day = daysInPrevMonth - i;
-      const date = new Date(year, month - 1, day);
-      cells.push(this.renderCalendarCell(date, true));
-    }
-
-    // Current month's days
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(year, month, day);
-      const isToday = isCurrentMonth && today.getDate() === day;
-      cells.push(this.renderCalendarCell(date, false, isToday));
-    }
-
-    // Next month's days (to fill grid)
-    const remainingCells = 42 - cells.length; // 6 weeks max
-    for (let day = 1; day <= remainingCells; day++) {
-      const date = new Date(year, month + 1, day);
-      cells.push(this.renderCalendarCell(date, true));
-    }
-
-    grid.innerHTML = cells.join('');
-
-    // Attach cell listeners
-    this.attachCellListeners();
-  }
-
-  /**
-   * Render a single calendar cell
-   * @param {Date} date - Date for this cell
-   * @param {boolean} isOtherMonth - Is from previous/next month
-   * @param {boolean} isToday - Is today
-   * @returns {string} HTML string
-   */
-  renderCalendarCell(date, isOtherMonth = false, isToday = false) {
-    const dateStr = DateUtils.formatDate(date);
-    const day = date.getDate();
-
-    // Get tasks for this date
-    const tasks = dataManager.getTasksForDate(dateStr);
-    const completedCount = tasks.filter(t => t.isCompleted).length;
-    const totalCount = tasks.length;
-
-    // Get subgoals for this date
-    const subGoals = dataManager.getSubGoalsForDate(dateStr);
-    const totalItems = totalCount + subGoals.length;
-
-    const classes = [
-      'calendar-cell',
-      isOtherMonth ? 'other-month' : '',
-      isToday ? 'today' : '',
-      totalItems > 0 ? 'has-items' : ''
-    ].filter(Boolean).join(' ');
-
-    return `
-      <div class="${classes}" data-date="${dateStr}">
-        <div class="calendar-cell-header">
-          <span class="calendar-cell-day">${day}</span>
-          ${totalItems > 0 ? `<span class="calendar-cell-count">${totalItems}</span>` : ''}
-        </div>
-        <div class="calendar-cell-body">
-          ${this.renderCellTasks(tasks.slice(0, 3))}
-          ${totalItems > 3 ? `<div class="calendar-cell-more">+${totalItems - 3}개 더</div>` : ''}
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Render tasks in calendar cell
-   * @param {Array} tasks - Tasks to render
-   * @returns {string} HTML string
-   */
-  renderCellTasks(tasks) {
-    return tasks.map(task => {
-      const categoryColor = task.categoryColor || '#8E8E93';
-      const titleShort = task.title.length > 15 ?
-        task.title.substring(0, 15) + '...' :
-        task.title;
-
-      return `
-        <div class="calendar-cell-task ${task.isCompleted ? 'completed' : ''}"
-             style="border-left-color: ${categoryColor};"
-             title="${ValidationUtils.escapeHtml(task.title)}">
-          ${task.isCompleted ? '✓' : ''} ${ValidationUtils.escapeHtml(titleShort)}
-        </div>
-      `;
-    }).join('');
-  }
-
-  /**
-   * Render goal bars across calendar
-   */
-  renderGoalBars() {
-    const overlay = document.getElementById('calendar-goals-overlay');
-    if (!overlay) return;
-
-    const year = this.currentDate.getFullYear();
-    const month = this.currentDate.getMonth();
-
-    // Get active goals that span this month
-    const activeGoals = dataManager.goals.filter(goal => {
-      if (!goal.startDate || !goal.endDate) return false;
-
-      const startDate = new Date(goal.startDate);
-      const endDate = new Date(goal.endDate);
-      const monthStart = new Date(year, month, 1);
-      const monthEnd = new Date(year, month + 1, 0);
-
-      // Check if goal overlaps with this month
-      return startDate <= monthEnd && endDate >= monthStart;
-    });
-
-    if (activeGoals.length === 0) {
-      overlay.innerHTML = '';
-      return;
-    }
-
-    // Render goal bars
-    const bars = activeGoals.map((goal, index) => {
-      return this.renderGoalBar(goal, index, year, month);
-    }).join('');
-
-    overlay.innerHTML = bars;
-  }
-
-  /**
-   * Render a single goal bar
-   * @param {Object} goal - Goal object
-   * @param {number} index - Goal index for positioning
-   * @param {number} year - Current year
-   * @param {number} month - Current month
-   * @returns {string} HTML string
-   */
-  renderGoalBar(goal, index, year, month) {
-    const startDate = new Date(goal.startDate);
-    const endDate = new Date(goal.endDate);
-    const monthStart = new Date(year, month, 1);
-    const monthEnd = new Date(year, month + 1, 0);
-
-    // Calculate start/end positions within month
-    const displayStart = startDate < monthStart ? monthStart : startDate;
-    const displayEnd = endDate > monthEnd ? monthEnd : endDate;
-
-    const categoryColor = goal.categoryColor || '#007AFF';
-    const titleEscaped = ValidationUtils.escapeHtml(goal.title);
-
-    // Calculate position (simplified - you may need to adjust based on actual grid layout)
-    const topOffset = 30 + (index * 25); // Each bar 25px apart
-
-    return `
-      <div class="calendar-goal-bar"
-           style="background-color: ${categoryColor}; top: ${topOffset}px;"
-           data-goal-id="${goal.id}"
-           title="${titleEscaped} (${DateUtils.formatDateKorean(startDate)} - ${DateUtils.formatDateKorean(endDate)})">
-        <span class="goal-bar-label">${titleEscaped}</span>
-        <span class="goal-bar-progress">${goal.progress || 0}%</span>
-      </div>
-    `;
-  }
 
   /**
    * Update statistics
@@ -458,26 +278,6 @@ export default class CalendarView {
     }
   }
 
-  /**
-   * Attach event listeners to calendar cells
-   */
-  attachCellListeners() {
-    document.querySelectorAll('.calendar-cell').forEach(cell => {
-      cell.addEventListener('click', () => {
-        const dateStr = cell.dataset.date;
-        this.showDayDetail(dateStr);
-      });
-    });
-
-    // Goal bar clicks
-    document.querySelectorAll('.calendar-goal-bar').forEach(bar => {
-      bar.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const goalId = bar.dataset.goalId;
-        this.handleEditGoal(goalId);
-      });
-    });
-  }
 
   /**
    * Navigate to previous/next month
@@ -655,6 +455,12 @@ export default class CalendarView {
    */
   destroy() {
     console.log('[CalendarView] Destroying...');
+
+    // Destroy CalendarGrid component
+    if (this.calendarGrid) {
+      this.calendarGrid.destroy();
+      this.calendarGrid = null;
+    }
 
     // Destroy components
     if (this.taskModal) {

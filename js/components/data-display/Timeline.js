@@ -1,38 +1,39 @@
-// components/Timeline.js - Reusable Timeline Component
-// Used in Home, Weekly, and Calendar views
+// components/data-display/Timeline.js - Reusable Timeline Component
+// Refactored to extend base Component class
 // Renders 08:00-07:59 timeline with drag-to-create functionality
 
-import { TimeUtils, DateUtils, ValidationUtils } from '../utils.js';
+import { Component } from '../base/Component.js';
+import { TimeUtils, DateUtils, ValidationUtils } from '../../utils.js';
 
 /**
  * Timeline - Reusable timeline component with drag-to-create
  * @class
+ * @extends Component
  */
-export class Timeline {
+export class Timeline extends Component {
   /**
    * Create a Timeline component
-   * @param {HTMLElement} containerEl - Container DOM element
+   * @param {string} containerId - Container element ID
    * @param {Object} options - Configuration options
-   * @param {number} [options.dayCount=1] - Number of days to display (1/3/5/7)
-   * @param {Date|string} [options.startDate] - Starting date for timeline
+   * @param {Array} [options.dateRange=[]] - Array of date strings to display
+   * @param {Array} [options.items=[]] - Array of tasks/events to display
+   * @param {Array} [options.fixedSchedules=[]] - Array of fixed schedules
    * @param {boolean} [options.showCurrentTime=true] - Show current time indicator
-   * @param {Function} [options.onEventClick] - Callback when event clicked
-   * @param {Function} [options.onCreateEvent] - Callback when event created via drag
+   * @param {Function} [options.onTaskClick] - Callback when task clicked
+   * @param {Function} [options.onSlotClick] - Callback when empty slot clicked
+   * @param {Function} [options.onScheduleClick] - Callback when schedule clicked
    */
-  constructor(containerEl, options = {}) {
-    if (!containerEl) {
-      throw new Error('Timeline: containerEl is required');
-    }
-
-    this.container = containerEl;
-    this.options = {
-      dayCount: options.dayCount || 1,
-      startDate: options.startDate || new Date(),
-      showCurrentTime: options.showCurrentTime !== false,
-      onEventClick: options.onEventClick || (() => { }),
-      onCreateEvent: options.onCreateEvent || (() => { }),
+  constructor(containerId, options = {}) {
+    super(containerId, {
+      dateRange: [],
+      items: [],
+      fixedSchedules: [],
+      showCurrentTime: true,
+      onTaskClick: null,
+      onSlotClick: null,
+      onScheduleClick: null,
       ...options
-    };
+    });
 
     // Drag state
     this.dragState = {
@@ -54,30 +55,11 @@ export class Timeline {
   }
 
   /**
-   * Render timeline with events
-   * @param {Array} items - Array of tasks/events to display
-   * @param {Array} fixedSchedules - Array of fixed schedules to display
-   */
-  render(items = [], fixedSchedules = []) {
-    this.items = items || [];
-    this.fixedSchedules = fixedSchedules || [];
-
-    const html = this.generateHTML();
-    this.container.innerHTML = html;
-
-    this.attachEventListeners();
-
-    if (this.options.showCurrentTime) {
-      this.startCurrentTimeUpdate();
-    }
-  }
-
-  /**
    * Generate complete timeline HTML
    * @returns {string} HTML string
    */
-  generateHTML() {
-    const dates = this.getDateRange();
+  template() {
+    const dates = this.options.dateRange || [];
 
     return `
       <div class="timeline-grid">
@@ -95,18 +77,6 @@ export class Timeline {
       <!-- Drag overlay (hidden by default) -->
       <div class="timeline-drag-overlay" id="timeline-drag-overlay" style="display: none;"></div>
     `;
-  }
-
-  /**
-   * Get array of dates to display
-   * @returns {Array<string>} Array of date strings (YYYY-MM-DD)
-   */
-  getDateRange() {
-    const startDate = typeof this.options.startDate === 'string' ?
-      new Date(this.options.startDate) :
-      this.options.startDate;
-
-    return DateUtils.getDateRange(startDate, this.options.dayCount);
   }
 
   /**
@@ -141,17 +111,16 @@ export class Timeline {
     const dateObj = new Date(date);
     const isToday = DateUtils.isToday(dateObj);
     const dayNumber = dateObj.getDate();
+    const dayCount = this.options.dateRange.length;
 
-    // Determine Label (Yesterday/Today/Tomorrow or Day Name)
-    let labelText = DateUtils.getDayNameKorean(dateObj); // Default: Mon, Tue...
+    // Determine Label
+    let labelText = DateUtils.getDayNameKorean(dateObj);
     const dayDiff = DateUtils.daysBetween(new Date(), dateObj);
 
-    // Logic for relative labels (mainly for Tablet 3-day view)
-    if (this.options.dayCount === 3) {
+    if (dayCount === 3) {
       if (DateUtils.isSameDay(dateObj, new Date())) {
         labelText = '오늘 (Today)';
-      } else if (dayDiff === -1) { // Logic to verify yesterday
-        // Simple check: if date is before today
+      } else if (dayDiff === -1) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const checkDate = new Date(dateObj);
@@ -161,16 +130,14 @@ export class Timeline {
       } else if (dayDiff === 1) {
         labelText = '내일 (Tomorrow)';
       }
-    } else if (this.options.dayCount === 7) {
-      // Desktop: Mon, Tue... (English/Korean mix from image?)
-      // The image shows "월 (Mon)"
+    } else if (dayCount === 7) {
       const kDay = DateUtils.getDayNameKorean(dateObj);
       const eDay = DateUtils.getDayNameEnglish(dateObj);
       labelText = `${kDay} (${eDay})`;
     }
 
     // Filter items for this date
-    const dayItems = this.items.filter(item => item.date === date && item.startTime && item.endTime);
+    const dayItems = (this.options.items || []).filter(item => item.date === date && item.startTime && item.endTime);
     const dayFixedSchedules = this.getFixedSchedulesForDate(dateObj);
 
     return `
@@ -181,7 +148,7 @@ export class Timeline {
         <!-- Day header -->
         <div class="timeline-day-header">
           <span class="day-name">${labelText}</span>
-          ${this.options.dayCount === 7 ? '' : `<span class="day-number">${dayNumber}</span>`}
+          ${dayCount === 7 ? '' : `<span class="day-number">${dayNumber}</span>`}
         </div>
 
         <!-- Event slots -->
@@ -206,7 +173,6 @@ export class Timeline {
    * @returns {string} HTML string
    */
   renderHourSlots() {
-    // 24 hours × 12 slots per hour (5-minute intervals) = 288 slots
     const slots = [];
     for (let i = 0; i < 288; i++) {
       slots.push(`<div class="timeline-slot" data-slot="${i}"></div>`);
@@ -221,8 +187,9 @@ export class Timeline {
    */
   getFixedSchedulesForDate(date) {
     const dayOfWeek = date.getDay();
+    const schedules = this.options.fixedSchedules || [];
 
-    return this.fixedSchedules.filter(schedule =>
+    return schedules.filter(schedule =>
       schedule.isActive !== false &&
       schedule.dayOfWeek &&
       schedule.dayOfWeek.includes(dayOfWeek)
@@ -242,8 +209,6 @@ export class Timeline {
 
     const isFixed = type === 'fixed';
     const escapedTitle = ValidationUtils.escapeHtml(item.title || '');
-
-    // Get category color (if available)
     const categoryColor = item.categoryColor || '#007AFF';
 
     return `
@@ -267,7 +232,6 @@ export class Timeline {
    * @returns {string} HTML string
    */
   renderCurrentTimeLine() {
-    const now = new Date();
     const currentTime = TimeUtils.getCurrentTime();
     const position = TimeUtils.calculateTimelinePosition(currentTime, currentTime);
 
@@ -281,25 +245,32 @@ export class Timeline {
   }
 
   /**
-   * Attach event listeners
+   * Setup event listeners
    */
-  attachEventListeners() {
+  setupEventListeners() {
     // Click on event blocks
-    const events = this.container.querySelectorAll('.timeline-event');
+    const events = this.$$('.timeline-event');
     events.forEach(eventEl => {
-      eventEl.addEventListener('click', (e) => {
+      this.addEventListener(eventEl, 'click', (e) => {
         e.stopPropagation();
         const id = eventEl.dataset.id;
         const type = eventEl.dataset.type;
-        this.options.onEventClick(id, type);
+
+        if (type === 'event' && this.options.onTaskClick) {
+          const task = this.options.items.find(t => t.id === id);
+          if (task) this.options.onTaskClick(task);
+        } else if (type === 'fixed' && this.options.onScheduleClick) {
+          const schedule = this.options.fixedSchedules.find(s => s.id === id);
+          if (schedule) this.options.onScheduleClick(schedule);
+        }
       });
     });
 
     // Drag-to-create on slots
-    const slots = this.container.querySelectorAll('.timeline-slots');
+    const slots = this.$$('.timeline-slots');
     slots.forEach(slotsEl => {
-      slotsEl.addEventListener('mousedown', this.boundHandleMouseDown);
-      slotsEl.addEventListener('touchstart', this.boundHandleMouseDown, { passive: false });
+      this.addEventListener(slotsEl, 'mousedown', this.boundHandleMouseDown);
+      this.addEventListener(slotsEl, 'touchstart', this.boundHandleMouseDown);
     });
   }
 
@@ -402,8 +373,10 @@ export class Timeline {
       const finalStart = startMin < endMin ? snappedStart : snappedEnd;
       const finalEnd = startMin < endMin ? snappedEnd : snappedStart;
 
-      // Call onCreate callback
-      this.options.onCreateEvent(date, finalStart, finalEnd);
+      // Call onSlotClick callback
+      if (this.options.onSlotClick) {
+        this.options.onSlotClick(date, finalStart);
+      }
     }
 
     // Hide drag overlay
@@ -433,14 +406,14 @@ export class Timeline {
    * @param {HTMLElement} parentEl - Parent element
    */
   showDragOverlay(top, height, parentEl) {
-    const overlay = this.container.querySelector('#timeline-drag-overlay');
+    const overlay = this.$('#timeline-drag-overlay');
     if (!overlay) return;
 
     const parent = parentEl.getBoundingClientRect();
-    const container = this.container.getBoundingClientRect();
+    const containerRect = this.container.getBoundingClientRect();
 
     overlay.style.display = 'block';
-    overlay.style.left = `${parent.left - container.left}px`;
+    overlay.style.left = `${parent.left - containerRect.left}px`;
     overlay.style.width = `${parent.width}px`;
     overlay.style.top = `${top}px`;
     overlay.style.height = `${Math.max(height, 2)}px`;
@@ -452,7 +425,7 @@ export class Timeline {
    * @param {number} height - Height in pixels
    */
   updateDragOverlay(top, height) {
-    const overlay = this.container.querySelector('#timeline-drag-overlay');
+    const overlay = this.$('#timeline-drag-overlay');
     if (!overlay) return;
 
     overlay.style.top = `${top}px`;
@@ -463,7 +436,7 @@ export class Timeline {
    * Hide drag overlay
    */
   hideDragOverlay() {
-    const overlay = this.container.querySelector('#timeline-drag-overlay');
+    const overlay = this.$('#timeline-drag-overlay');
     if (overlay) {
       overlay.style.display = 'none';
     }
@@ -486,7 +459,7 @@ export class Timeline {
    * Update current time line position
    */
   updateCurrentTimeLine() {
-    const timeLine = this.container.querySelector('#timeline-current-time');
+    const timeLine = this.$('#timeline-current-time');
     if (!timeLine) return;
 
     const currentTime = TimeUtils.getCurrentTime();
@@ -502,21 +475,26 @@ export class Timeline {
   }
 
   /**
-   * Update timeline options (e.g., change day count)
-   * @param {Object} newOptions - New options to merge
+   * Set date range for timeline
+   * @param {Array<string>} dateRange - Array of date strings
    */
-  updateOptions(newOptions) {
-    this.options = {
-      ...this.options,
-      ...newOptions
-    };
+  setDateRange(dateRange) {
+    this.update({ dateRange });
   }
 
   /**
-   * Destroy timeline component
-   * Cleans up intervals and event listeners
+   * After render callback
    */
-  destroy() {
+  onRender() {
+    if (this.options.showCurrentTime) {
+      this.startCurrentTimeUpdate();
+    }
+  }
+
+  /**
+   * Before destroy callback
+   */
+  onDestroy() {
     // Clear current time interval
     if (this.currentTimeInterval) {
       clearInterval(this.currentTimeInterval);
@@ -528,11 +506,6 @@ export class Timeline {
     document.removeEventListener('mouseup', this.boundHandleMouseUp);
     document.removeEventListener('touchmove', this.boundHandleMouseMove);
     document.removeEventListener('touchend', this.boundHandleMouseUp);
-
-    // Clear container
-    if (this.container) {
-      this.container.innerHTML = '';
-    }
   }
 }
 

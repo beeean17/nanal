@@ -2,7 +2,8 @@
 // Pinterest-style idea board for capturing and organizing ideas
 
 import { dataManager } from '../state.js';
-import { IdeaModal } from '../components/Modal.js';
+import { IdeaModal } from '../components/modals/IdeaModal.js';
+import { SearchBar } from '../components/input/SearchBar.js';
 import { DateUtils, ValidationUtils } from '../utils.js';
 
 /**
@@ -13,6 +14,7 @@ export default class IdeasView {
   constructor() {
     // Component instances
     this.ideaModal = null;
+    this.searchBar = null;
 
     // State
     this.ideas = [];
@@ -21,7 +23,6 @@ export default class IdeasView {
 
     // Bound methods
     this.boundRefreshView = this.refreshView.bind(this);
-    this.boundHandleSearch = this.handleSearch.bind(this);
   }
 
   /**
@@ -48,16 +49,7 @@ export default class IdeasView {
         <!-- Toolbar -->
         <div class="ideas-toolbar">
           <!-- Search -->
-          <div class="ideas-search">
-            <input
-              type="text"
-              id="ideas-search-input"
-              class="search-input"
-              placeholder="아이디어 검색..."
-              aria-label="아이디어 검색"
-            />
-            <span class="search-icon">🔍</span>
-          </div>
+          <div id="ideas-search-container"></div>
 
           <!-- Sort -->
           <div class="ideas-sort">
@@ -122,6 +114,17 @@ export default class IdeasView {
    * Initialize component instances
    */
   initializeComponents() {
+    // SearchBar
+    this.searchBar = new SearchBar('ideas-search-container', {
+      placeholder: '아이디어 검색...',
+      debounceMs: 300,
+      onChange: (searchText) => {
+        this.filterText = searchText;
+        this.refreshView();
+      }
+    });
+    this.searchBar.mount();
+
     // IdeaModal
     this.ideaModal = new IdeaModal('idea-modal', {
       onSave: (ideaData) => this.handleSaveIdea(ideaData)
@@ -284,12 +287,6 @@ export default class IdeasView {
       addIdeaEmptyBtn.addEventListener('click', () => this.handleAddIdea());
     }
 
-    // Search input
-    const searchInput = document.getElementById('ideas-search-input');
-    if (searchInput) {
-      searchInput.addEventListener('input', this.boundHandleSearch);
-    }
-
     // Sort select
     const sortSelect = document.getElementById('ideas-sort-select');
     if (sortSelect) {
@@ -332,15 +329,6 @@ export default class IdeasView {
         this.handleEditIdea(id);
       });
     });
-  }
-
-  /**
-   * Handle search input
-   * @param {Event} e - Input event
-   */
-  handleSearch(e) {
-    this.filterText = e.target.value.trim();
-    this.refreshView();
   }
 
   /**
@@ -415,6 +403,11 @@ export default class IdeasView {
     console.log('[IdeasView] Destroying...');
 
     // Destroy components
+    if (this.searchBar) {
+      this.searchBar.destroy();
+      this.searchBar = null;
+    }
+
     if (this.ideaModal) {
       this.ideaModal.hide();
       this.ideaModal = null;

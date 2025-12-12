@@ -29,10 +29,10 @@ export class TodoList {
 
     this.container = containerEl;
     this.options = {
-      onToggle: options.onToggle || (() => {}),
-      onEdit: options.onEdit || (() => {}),
-      onDelete: options.onDelete || (() => {}),
-      onAdd: options.onAdd || (() => {}),
+      onToggle: options.onToggle || (() => { }),
+      onEdit: options.onEdit || (() => { }),
+      onDelete: options.onDelete || (() => { }),
+      onAdd: options.onAdd || (() => { }),
       showTime: options.showTime !== false,
       showDate: options.showDate || false,
       allowAdd: options.allowAdd !== false,
@@ -114,68 +114,37 @@ export class TodoList {
    * @returns {string} HTML string
    */
   renderTask(task) {
-    const escapedTitle = ValidationUtils.escapeHtml(task.title || '');
+    const escapedTitle = ValidationUtils.escapeHtml(task.title);
     const escapedDescription = ValidationUtils.escapeHtml(task.description || '');
 
-    // Time badge (if task has time)
-    const timeBadge = task.startTime && task.endTime && this.options.showTime ?
-      `<span class="task-time-badge">${task.startTime} - ${task.endTime}</span>` :
-      '';
-
-    // Date badge (if showDate option enabled)
-    const dateBadge = this.options.showDate && task.date ?
-      `<span class="task-date-badge">${DateUtils.formatDateKorean(task.date)}</span>` :
-      '';
-
-    // Category badge (if available)
-    const categoryBadge = task.categoryColor ?
-      `<span class="task-category-badge" style="background-color: ${task.categoryColor};"></span>` :
-      '';
-
-    // Subgoal indicator (if this is a subgoal)
-    const subgoalIndicator = task.goalId ?
-      `<span class="task-subgoal-indicator">🎯</span>` :
-      '';
+    // Category Color (if used for border or accent)
+    // const categoryColor = task.categoryId ? this.getCategoryColor(task.categoryId) : 'var(--color-primary)';
 
     return `
       <div class="todo-item ${task.isCompleted ? 'completed' : ''}"
            data-id="${task.id}"
            data-type="${task.goalId ? 'subgoal' : 'task'}">
 
-        <!-- Checkbox -->
-        <input type="checkbox"
-               class="todo-checkbox"
-               ${task.isCompleted ? 'checked' : ''}
-               data-id="${task.id}"
-               aria-label="완료 체크" />
+        <!-- Checkbox Wrapper -->
+        <label class="checkbox-wrapper">
+          <input type="checkbox"
+                 class="todo-checkbox"
+                 ${task.isCompleted ? 'checked' : ''}
+                 data-id="${task.id}"
+                 aria-label="완료 체크" />
+          <span class="checkmark"></span>
+        </label>
 
         <!-- Content -->
         <div class="todo-content">
-          <div class="todo-title-row">
-            ${categoryBadge}
-            ${subgoalIndicator}
-            <span class="todo-title">${escapedTitle}</span>
-            ${timeBadge}
-            ${dateBadge}
-          </div>
-
-          ${escapedDescription ? `
-            <div class="todo-description">${escapedDescription}</div>
-          ` : ''}
+          <span class="todo-title">${escapedTitle}</span>
+          ${task.startTime ? `<span class="task-time-badge">${task.startTime}</span>` : ''}
         </div>
 
-        <!-- Actions -->
+        <!-- Actions (Hover only) -->
         <div class="todo-actions">
-          <button class="todo-action-btn edit-btn"
-                  data-id="${task.id}"
-                  aria-label="수정">
-            ✏️
-          </button>
-          <button class="todo-action-btn delete-btn"
-                  data-id="${task.id}"
-                  aria-label="삭제">
-            🗑️
-          </button>
+          <button class="todo-action-btn edit-btn" data-id="${task.id}">✏️</button>
+          <button class="todo-action-btn delete-btn" data-id="${task.id}">🗑️</button>
         </div>
       </div>
     `;
