@@ -36,57 +36,87 @@ export default class CalendarView {
     const monthName = DateUtils.getMonthNameKorean(this.currentDate);
 
     return `
-      <div class="calendar-screen fade-in">
-        <!-- Calendar Header -->
-        <div class="calendar-header">
-          <div class="calendar-title">
-            <h1>${monthName}</h1>
-            <button class="btn-icon" id="calendar-today-btn" title="오늘로 이동">
-              📍
-            </button>
-          </div>
-          <div class="calendar-controls">
-            <button class="btn-icon" id="calendar-prev-btn" aria-label="이전 달">
-              ◀
-            </button>
-            <span class="calendar-year-month" id="calendar-year-month">
-              ${year}년 ${month + 1}월
-            </span>
-            <button class="btn-icon" id="calendar-next-btn" aria-label="다음 달">
-              ▶
-            </button>
-          </div>
-        </div>
+      <div class="home-layout fade-in">
+        
+        <!-- Left Panel: Sidebar Nav (Desktop Only) -->
+        <aside class="left-panel desktop-only">
+           <!-- No widgets here for Calendar view, just Nav -->
+           <nav class="sidebar-nav">
+               <a href="#home" class="nav-item" data-screen="home">
+                    <span class="icon">🏠</span><span class="label">홈</span>
+               </a>
+               <a href="#calendar" class="nav-item active" data-screen="calendar">
+                    <span class="icon">📅</span><span class="label">캘린더</span>
+               </a>
+               <a href="#goals" class="nav-item" data-screen="goals">
+                    <span class="icon">🎯</span><span class="label">목표</span>
+               </a>
+               <a href="#ideas" class="nav-item" data-screen="ideas">
+                    <span class="icon">💡</span><span class="label">아이디어</span>
+               </a>
+               <a href="#settings" class="nav-item" data-screen="settings">
+                    <span class="icon">⚙️</span><span class="label">설정</span>
+               </a>
+           </nav>
+        </aside>
 
-        <!-- Calendar Grid -->
-        <div id="calendar-grid-container">
-          <!-- CalendarGrid component will be mounted here -->
-        </div>
+        <!-- Main Panel: Calendar Content -->
+        <main class="timeline-panel glass-card"> 
+          <!-- Calendar Header -->
+          <div class="calendar-header">
+            <div class="calendar-title">
+              <h1>${monthName}</h1>
+              <button class="btn-icon" id="calendar-today-btn" title="오늘로 이동">📍</button>
+            </div>
+            <div class="calendar-controls">
+              <button class="btn-icon" id="calendar-prev-btn" aria-label="이전 달">◀</button>
+              <span class="calendar-year-month" id="calendar-year-month">
+                ${year}년 ${month + 1}월
+              </span>
+              <button class="btn-icon" id="calendar-next-btn" aria-label="다음 달">▶</button>
+            </div>
+          </div>
 
-        <!-- Quick Stats -->
-        <div class="calendar-stats">
-          <div class="stat-card">
-            <span class="stat-icon">✅</span>
-            <div class="stat-info">
-              <span class="stat-value" id="completed-tasks-count">0</span>
-              <span class="stat-label">이번 달 완료</span>
+          <!-- Calendar Grid -->
+          <div id="calendar-grid-container" style="flex: 1; overflow: hidden;"></div>
+
+          <!-- Quick Stats (Footer) -->
+          <div class="calendar-stats">
+            <div class="stat-card">
+              <span class="stat-icon">✅</span>
+              <div class="stat-info">
+                <span class="stat-value" id="completed-tasks-count">0</span>
+                <span class="stat-label">완료</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon">🎯</span>
+              <div class="stat-info">
+                <span class="stat-value" id="active-goals-count">0</span>
+                <span class="stat-label">진행 중</span>
+              </div>
             </div>
           </div>
-          <div class="stat-card">
-            <span class="stat-icon">📋</span>
-            <div class="stat-info">
-              <span class="stat-value" id="total-tasks-count">0</span>
-              <span class="stat-label">이번 달 할 일</span>
-            </div>
-          </div>
-          <div class="stat-card">
-            <span class="stat-icon">🎯</span>
-            <div class="stat-info">
-              <span class="stat-value" id="active-goals-count">0</span>
-              <span class="stat-label">진행 중 목표</span>
-            </div>
-          </div>
-        </div>
+        </main>
+
+        <!-- Mobile Bottom Nav -->
+        <nav class="bottom-nav mobile-only">
+           <a href="#home" class="nav-item" data-screen="home">
+                <span class="icon">🏠</span><span class="label">홈</span>
+           </a>
+           <a href="#calendar" class="nav-item active" data-screen="calendar">
+                <span class="icon">📅</span><span class="label">캘린더</span>
+           </a>
+           <a href="#goals" class="nav-item" data-screen="goals">
+                <span class="icon">🎯</span><span class="label">목표</span>
+           </a>
+           <a href="#ideas" class="nav-item" data-screen="ideas">
+                <span class="icon">💡</span><span class="label">아이디어</span>
+           </a>
+           <a href="#settings" class="nav-item" data-screen="settings">
+                <span class="icon">⚙️</span><span class="label">설정</span>
+           </a>
+        </nav>
 
         <!-- Day Detail Modal -->
         <div class="modal" id="day-detail-modal" style="display: none;">
@@ -96,9 +126,7 @@ export default class CalendarView {
               <h3 id="day-detail-title">날짜 상세</h3>
               <button class="modal-close-btn" id="day-detail-close-btn">×</button>
             </div>
-            <div class="modal-body" id="day-detail-body">
-              <!-- Day details rendered here -->
-            </div>
+            <div class="modal-body" id="day-detail-body"></div>
             <div class="modal-footer">
               <button class="btn-primary" id="add-task-day-btn">
                 <span class="btn-icon">+</span>
@@ -108,6 +136,7 @@ export default class CalendarView {
             </div>
           </div>
         </div>
+
       </div>
     `;
   }
@@ -214,7 +243,6 @@ export default class CalendarView {
     });
 
     const completedTasks = monthTasks.filter(t => t.isCompleted).length;
-    const totalTasks = monthTasks.length;
 
     // Get active goals
     const activeGoals = dataManager.goals.filter(goal => {
@@ -225,11 +253,9 @@ export default class CalendarView {
 
     // Update DOM
     const completedEl = document.getElementById('completed-tasks-count');
-    const totalEl = document.getElementById('total-tasks-count');
     const goalsEl = document.getElementById('active-goals-count');
 
     if (completedEl) completedEl.textContent = completedTasks;
-    if (totalEl) totalEl.textContent = totalTasks;
     if (goalsEl) goalsEl.textContent = activeGoals;
   }
 

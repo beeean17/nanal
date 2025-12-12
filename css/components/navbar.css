@@ -1,130 +1,114 @@
-/* Navigation Bar Styles */
+/* Navigation Component */
 
-/* Bottom Navigation (Mobile) */
+/* 1. Mobile Bottom Nav (Floating Capsule) */
 .bottom-nav {
-    /* Override main.css styles */
-    background: rgba(255, 255, 255, 0.85);
-    /* Frosty background */
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid var(--glass-border);
-    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    bottom: calc(var(--space-lg) + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 350px;
+    /* Reduced to match Mobile feel on Tablet */
+    height: 60px;
 
-    /* Additional polish */
-    padding-bottom: env(safe-area-inset-bottom);
-    height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+    /* Glass Capsule Style */
+    background: var(--glass-bg);
+    /* Stronger blur for nav */
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    border-radius: 30px;
+    /* Capsule shape */
+
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 100;
+    padding: 0 var(--space-md);
+
+    /* Hidden on Desktop by default (View controls visibility) */
 }
 
-[data-theme="dark"] .bottom-nav {
-    background: rgba(28, 28, 30, 0.85);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
+/* Nav Item Styling */
 .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    transition: all 0.3s ease;
     position: relative;
-    overflow: hidden;
+    text-decoration: none;
 }
 
-/* Active State Indicator */
+.nav-item .icon {
+    font-size: 1.4rem;
+    margin-bottom: 2px;
+}
+
+.nav-item .label {
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+/* Active State */
 .nav-item.active {
-    color: var(--color-primary);
+    color: var(--text-primary);
+    opacity: 1;
+    transform: translateY(-2px);
 }
 
 .nav-item.active::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40%;
-    height: 3px;
-    background-color: var(--color-primary);
-    border-radius: 0 0 4px 4px;
+    bottom: -4px;
+    width: 4px;
+    height: 4px;
+    background: var(--text-primary);
+    /* Dot indicator */
+    border-radius: 50%;
 }
 
-/* Icons */
-.nav-item .icon {
-    font-size: 1.5rem;
-    margin-bottom: 2px;
-    transition: transform var(--transition-fast);
+/* 2. Desktop Sidebar Nav (Vertical List) */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+    width: 100%;
 }
 
-.nav-item.active .icon {
-    transform: translateY(-2px);
+.sidebar-nav .nav-item {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    width: 100%;
 }
 
-.nav-item .label {
-    font-size: 0.7rem;
-    font-weight: var(--font-weight-medium);
+.sidebar-nav .nav-item .icon {
+    margin-right: var(--space-md);
+    margin-bottom: 0;
 }
 
-/* Sidebar (Desktop) */
-@media (min-width: 1024px) {
-    .sidebar {
-        background: var(--glass-bg);
-        backdrop-filter: blur(20px);
-        border-right: 1px solid var(--glass-border);
-        padding-top: var(--space-xl);
-    }
-
-    .nav-menu {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-md);
-        padding: var(--space-md);
-    }
-
-    .nav-item {
-        flex-direction: row;
-        justify-content: flex-start;
-        padding: var(--space-md) var(--space-lg);
-        border-radius: var(--radius-lg);
-        transition: all var(--transition-fast);
-    }
-
-    .nav-item:hover {
-        background: rgba(0, 0, 0, 0.05);
-    }
-
-    [data-theme="dark"] .nav-item:hover {
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .nav-item.active {
-        background: var(--color-primary-light);
-        /* Light blue bg */
-        color: var(--color-primary);
-        font-weight: var(--font-weight-bold);
-    }
-
-    [data-theme="dark"] .nav-item.active {
-        background: rgba(10, 132, 255, 0.15);
-        color: var(--color-primary-light);
-    }
-
-    .nav-item.active::after {
-        display: none;
-        /* Remove top bar for sidebar */
-    }
-
-    .nav-item .icon {
-        font-size: 1.4rem;
-        margin-bottom: 0;
-    }
-
-    .nav-item .label {
-        font-size: var(--font-size-base);
-    }
+.sidebar-nav .nav-item .label {
+    font-size: 1rem;
 }
 
-/* Floating Action Button */
-.floating-btn {
-    /* Using gradients for premium look */
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.4);
+.sidebar-nav .nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
-.floating-btn:hover {
-    transform: scale(1.1) rotate(90deg);
-    box-shadow: 0 8px 25px rgba(0, 122, 255, 0.5);
+.sidebar-nav .nav-item.active {
+    background: rgba(255, 255, 255, 0.2);
+    /* Active background for sidebar */
+    transform: none;
+    /* No jump */
+}
+
+.sidebar-nav .nav-item.active::after {
+    display: none;
+    /* Remove dot */
 }

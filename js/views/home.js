@@ -1,6 +1,4 @@
-// views/Home.js - Home view using new component architecture
-// Displays today's tasks, timeline, weather, and focus timer
-
+// views/Home.js - Modular & Responsive Layout
 import { dataManager } from '../state.js';
 import { Timeline } from '../components/data-display/Timeline.js';
 import { TodoList } from '../components/data-display/TodoList.js';
@@ -9,11 +7,11 @@ import { FixedScheduleModal } from '../components/modals/FixedScheduleModal.js';
 import { WeatherWidget } from '../components/widgets/WeatherWidget.js';
 import { DateTimeDisplay } from '../components/widgets/DateTimeDisplay.js';
 import { FocusTimer } from '../components/widgets/FocusTimer.js';
-import { DateUtils, TimeUtils, ValidationUtils } from '../utils.js';
+import { DateUtils } from '../utils.js';
 
 /**
- * Home View - Main dashboard
- * @class
+ * Home View - Main Dashboard
+ * Implements the 3-Stage Responsive Layout (Mobile Stack / Tablet Grid / Desktop Sidebar)
  */
 export default class HomeView {
   constructor() {
@@ -29,508 +27,257 @@ export default class HomeView {
     // State
     this.currentDate = new Date();
 
-
-    // Bound methods for event listeners
+    // Bound methods
     this.boundRefreshView = this.refreshView.bind(this);
   }
 
   /**
-   * Render home view HTML
-   * @returns {string} HTML string
+   * Render The Layout (HTML Structure)
    */
   render() {
     return `
-      <div class="home-screen fade-in">
-        <!-- App Header (Logo & Bell) -->
-        <header class="app-header-simple">
-          <h1 class="app-logo-text">Nanal</h1>
-          <div id="datetime-display-container"></div>
-          <button class="icon-btn" aria-label="알림">
-            <span class="icon">🔔</span>
-          </button>
-        </header>
+      <!-- Home Layout Container -->
+      <div class="home-layout fade-in">
+        
+        <!-- Left Panel: Weather, Todo, (Desktop Nav) -->
+        <aside class="left-panel">
+           
+           <!-- 1. Weather Section -->
+           <div class="weather-section glass-card">
+              <div id="weather-widget-container"></div>
+              <div id="datetime-display-container"></div>
+           </div>
 
-        <!-- Main Content Grid -->
-        <div class="dashboard-grid">
-          
-          <!-- Left Column (Tablet/Desktop) / Top Section (Mobile) -->
-          <div class="dashboard-left-col">
-            
-            <!-- Weather Card -->
-            <section class="glass-card weather-card" id="weather-widget-container">
-              <!-- WeatherWidget component will be mounted here -->
-            </section>
-
-            <!-- Checklist Card -->
-            <section class="glass-card checklist-card">
-              <div class="card-header-row" id="checklist-toggle">
-                <div class="header-left">
-                  <span class="icon-list">📝</span>
-                  <span class="card-title">오늘의 할 일 (Checklist)</span>
-                </div>
-                <span class="chevron">^</span>
+           <!-- 2. Checklist Section -->
+           <div class="checklist-section glass-card">
+              <div class="section-header">
+                  <h3>오늘의 할 일</h3>
+                  <button class="icon-btn">+</button>
               </div>
-              
-              <!-- TodoList Container -->
-              <div class="checklist-body" id="todo-list-container">
-                <!-- Todo items injected here -->
-              </div>
-            </section>
+              <div id="todo-list-container"></div>
+           </div>
 
-            <!-- Desktop Only: Navigation Area (Visual match) -->
-            <nav class="desktop-nav-list">
-              <a href="#home" class="nav-row active">
-                <span class="nav-icon">🏠</span>
-                <span class="nav-text">홈 (Home)</span>
-              </a>
-              <a href="#calendar" class="nav-row">
-                <span class="nav-icon">📅</span>
-                <span class="nav-text">네비브 (Calendar)</span>
-              </a>
-              <a href="#goals" class="nav-row">
-                <span class="nav-icon">🎯</span>
-                <span class="nav-text">프로젝트 (Goals)</span>
-              </a>
-              <a href="#settings" class="nav-row">
-                <span class="nav-icon">⚙️</span>
-                <span class="nav-text">설정 (Settings)</span>
-              </a>
-            </nav>
+           <!-- 3. Desktop Navigation (Hidden on Mobile/Tablet) -->
+           <nav class="sidebar-nav desktop-only">
+               <a href="#home" class="nav-item active" data-screen="home">
+                    <span class="icon">🏠</span><span class="label">홈</span>
+               </a>
+               <a href="#calendar" class="nav-item" data-screen="calendar">
+                    <span class="icon">📅</span><span class="label">캘린더</span>
+               </a>
+               <a href="#goals" class="nav-item" data-screen="goals">
+                    <span class="icon">🎯</span><span class="label">목표</span>
+               </a>
+               <a href="#ideas" class="nav-item" data-screen="ideas">
+                    <span class="icon">💡</span><span class="label">아이디어</span>
+               </a>
+               <a href="#settings" class="nav-item" data-screen="settings">
+                    <span class="icon">⚙️</span><span class="label">설정</span>
+               </a>
+           </nav>
+        </aside>
 
-          </div>
+        <!-- Main Panel: Timeline -->
+        <main class="timeline-panel glass-card">
+            <div class="section-header">
+                <h3>타임라인</h3>
+                <div id="focus-timer-container"></div> <!-- Timer in header -->
+            </div>
+            <div id="timeline-container"></div>
+            <button class="add-event-btn mobile-fab">+</button>
+        </main>
 
-          <!-- Right Column (Tablet/Desktop) / Bottom Section (Mobile) -->
-          <div class="dashboard-right-col">
+        <!-- Mobile Bottom Nav (Hidden on Desktop) -->
+        <nav class="bottom-nav mobile-only">
+           <a href="#home" class="nav-item active" data-screen="home">
+                <span class="icon">🏠</span><span class="label">홈</span>
+           </a>
+           <a href="#calendar" class="nav-item" data-screen="calendar">
+                <span class="icon">📅</span><span class="label">캘린더</span>
+           </a>
+           <a href="#goals" class="nav-item" data-screen="goals">
+                <span class="icon">🎯</span><span class="label">목표</span>
+           </a>
+           <a href="#ideas" class="nav-item" data-screen="ideas">
+                <span class="icon">💡</span><span class="label">아이디어</span>
+           </a>
+           <a href="#settings" class="nav-item" data-screen="settings">
+                <span class="icon">⚙️</span><span class="label">설정</span>
+           </a>
+        </nav>
 
-            <!-- Focus Timer Card -->
-            <section class="glass-card focus-timer-card" id="focus-timer-container">
-              <!-- FocusTimer component will be mounted here -->
-            </section>
-
-            <!-- Timeline Card -->
-            <section class="glass-card timeline-card">
-              <div class="card-header-row">
-                <div class="header-left">
-                  <span class="icon-clock">🕒</span>
-                  <span class="card-title" id="timeline-title">타임라인 (Timeline)</span>
-                </div>
-                <button class="icon-btn-small">›</button>
-              </div>
-
-              <!-- Timeline Component Container -->
-              <div class="timeline-body" id="timeline-container">
-                <!-- Timeline injected here -->
-              </div>
-            </section>
-
-          </div>
-        </div>
       </div>
     `;
   }
 
   /**
-   * Initialize view after rendering
+   * Initialize components and listeners
    */
   async init() {
     console.log('[HomeView] Initializing...');
 
-    // Initialize components
+    // Components
     this.initializeComponents();
 
-    // Load and display data
+    // Data Loading
     this.refreshView();
-
-    // Subscribe to data changes
     this.subscribeToData();
 
-    // Attach event listeners
+    // Event Listeners
     this.attachEventListeners();
-
-    // Start intervals
     this.startIntervals();
 
-    console.log('[HomeView] Initialized successfully');
+    // Initial Responsive check
+    this.handleResize(); // Set timeline day count
   }
 
-  /**
-   * Initialize component instances
-   */
   initializeComponents() {
-    // DateTimeDisplay component
+    // 1. DateTime
     this.dateTimeDisplay = new DateTimeDisplay('datetime-display-container', {
-      showDate: true,
-      showTime: true,
-      showSeconds: true,
-      updateInterval: 1000,
-      timeFormat: '24h',
-      dateFormat: 'korean'
+      showDate: false, showTime: true, showSeconds: false
     });
     this.dateTimeDisplay.mount();
 
-    // WeatherWidget component
-    this.weatherWidget = new WeatherWidget('weather-widget-container', {
-      refreshInterval: 30 * 60 * 1000, // 30 minutes
-      showDetails: false
-    });
+    // 2. Weather
+    this.weatherWidget = new WeatherWidget('weather-widget-container', { showDetails: false });
     this.weatherWidget.mount();
 
-    // FocusTimer component
-    this.focusTimerComponent = new FocusTimer('focus-timer-container', {
-      defaultWorkDuration: 15,
-      defaultBreakDuration: 5,
-      showStats: true,
-      enableNotifications: false,
-      onSessionComplete: (session) => {
-        console.log('[HomeView] Focus session completed:', session);
-      }
-    });
+    // 3. FocusTimer
+    this.focusTimerComponent = new FocusTimer('focus-timer-container', { showStats: false });
     this.focusTimerComponent.mount();
 
-    // Timeline component
+    // 4. Timeline
     const timelineContainer = document.getElementById('timeline-container');
-    this.timeline = new Timeline(timelineContainer, {
-      dayCount: this.getResponsiveDayCount(),
-      startDate: this.currentDate,
-      showCurrentTime: true,
-      onEventClick: (id, type) => this.handleEventClick(id, type),
-      onCreateEvent: (date, startTime, endTime) => this.handleCreateEvent(date, startTime, endTime)
-    });
+    if (timelineContainer) {
+      this.timeline = new Timeline(timelineContainer, {
+        dayCount: this.getResponsiveDayCount(),
+        startDate: this.currentDate,
+        showCurrentTime: true,
+        onEventClick: (id, type) => this.handleEventClick(id, type),
+        onCreateEvent: (date, s, e) => this.handleCreateEvent(date, s, e)
+      });
+    }
 
-    // TodoList component
+    // 5. TodoList
     const todoListContainer = document.getElementById('todo-list-container');
-    this.todoList = new TodoList(todoListContainer, {
-      onToggle: (id, isCompleted) => this.handleToggleTodo(id, isCompleted),
-      onEdit: (id) => this.handleEditTask(id),
-      onDelete: (id) => this.handleDeleteTask(id),
-      showTime: true,
-      showDate: false,
-      emptyMessage: '할 일을 추가해보세요!'
-    });
+    if (todoListContainer) {
+      this.todoList = new TodoList(todoListContainer, {
+        onToggle: (id, c) => this.handleToggleTodo(id, c),
+        showTime: true
+      });
+    }
 
-    // TaskModal
+    // 6. Modals
     this.taskModal = new TaskModal('task-modal', {
-      onSave: (taskData) => this.handleSaveTask(taskData),
+      onSave: (d) => this.handleSaveTask(d),
       categories: dataManager.categories
     });
-
-    // FixedScheduleModal
     this.fixedScheduleModal = new FixedScheduleModal('timetable-modal', {
-      onSave: (scheduleData) => this.handleSaveFixedSchedule(scheduleData),
+      onSave: (d) => this.handleSaveFixedSchedule(d),
       categories: dataManager.categories
     });
   }
 
-  /**
-   * Subscribe to data changes
-   */
   subscribeToData() {
-    // Subscribe to tasks
-    dataManager.subscribe('tasks', (changeInfo) => {
-      console.log('[HomeView] Tasks changed:', changeInfo);
-      this.refreshView();
-    });
-
-    // Subscribe to fixedSchedules
-    dataManager.subscribe('fixedSchedules', (changeInfo) => {
-      console.log('[HomeView] Fixed schedules changed:', changeInfo);
-      this.refreshView();
-    });
-
-    // Subscribe to focusSessions (for stats)
-    dataManager.subscribe('focusSessions', (changeInfo) => {
-      console.log('[HomeView] Focus sessions changed:', changeInfo);
-      this.updateFocusStats();
-    });
+    dataManager.subscribe('tasks', () => this.refreshView());
+    dataManager.subscribe('fixedSchedules', () => this.refreshView());
   }
 
-  /**
-   * Refresh view with current data
-   */
   refreshView() {
     const today = DateUtils.formatDate(this.currentDate);
-
-    // Get today's tasks
     const todayTasks = dataManager.getTasksForDate(today);
-
-    // Get today's subgoals (scheduled for today)
     const todaySubGoals = dataManager.getSubGoalsForDate(today);
 
-    // Timeline: tasks with time + scheduled subgoals
+    // Timeline Data (Tasks with Time)
     const timelineItems = [
       ...todayTasks.filter(t => t.startTime && t.endTime),
       ...todaySubGoals.filter(sg => sg.startTime && sg.endTime)
     ];
 
-    // Get active fixed schedules for today
+    // Fixed Schedules
     const dayOfWeek = this.currentDate.getDay();
     const activeFixedSchedules = dataManager.fixedSchedules.filter(fs =>
-      fs.isActive !== false &&
-      fs.dayOfWeek &&
-      fs.dayOfWeek.includes(dayOfWeek)
+      fs.isActive !== false && fs.dayOfWeek && fs.dayOfWeek.includes(dayOfWeek)
     );
 
-    // Render timeline
-    if (this.timeline) {
-      this.timeline.render(timelineItems, activeFixedSchedules);
-    }
-
-    // TodoList: ALL tasks (with or without time) + subgoals
-    const checklistItems = [...todayTasks, ...todaySubGoals];
-
-    // Render todo list
-    if (this.todoList) {
-      this.todoList.render(checklistItems);
-    }
+    if (this.timeline) this.timeline.render(timelineItems, activeFixedSchedules);
+    if (this.todoList) this.todoList.render([...todayTasks, ...todaySubGoals]);
   }
 
-  /**
-   * Attach event listeners
-   */
   attachEventListeners() {
-    // Add task button
-    const addTaskBtn = document.getElementById('add-task-btn');
-    if (addTaskBtn) {
-      addTaskBtn.addEventListener('click', () => this.handleAddTask());
-    }
-
-    // Edit timetable button
-    const editTimetableBtn = document.getElementById('edit-timetable-btn');
-    if (editTimetableBtn) {
-      editTimetableBtn.addEventListener('click', () => this.handleEditTimetable());
-    }
-
-    // Window resize for responsive timeline
-    window.addEventListener('resize', () => {
-      const newDayCount = this.getResponsiveDayCount();
-      if (this.timeline && this.timeline.options.dayCount !== newDayCount) {
-        this.timeline.updateOptions({ dayCount: newDayCount });
-        this.refreshView();
-      }
+    // Add Task Buttons
+    document.querySelectorAll('.add-event-btn, .icon-btn').forEach(btn => {
+      btn.addEventListener('click', () => this.handleAddTask());
     });
+
+    // Resize
+    window.addEventListener('resize', () => this.handleResize());
   }
 
-
-  /**
-   * Start intervals (timeline current time)
-   */
   startIntervals() {
-    // Update timeline current time every minute
-    if (this.timeline) {
-      this.timeline.startCurrentTimeUpdate();
+    if (this.timeline) this.timeline.startCurrentTimeUpdate();
+  }
+
+  // --- Responsive Logic ---
+
+  handleResize() {
+    const newDayCount = this.getResponsiveDayCount();
+    if (this.timeline && this.timeline.options.dayCount !== newDayCount) {
+      this.timeline.updateOptions({ dayCount: newDayCount });
+      this.refreshView();
     }
   }
 
-  /**
-   * Get responsive day count based on window width
-   * @returns {number} Day count (1/3/5/7)
-   */
   getResponsiveDayCount() {
     const width = window.innerWidth;
-    if (width < 500) return 1;
-    if (width < 800) return 3;
-    if (width < 1100) return 5;
-    return 7;
+    if (width < 768) return 1;   // Mobile: 1 Day
+    if (width < 1200) return 3;  // Tablet: 3 Days
+    return 7;                    // Desktop: 7 Days
   }
 
-  /**
-   * Handle add task button click
-   */
+  // --- Handlers ---
+
   handleAddTask() {
-    const today = DateUtils.formatDate(this.currentDate);
-
-    this.taskModal.show({
-      date: today,
-      isAllDay: false
-    });
+    this.taskModal.show({ date: DateUtils.formatDate(this.currentDate), isAllDay: false });
   }
 
-  /**
-   * Handle create event from timeline drag
-   * @param {string} date - Date (YYYY-MM-DD)
-   * @param {string} startTime - Start time (HH:mm)
-   * @param {string} endTime - End time (HH:mm)
-   */
-  handleCreateEvent(date, startTime, endTime) {
-    this.taskModal.show({
-      date,
-      startTime,
-      endTime,
-      isAllDay: false
-    });
+  handleCreateEvent(date, start, end) {
+    this.taskModal.show({ date, startTime: start, endTime: end, isAllDay: false });
   }
 
-  /**
-   * Handle save task from modal
-   * @param {Object} taskData - Task data from modal
-   */
-  handleSaveTask(taskData) {
-    if (taskData.id) {
-      // Update existing task
-      dataManager.updateTask(taskData.id, taskData);
-    } else {
-      // Add new task
-      dataManager.addTask(taskData);
-    }
-
+  handleSaveTask(data) {
+    if (data.id) dataManager.updateTask(data.id, data);
+    else dataManager.addTask(data);
     this.taskModal.hide();
   }
 
-  /**
-   * Handle event click on timeline
-   * @param {string} id - Event/task ID
-   * @param {string} type - 'event' or 'fixed'
-   */
   handleEventClick(id, type) {
     if (type === 'fixed') {
-      // Fixed schedule - open fixed schedule modal
-      const schedule = dataManager.getFixedScheduleById(id);
-      if (schedule) {
-        this.fixedScheduleModal.show(schedule);
-      }
+      const s = dataManager.getFixedScheduleById(id);
+      if (s) this.fixedScheduleModal.show(s);
     } else {
-      // Regular task or subgoal
-      const task = dataManager.getTaskById(id);
-      if (task) {
-        this.taskModal.show(task);
-      } else {
-        // Check if it's a subgoal
-        const subGoal = dataManager.getSubGoalById(id);
-        if (subGoal) {
-          // For now, treat as task
-          // TODO: Create SubGoalModal
-          this.taskModal.show({
-            ...subGoal,
-            title: `🎯 ${subGoal.title}` // Indicate it's a subgoal
-          });
-        }
-      }
+      const t = dataManager.getTaskById(id);
+      if (t) this.taskModal.show(t);
     }
   }
 
-  /**
-   * Handle toggle todo checkbox
-   * @param {string} id - Task/subgoal ID
-   * @param {boolean} isCompleted - New completion status
-   */
   handleToggleTodo(id, isCompleted) {
-    // Try task first
     const task = dataManager.getTaskById(id);
-    if (task) {
-      dataManager.updateTask(id, { isCompleted });
-      return;
-    }
-
-    // Try subgoal
-    const subGoal = dataManager.getSubGoalById(id);
-    if (subGoal) {
-      dataManager.updateSubGoal(id, { isCompleted });
-    }
+    if (task) dataManager.updateTask(id, { isCompleted });
   }
 
-  /**
-   * Handle edit task
-   * @param {string} id - Task ID
-   */
-  handleEditTask(id) {
-    const task = dataManager.getTaskById(id);
-    if (task) {
-      this.taskModal.show(task);
-    } else {
-      // Check subgoal
-      const subGoal = dataManager.getSubGoalById(id);
-      if (subGoal) {
-        this.taskModal.show({
-          ...subGoal,
-          title: `🎯 ${subGoal.title}`
-        });
-      }
-    }
-  }
-
-  /**
-   * Handle delete task
-   * @param {string} id - Task ID
-   */
-  handleDeleteTask(id) {
-    const task = dataManager.getTaskById(id);
-    if (task) {
-      dataManager.deleteTask(id);
-    } else {
-      const subGoal = dataManager.getSubGoalById(id);
-      if (subGoal) {
-        dataManager.deleteSubGoal(id);
-      }
-    }
-  }
-
-  /**
-   * Handle edit timetable button
-   */
-  handleEditTimetable() {
-    this.fixedScheduleModal.show({
-      dayOfWeek: [this.currentDate.getDay()],
-      isActive: true
-    });
-  }
-
-  /**
-   * Handle save fixed schedule from modal
-   * @param {Object} scheduleData - Schedule data
-   */
-  handleSaveFixedSchedule(scheduleData) {
-    if (scheduleData.id) {
-      dataManager.updateFixedSchedule(scheduleData.id, scheduleData);
-    } else {
-      dataManager.addFixedSchedule(scheduleData);
-    }
-
+  handleSaveFixedSchedule(data) {
+    if (data.id) dataManager.updateFixedSchedule(data.id, data);
+    else dataManager.addFixedSchedule(data);
     this.fixedScheduleModal.hide();
   }
 
-
-  /**
-   * Destroy view - cleanup
-   */
   destroy() {
-    console.log('[HomeView] Destroying...');
-
-    // Destroy components
-    if (this.dateTimeDisplay) {
-      this.dateTimeDisplay.destroy();
-      this.dateTimeDisplay = null;
-    }
-
-    if (this.weatherWidget) {
-      this.weatherWidget.destroy();
-      this.weatherWidget = null;
-    }
-
-    if (this.focusTimerComponent) {
-      this.focusTimerComponent.destroy();
-      this.focusTimerComponent = null;
-    }
-
-    if (this.timeline) {
-      this.timeline.destroy();
-      this.timeline = null;
-    }
-
-    if (this.todoList) {
-      this.todoList.destroy();
-      this.todoList = null;
-    }
-
-    if (this.taskModal) {
-      this.taskModal.hide();
-      this.taskModal = null;
-    }
-
-    if (this.fixedScheduleModal) {
-      this.fixedScheduleModal.hide();
-      this.fixedScheduleModal = null;
-    }
-
-    console.log('[HomeView] Destroyed');
+    window.removeEventListener('resize', this.handleResize);
+    if (this.timeline) this.timeline.destroy();
+    if (this.todoList) this.todoList.destroy();
+    if (this.weatherWidget) this.weatherWidget.destroy();
+    /* Cleanup Modals */
+    if (this.taskModal) this.taskModal.hide();
   }
 }

@@ -6,413 +6,215 @@ import { IdeaModal } from '../components/modals/IdeaModal.js';
 import { SearchBar } from '../components/input/SearchBar.js';
 import { DateUtils, ValidationUtils } from '../utils.js';
 
-/**
- * Ideas View - Masonry layout idea board
- * @class
- */
 export default class IdeasView {
   constructor() {
-    // Component instances
     this.ideaModal = null;
     this.searchBar = null;
-
-    // State
     this.ideas = [];
     this.filterText = '';
-    this.sortBy = 'recent'; // 'recent', 'oldest', 'updated'
-
-    // Bound methods
+    this.sortBy = 'recent';
     this.boundRefreshView = this.refreshView.bind(this);
   }
 
-  /**
-   * Render ideas view HTML
-   * @returns {string} HTML string
-   */
   render() {
     return `
-      <div class="ideas-screen fade-in">
-        <!-- Header -->
-        <div class="ideas-header">
-          <div class="ideas-header-left">
-            <h1>💡 아이디어 인큐베이터</h1>
-            <p class="ideas-subtitle">떠오르는 아이디어를 기록하고 관리하세요</p>
-          </div>
-          <div class="ideas-header-right">
-            <button class="btn-primary" id="add-idea-btn" aria-label="새 아이디어 추가">
-              <span class="btn-icon">+</span>
-              <span class="btn-text">새 아이디어</span>
-            </button>
-          </div>
-        </div>
+      <div class="home-layout fade-in">
+        <!-- Left Panel: Sidebar Nav (Desktop Only) -->
+        <aside class="left-panel desktop-only">
+           <nav class="sidebar-nav">
+               <a href="#home" class="nav-item" data-screen="home">
+                    <span class="icon">🏠</span><span class="label">홈</span>
+               </a>
+               <a href="#calendar" class="nav-item" data-screen="calendar">
+                    <span class="icon">📅</span><span class="label">캘린더</span>
+               </a>
+               <a href="#goals" class="nav-item" data-screen="goals">
+                    <span class="icon">🎯</span><span class="label">목표</span>
+               </a>
+               <a href="#ideas" class="nav-item active" data-screen="ideas">
+                    <span class="icon">💡</span><span class="label">아이디어</span>
+               </a>
+               <a href="#settings" class="nav-item" data-screen="settings">
+                    <span class="icon">⚙️</span><span class="label">설정</span>
+               </a>
+           </nav>
+        </aside>
 
-        <!-- Toolbar -->
-        <div class="ideas-toolbar">
-          <!-- Search -->
-          <div id="ideas-search-container"></div>
+        <!-- Main Panel: Ideas Content -->
+        <main class="timeline-panel glass-card" style="display: flex; flex-direction: column;">
+            
+            <div class="ideas-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+               <div>
+                  <h1>💡 아이디어</h1>
+                  <p style="color: var(--text-secondary); font-size: 0.9rem;">떠오르는 생각을 자유롭게 기록하세요</p>
+               </div>
+               <button class="btn-primary" id="add-idea-btn">+ 새 아이디어</button>
+            </div>
 
-          <!-- Sort -->
-          <div class="ideas-sort">
-            <label for="ideas-sort-select">정렬:</label>
-            <select id="ideas-sort-select" class="sort-select">
-              <option value="recent">최근 생성순</option>
-              <option value="oldest">오래된순</option>
-              <option value="updated">최근 수정순</option>
-            </select>
-          </div>
+            <!-- Toolbar -->
+            <div class="ideas-toolbar" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+               <div id="ideas-search-container" style="flex: 1; min-width: 200px;"></div>
+               <select id="ideas-sort-select" style="padding: 8px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--glass-bg);">
+                  <option value="recent">최근순</option>
+                  <option value="oldest">오래된순</option>
+                  <option value="updated">수정순</option>
+               </select>
+               <div style="display: flex; align-items: center;">총 <span id="ideas-count" style="font-weight: bold; margin: 0 4px;">0</span>개</div>
+            </div>
 
-          <!-- Stats -->
-          <div class="ideas-stats">
-            <span class="stat-item">
-              <span class="stat-label">총 아이디어:</span>
-              <span class="stat-value" id="ideas-count">0</span>
-            </span>
-          </div>
-        </div>
+            <!-- Content Area -->
+            <div style="flex: 1; overflow-y: auto;">
+               <div id="ideas-masonry" style="column-count: 2; column-gap: 15px;"></div>
+               
+               <div id="ideas-empty-state" style="display: none; text-align: center; padding: 40px;">
+                  <div style="font-size: 3rem;">💡</div>
+                  <h3>아이디어가 없습니다</h3>
+                  <button class="btn-primary" id="add-idea-empty-btn" style="margin-top: 10px;">첫 아이디어 추가</button>
+               </div>
+            </div>
 
-        <!-- Masonry Container -->
-        <div class="masonry-container" id="ideas-masonry">
-          <!-- Idea cards rendered here -->
-        </div>
+        </main>
 
-        <!-- Empty State -->
-        <div class="ideas-empty-state" id="ideas-empty-state" style="display: none;">
-          <div class="empty-icon">💡</div>
-          <h3>아이디어가 없습니다</h3>
-          <p>새로운 아이디어를 추가하여 시작하세요!</p>
-          <button class="btn-primary" id="add-idea-empty-btn">
-            <span class="btn-icon">+</span>
-            <span class="btn-text">첫 아이디어 추가</span>
-          </button>
-        </div>
+        <!-- Mobile Bottom Nav -->
+        <nav class="bottom-nav mobile-only">
+           <a href="#home" class="nav-item" data-screen="home">
+                <span class="icon">🏠</span><span class="label">홈</span>
+           </a>
+           <a href="#calendar" class="nav-item" data-screen="calendar">
+                <span class="icon">📅</span><span class="label">캘린더</span>
+           </a>
+           <a href="#goals" class="nav-item" data-screen="goals">
+                <span class="icon">🎯</span><span class="label">목표</span>
+           </a>
+           <a href="#ideas" class="nav-item active" data-screen="ideas">
+                <span class="icon">💡</span><span class="label">아이디어</span>
+           </a>
+           <a href="#settings" class="nav-item" data-screen="settings">
+                <span class="icon">⚙️</span><span class="label">설정</span>
+           </a>
+        </nav>
+
       </div>
+
+      <!-- Import IdeaModal -->
+      <div id="idea-modal"></div>
     `;
   }
 
-  /**
-   * Initialize view after rendering
-   */
   init() {
-    console.log('[IdeasView] Initializing...');
-
-    // Initialize components
     this.initializeComponents();
-
-    // Load and display data
     this.refreshView();
-
-    // Subscribe to data changes
     this.subscribeToData();
-
-    // Attach event listeners
     this.attachEventListeners();
-
-    console.log('[IdeasView] Initialized successfully');
   }
 
-  /**
-   * Initialize component instances
-   */
   initializeComponents() {
-    // SearchBar
     this.searchBar = new SearchBar('ideas-search-container', {
-      placeholder: '아이디어 검색...',
+      placeholder: '검색...',
       debounceMs: 300,
-      onChange: (searchText) => {
-        this.filterText = searchText;
-        this.refreshView();
-      }
+      onChange: (t) => { this.filterText = t; this.refreshView(); }
     });
     this.searchBar.mount();
 
-    // IdeaModal
     this.ideaModal = new IdeaModal('idea-modal', {
-      onSave: (ideaData) => this.handleSaveIdea(ideaData)
+      onSave: (d) => this.handleSaveIdea(d)
     });
   }
 
-  /**
-   * Subscribe to data changes
-   */
   subscribeToData() {
-    dataManager.subscribe('ideas', (changeInfo) => {
-      console.log('[IdeasView] Ideas changed:', changeInfo);
+    dataManager.subscribe('ideas', () => this.refreshView());
+  }
+
+  refreshView() {
+    this.ideas = [...dataManager.ideas];
+
+    // Filter
+    if (this.filterText) {
+      const lower = this.filterText.toLowerCase();
+      this.ideas = this.ideas.filter(i =>
+        i.title.toLowerCase().includes(lower) || i.content.toLowerCase().includes(lower)
+      );
+    }
+
+    // Sort
+    if (this.sortBy === 'recent') this.ideas.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    if (this.sortBy === 'oldest') this.ideas.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    if (this.sortBy === 'updated') this.ideas.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+    this.renderIdeas();
+    const countEl = document.getElementById('ideas-count');
+    if (countEl) countEl.textContent = this.ideas.length;
+  }
+
+  renderIdeas() {
+    const container = document.getElementById('ideas-masonry');
+    const emptyState = document.getElementById('ideas-empty-state');
+    if (!container) return;
+
+    if (this.ideas.length === 0) {
+      container.style.display = 'none';
+      if (emptyState) emptyState.style.display = 'block';
+      return;
+    }
+
+    container.style.display = 'block'; // Block for Masonry (column-count)
+    if (emptyState) emptyState.style.display = 'none';
+
+    container.innerHTML = this.ideas.map(idea => this.renderIdeaCard(idea)).join('');
+    this.attachCardListeners();
+  }
+
+  renderIdeaCard(idea) {
+    return `
+        <div class="idea-card glass-card" data-id="${idea.id}" style="break-inside: avoid; margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.1); cursor: pointer; transition: transform 0.2s;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <h3 style="margin: 0; font-size: 1rem;">${ValidationUtils.escapeHtml(idea.title)}</h3>
+                <div class="card-action-btn" style="opacity: 0.7;">✏️</div>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); max-height: 100px; overflow: hidden;">${ValidationUtils.escapeHtml(idea.content)}</p>
+            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px; text-align: right;">
+                ${DateUtils.formatDateKorean(new Date(idea.createdAt))}
+            </div>
+        </div>
+      `;
+  }
+
+  attachEventListeners() {
+    const addBtn = document.getElementById('add-idea-btn');
+    const addEmptyBtn = document.getElementById('add-idea-empty-btn');
+    if (addBtn) addBtn.addEventListener('click', () => this.handleAddIdea());
+    if (addEmptyBtn) addEmptyBtn.addEventListener('click', () => this.handleAddIdea());
+
+    const sortSelect = document.getElementById('ideas-sort-select');
+    if (sortSelect) sortSelect.addEventListener('change', (e) => {
+      this.sortBy = e.target.value;
       this.refreshView();
     });
   }
 
-  /**
-   * Refresh view with current data
-   */
-  refreshView() {
-    // Get all ideas
-    this.ideas = [...dataManager.ideas];
-
-    // Apply filter
-    if (this.filterText) {
-      const searchLower = this.filterText.toLowerCase();
-      this.ideas = this.ideas.filter(idea =>
-        idea.title.toLowerCase().includes(searchLower) ||
-        idea.content.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Apply sort
-    this.sortIdeas();
-
-    // Render ideas
-    this.renderIdeas();
-
-    // Update stats
-    this.updateStats();
-  }
-
-  /**
-   * Sort ideas based on current sortBy setting
-   */
-  sortIdeas() {
-    switch (this.sortBy) {
-      case 'recent':
-        this.ideas.sort((a, b) =>
-          new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        break;
-
-      case 'oldest':
-        this.ideas.sort((a, b) =>
-          new Date(a.createdAt) - new Date(b.createdAt)
-        );
-        break;
-
-      case 'updated':
-        this.ideas.sort((a, b) =>
-          new Date(b.updatedAt) - new Date(a.updatedAt)
-        );
-        break;
-    }
-  }
-
-  /**
-   * Render ideas in masonry layout
-   */
-  renderIdeas() {
-    const container = document.getElementById('ideas-masonry');
-    const emptyState = document.getElementById('ideas-empty-state');
-
-    if (!container) return;
-
-    if (this.ideas.length === 0) {
-      // Show empty state
-      container.style.display = 'none';
-      if (emptyState) emptyState.style.display = 'flex';
-      return;
-    }
-
-    // Hide empty state
-    container.style.display = 'block';
-    if (emptyState) emptyState.style.display = 'none';
-
-    // Render idea cards
-    container.innerHTML = this.ideas.map(idea => this.renderIdeaCard(idea)).join('');
-
-    // Attach card event listeners
-    this.attachCardListeners();
-  }
-
-  /**
-   * Render a single idea card
-   * @param {Object} idea - Idea object
-   * @returns {string} HTML string
-   */
-  renderIdeaCard(idea) {
-    const escapedTitle = ValidationUtils.escapeHtml(idea.title || '제목 없음');
-    const escapedContent = ValidationUtils.escapeHtml(idea.content || '');
-
-    // Truncate content for preview (max 200 chars)
-    const contentPreview = escapedContent.length > 200 ?
-      escapedContent.substring(0, 200) + '...' :
-      escapedContent;
-
-    // Format dates
-    const createdDate = DateUtils.formatDateKorean(new Date(idea.createdAt));
-    const updatedDate = idea.updatedAt ?
-      DateUtils.formatDateKorean(new Date(idea.updatedAt)) :
-      null;
-
-    const dateDisplay = updatedDate && updatedDate !== createdDate ?
-      `수정: ${updatedDate}` :
-      createdDate;
-
-    return `
-      <div class="idea-card" data-id="${idea.id}">
-        <!-- Card Header -->
-        <div class="idea-card-header">
-          <h3 class="idea-card-title">${escapedTitle}</h3>
-          <div class="idea-card-actions">
-            <button class="card-action-btn edit-idea-btn" data-id="${idea.id}" aria-label="수정" title="수정">
-              ✏️
-            </button>
-            <button class="card-action-btn delete-idea-btn" data-id="${idea.id}" aria-label="삭제" title="삭제">
-              🗑️
-            </button>
-          </div>
-        </div>
-
-        <!-- Card Content -->
-        <div class="idea-card-content">
-          ${contentPreview ? `<p>${contentPreview}</p>` : '<p class="idea-no-content">내용 없음</p>'}
-        </div>
-
-        <!-- Card Footer -->
-        <div class="idea-card-footer">
-          <span class="idea-card-date">${dateDisplay}</span>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Attach event listeners
-   */
-  attachEventListeners() {
-    // Add idea button (header)
-    const addIdeaBtn = document.getElementById('add-idea-btn');
-    if (addIdeaBtn) {
-      addIdeaBtn.addEventListener('click', () => this.handleAddIdea());
-    }
-
-    // Add idea button (empty state)
-    const addIdeaEmptyBtn = document.getElementById('add-idea-empty-btn');
-    if (addIdeaEmptyBtn) {
-      addIdeaEmptyBtn.addEventListener('click', () => this.handleAddIdea());
-    }
-
-    // Sort select
-    const sortSelect = document.getElementById('ideas-sort-select');
-    if (sortSelect) {
-      sortSelect.addEventListener('change', (e) => {
-        this.sortBy = e.target.value;
-        this.refreshView();
-      });
-    }
-  }
-
-  /**
-   * Attach event listeners to idea cards
-   */
   attachCardListeners() {
-    // Edit buttons
-    document.querySelectorAll('.edit-idea-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const id = e.currentTarget.dataset.id;
-        this.handleEditIdea(id);
-      });
-    });
-
-    // Delete buttons
-    document.querySelectorAll('.delete-idea-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const id = e.currentTarget.dataset.id;
-        this.handleDeleteIdea(id);
-      });
-    });
-
-    // Card click to view/edit
     document.querySelectorAll('.idea-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        // Don't trigger if clicking action buttons
-        if (e.target.closest('.card-action-btn')) return;
-
-        const id = card.dataset.id;
-        this.handleEditIdea(id);
-      });
+      card.addEventListener('click', () => this.handleEditIdea(card.dataset.id));
     });
   }
 
-  /**
-   * Handle add idea
-   */
   handleAddIdea() {
-    this.ideaModal.show({
-      title: '',
-      content: ''
-    });
+    this.ideaModal.show({});
   }
 
-  /**
-   * Handle edit idea
-   * @param {string} id - Idea ID
-   */
   handleEditIdea(id) {
     const idea = dataManager.getIdeaById(id);
-    if (idea) {
-      this.ideaModal.show(idea);
-    }
+    if (idea) this.ideaModal.show(idea);
   }
 
-  /**
-   * Handle delete idea
-   * @param {string} id - Idea ID
-   */
-  handleDeleteIdea(id) {
-    const idea = dataManager.getIdeaById(id);
-    if (!idea) return;
-
-    const confirmMsg = `"${idea.title}"을(를) 삭제하시겠습니까?`;
-    if (confirm(confirmMsg)) {
-      dataManager.deleteIdea(id);
-    }
-  }
-
-  /**
-   * Handle save idea from modal
-   * @param {Object} ideaData - Idea data from modal
-   */
-  handleSaveIdea(ideaData) {
-    if (ideaData.id) {
-      // Update existing idea
-      dataManager.updateIdea(ideaData.id, {
-        title: ideaData.title,
-        content: ideaData.content
-      });
-    } else {
-      // Add new idea
-      dataManager.addIdea(ideaData);
-    }
-
+  handleSaveIdea(data) {
+    if (data.id) dataManager.updateIdea(data.id, data);
+    else dataManager.addIdea(data);
     this.ideaModal.hide();
   }
 
-  /**
-   * Update stats display
-   */
-  updateStats() {
-    const countEl = document.getElementById('ideas-count');
-    if (countEl) {
-      // Use original dataManager.ideas length (not filtered)
-      countEl.textContent = dataManager.ideas.length;
-    }
-  }
-
-  /**
-   * Destroy view - cleanup
-   */
   destroy() {
-    console.log('[IdeasView] Destroying...');
-
-    // Destroy components
-    if (this.searchBar) {
-      this.searchBar.destroy();
-      this.searchBar = null;
-    }
-
-    if (this.ideaModal) {
-      this.ideaModal.hide();
-      this.ideaModal = null;
-    }
-
-    console.log('[IdeasView] Destroyed');
+    if (this.searchBar) this.searchBar.destroy();
+    if (this.ideaModal) this.ideaModal.hide();
   }
 }
