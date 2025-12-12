@@ -920,50 +920,77 @@ const HomeScreen = {
   },
 
   // 현재 시간 인디케이터 업데이트 (08:00 기준)
-  updateCurrentTimeLine() {
-    const now = new Date();
-    const currentHour = now.getHours();
-    const currentMin = now.getMinutes();
-    const currentTimeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
-    const currentMinutes = this.timeToMinutesFrom8AM(currentTimeStr);
-    const topPercent = (currentMinutes / (24 * 60)) * 100;
+    updateCurrentTimeLine() {
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMin = now.getMinutes();
+        const currentTimeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
+        const currentMinutes = this.timeToMinutesFrom8AM(currentTimeStr);
+        const topPercent = (currentMinutes / (24 * 60)) * 100;
 
-    // 모든 요일 열에 현재 시간 라인 추가/업데이트
-    const dayColumns = document.querySelectorAll('.timeline-day-column');
-    dayColumns.forEach(column => {
-      const slotsContainer = column.querySelector('.timeline-day-slots');
-      if (!slotsContainer) return;
+        // 타임라인 컨테이너에서 기존 전체 가로선 제거
+        const container = document.querySelector('.home-timeline-container');
+        if (!container) return;
 
-      let currentLine = slotsContainer.querySelector('.timeline-current-line');
+        // 기존 현재 시간 라인들 모두 제거
+        document.querySelectorAll('.timeline-current-line').forEach(line => line.remove());
 
-      // 오늘이 아닌 날짜는 라인 제거
-      const dateStr = column.dataset.date;
-      const columnDate = new Date(dateStr);
-      const isToday = this.isSameDay(columnDate, now);
+        // ★ 새로운 방식: 모든 요일 열에 현재 시간 라인 추가
+        const dayColumns = document.querySelectorAll('.timeline-day-column');
+        dayColumns.forEach(column => {
+            const slotsContainer = column.querySelector('.timeline-day-slots');
+            if (!slotsContainer) return;
 
-      if (!isToday) {
-        if (currentLine) currentLine.remove();
-        return;
-      }
+            // 오늘인지 확인
+            const dateStr = column.dataset.date;
+            const columnDate = new Date(dateStr);
+            const isToday = this.isSameDay(columnDate, now);
 
-      // 오늘인 경우 라인 추가/업데이트
-      if (!currentLine) {
-        currentLine = document.createElement('div');
-        currentLine.className = 'timeline-current-line';
-        currentLine.innerHTML = `
-          <div class="timeline-current-dot"></div>
-          <div class="timeline-current-label">${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}</div>
-        `;
-        slotsContainer.appendChild(currentLine);
-      }
+            // 현재 시간 라인 생성
+            const currentLine = document.createElement('div');
+            currentLine.className = 'timeline-current-line';
 
-      currentLine.style.top = `${topPercent}%`;
-      const label = currentLine.querySelector('.timeline-current-label');
-      if (label) {
-        label.textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-      }
-    });
-  },
+            // 오늘 열에만 시간 라벨과 점 표시
+            if (isToday) {
+                currentLine.classList.add('today-line');
+                currentLine.innerHTML = `
+        <div class="timeline-current-dot"></div>
+        <div class="timeline-current-label">${currentTimeStr}</div>
+      `;
+            }
+
+            currentLine.style.top = `${topPercent}%`;
+            slotsContainer.appendChild(currentLine);
+        });
+    },
+    scrollToCurrentTime() {
+        const container = document.querySelector('.home-timeline-container');
+        if (!container) return;
+
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMin = now.getMinutes();
+        const currentTimeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
+
+        // 현재 시간의 위치 계산 (08:00 기준)
+        const currentMinutes = this.timeToMinutesFrom8AM(currentTimeStr);
+        const totalHeight = 1440; // 24시간 × 60px
+        const currentPosition = (currentMinutes / (24 * 60)) * totalHeight;
+
+        // 컨테이너 높이의 절반을 빼서 현재 시간이 중앙에 오도록
+        const containerHeight = container.clientHeight;
+        const scrollPosition = currentPosition - (containerHeight / 2);
+
+        // 스크롤 위치가 음수면 0으로, 최대값을 넘으면 최대값으로
+        const maxScroll = container.scrollHeight - containerHeight;
+        const finalPosition = Math.max(0, Math.min(scrollPosition, maxScroll));
+
+        // 부드러운 스크롤 (즉시 이동하려면 'auto'로 변경)
+        container.scrollTo({
+            top: finalPosition,
+            behavior: 'auto' // 초기 로드 시에는 즉시 이동
+        });
+    },
 
   // 통합 타임라인 렌더링
   renderTimeline() {
@@ -1382,11 +1409,26 @@ const HomeScreen = {
     }, 60000); // 1분
 
     // 화면 크기 변경 시 타임라인 다시 렌더링
-    this.resizeHandler = () => {
-      this.renderTimeline();
-      this.updateTimelineTitle();
-    };
-    window.addEventListener('resize', this.resizeHandler);
+    //this.resizeHandler = () => {
+    //  this.renderTimeline();
+    //  this.updateTimelineTitle();
+    //};
+    //window.addEventListener('resize', this.resizeHandler);
+      let resizeTimeout = null;
+      this.resizeHandler = () => {
+          // 이전 타임아웃 취소
+          if (resizeTimeout) {
+              clearTimeout(resizeTimeout);
+          }
+
+          // 200ms 후에 렌더링 (빈번한 호출 방지)
+          resizeTimeout = setTimeout(() => {
+              console.log('[Timeline] Resize triggered, re-rendering...');
+              this.renderTimeline();
+              this.updateTimelineTitle();
+          }, 200);
+      };
+      window.addEventListener('resize', this.resizeHandler);
 
     // 시간표 편집 버튼
     const editTimetableBtn = document.getElementById('edit-timetable-btn');

@@ -1,4 +1,4 @@
-// app.js - 메인 진입점
+import { dataManager } from './dataManager.js';
 
 import { FirebaseDB, FirebaseAuth } from './firebase-config.js';
 import { dataManager } from './state.js';
