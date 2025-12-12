@@ -68,12 +68,12 @@ class Router {
       this.currentView = null;
     }
 
-    const container = document.getElementById('screen-container');
+    const container = document.getElementById('main-content');
     container.innerHTML = '';
   }
 
   showScreen(screenName) {
-    const container = document.getElementById('screen-container');
+    const container = document.getElementById('main-content');
 
     // Check if it's a new view
     if (this.views[screenName]) {
@@ -173,7 +173,7 @@ function setupEventListeners() {
   // 페이지 로드 시 해시로 화면 결정
   window.addEventListener('load', () => {
     const hash = window.location.hash.slice(1);
-    if (hash && router.screens[hash] !== undefined) {
+    if (hash && router.views[hash] !== undefined) {
       router.navigateTo(hash);
     } else {
       router.navigateTo('home');
@@ -278,7 +278,7 @@ function setupAuth() {
 
     // 현재 화면이 More 화면이면 다시 렌더링
     if (AppState.currentScreen === 'more') {
-      const container = document.getElementById('screen-container');
+      const container = document.getElementById('main-content');
       if (container) {
         container.innerHTML = MoreScreen.render();
         MoreScreen.init();
@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('❌ App initialization failed:', error);
 
     // Show error to user
-    const container = document.getElementById('screen-container');
+    const container = document.getElementById('main-content');
     if (container) {
       container.innerHTML = `
         <div class="error-screen fade-in">
