@@ -1,6 +1,7 @@
 // components/widgets/WeatherWidget.js - Weather display widget
 import { Component } from '../base/Component.js';
 import { dataManager } from '../../state.js';
+import { weatherService } from '../../services/index.js';
 
 /**
  * WeatherWidget - Displays current weather information
@@ -119,7 +120,7 @@ export class WeatherWidget extends Component {
   }
 
   /**
-   * Load weather data
+   * Load weather data using WeatherService
    */
   async loadWeather() {
     this.isLoading = true;
@@ -129,12 +130,8 @@ export class WeatherWidget extends Component {
       // Get location from settings or default to Seoul
       const location = dataManager.data.settings?.weatherLocation || 'Seoul';
 
-      // Fetch weather (using OpenWeatherMap or similar API)
-      // For now, using mock data - replace with actual API call
-      // TODO: Replace with actual API integration
-      const mockWeather = await this.fetchWeatherMock(location);
-
-      this.weatherData = mockWeather;
+      // Use WeatherService to fetch weather data
+      this.weatherData = await weatherService.fetchWeather(location);
       this.error = null;
 
     } catch (error) {
@@ -145,36 +142,6 @@ export class WeatherWidget extends Component {
       this.isLoading = false;
       this.render();
     }
-  }
-
-  /**
-   * Fetch weather data (mock implementation)
-   * TODO: Replace with actual API call
-   * @param {string} location - Location name
-   * @returns {Promise<Object>} Weather data
-   */
-  async fetchWeatherMock(location) {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Mock weather data
-    const conditions = [
-      { condition: '맑음', icon: '☀️', temp: 18 },
-      { condition: '흐림', icon: '☁️', temp: 15 },
-      { condition: '비', icon: '🌧️', temp: 12 },
-      { condition: '눈', icon: '❄️', temp: -2 }
-    ];
-
-    // Random condition for variety (in real app, this comes from API)
-    const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
-
-    return {
-      temp: randomCondition.temp,
-      condition: randomCondition.condition,
-      icon: randomCondition.icon,
-      humidity: Math.floor(Math.random() * 40) + 40, // 40-80%
-      windSpeed: Math.random() * 5 + 1 // 1-6 m/s
-    };
   }
 
   /**

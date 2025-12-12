@@ -1,6 +1,7 @@
 // components/widgets/FocusTimer.js - Pomodoro-style focus timer widget
 import { Component } from '../base/Component.js';
 import { dataManager } from '../../state.js';
+import { notificationService } from '../../services/index.js';
 
 /**
  * FocusTimer - Pomodoro-style focus timer with work/break sessions
@@ -207,10 +208,8 @@ export class FocusTimer extends Component {
 
   onMount() {
     // Request notification permission if enabled
-    if (this.options.enableNotifications && 'Notification' in window) {
-      if (Notification.permission === 'default') {
-        Notification.requestPermission();
-      }
+    if (this.options.enableNotifications) {
+      notificationService.requestPermission();
     }
 
     // Load session stats from dataManager
@@ -441,16 +440,13 @@ export class FocusTimer extends Component {
   }
 
   /**
-   * Show notification
+   * Show notification using NotificationService
    * @param {string} title - Notification title
    * @param {string} body - Notification body
    */
   showNotification(title, body) {
     if (!this.options.enableNotifications) return;
-
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, { body });
-    }
+    notificationService.show(title, body);
   }
 
   /**
