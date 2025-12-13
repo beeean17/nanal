@@ -109,7 +109,8 @@ export class TodoList extends Component {
 
     return `
       <div class="todo-item ${isCompleted ? 'completed' : ''}"
-           data-id="${item.id}">
+           data-id="${item.id}"
+           data-type="${item.itemType || (item.goalId ? 'subgoal' : 'task')}">
 
         <!-- Checkbox Wrapper -->
         <label class="checkbox-wrapper" onclick="event.stopPropagation()">
@@ -193,11 +194,13 @@ export class TodoList extends Component {
    */
   handleToggle(e) {
     e.stopPropagation();
-    const id = e.target.dataset.id;
+    const todoItem = e.target.closest('.todo-item');
+    const id = todoItem.dataset.id;
+    const itemType = todoItem.dataset.type;
     const isCompleted = e.target.checked;
 
     if (this.options.onToggle) {
-      this.options.onToggle(id, isCompleted);
+      this.options.onToggle(id, isCompleted, itemType);
     }
   }
 

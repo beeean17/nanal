@@ -8,8 +8,8 @@ import { ValidationUtils, DateUtils, TimeUtils } from '../../utils.js';
  * @extends Modal
  */
 export class TaskModal extends Modal {
-  constructor(options = {}) {
-    super('task-modal', {
+  constructor(modalId, options = {}) {
+    super(modalId, {
       title: '일정 추가',
       ...options
     });
