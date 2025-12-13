@@ -11,7 +11,8 @@
     padding: var(--space-md);
     padding-bottom: 100px;
     /* Space for bottom nav */
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     max-width: 1600px;
     margin: 0 auto;
 }
@@ -228,6 +229,26 @@
 
 .mobile-tablet-only {
     display: flex;
+}
+
+/* Hide Timeline Date on Mobile & Compact Weather */
+@media (max-width: 767px) {
+    .timeline-day-header {
+        display: none !important;
+    }
+
+    /* Compact Weather Widget - Hide Header */
+    .weather-card .card-header {
+        display: none !important;
+    }
+
+    .weather-card .card-content {
+        padding: var(--space-sm) var(--space-md) !important;
+    }
+
+    .weather-main-text {
+        font-size: 0.95rem;
+    }
 }
 
 /* ======================================

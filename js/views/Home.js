@@ -68,10 +68,10 @@ export default class HomeView {
            </div>
 
            <!-- 2. Checklist Card -->
-           <div class="checklist-card glass-card">
+           <div class="checklist-card glass-card collapsed">
              <div class="card-header">
                <h3><span class="header-icon">☰</span> 오늘의 할 일 (Checklist)</h3>
-               <button class="expand-btn checklist-toggle" aria-label="접기">ˆ</button>
+               <button class="expand-btn checklist-toggle" aria-label="접기">ˇ</button>
              </div>
              <div class="card-content" id="todo-list-container"></div>
            </div>
