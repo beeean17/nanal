@@ -1,40 +1,57 @@
-/* Weather Widget Styles (Refined) */
+/* Weather Widget - Compact Card Style */
 
-.weather-card {
-    /* Inherits .glass-card properties */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.weather-header {
+.weather-widget {
     display: flex;
     align-items: center;
-    gap: var(--space-xs);
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
+    gap: var(--space-md);
 }
 
-.weather-icon-small {
-    font-size: 1.2rem;
+.weather-icon {
+    font-size: 2rem;
+    line-height: 1;
 }
 
-.weather-body {
-    margin-top: var(--space-xs);
+.weather-info {
+    flex: 1;
 }
 
-.weather-main-text {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-primary);
-    letter-spacing: -0.5px;
+.weather-location {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 767px) {
-    .weather-card {
-        min-height: 120px;
-    }
+.weather-temp {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.weather-condition {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* Compact variant */
+.weather-widget.compact {
+    padding: 0;
+}
+
+.weather-widget.compact .weather-icon {
+    font-size: 1.8rem;
+}
+
+/* Loading state */
+.weather-loading {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Error state */
+.weather-error {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
 }

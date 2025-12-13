@@ -1,159 +1,94 @@
+/* CSS Variables - Design Tokens */
 :root {
-    /* ==========================================================================
-     Color Palette
-     ========================================================================== */
+    /* 🎨 Color Palette & Gradients (Aurora Effect) */
+    /* Light Theme - Pastel Sky Blue → Peach Pink (from mockup) */
+    --bg-gradient-light: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
 
-    /* Primary Brand Colors */
-    --color-primary: #007AFF;
-    /* iOS Blue */
-    --color-primary-light: #47A1FF;
-    --color-primary-dark: #0056B3;
+    /* Dark Theme - Deep Blue → Purple (from mockup) */
+    --bg-gradient-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #4a1942 100%);
 
-    /* Semantic Colors */
-    --color-success: #34C759;
-    --color-warning: #FF9500;
-    --color-error: #FF3B30;
-    --color-info: #5856D6;
+    /* 💡 Glassmorphism Tokens */
+    --glass-bg-light: rgba(255, 255, 255, 0.45);
+    --glass-bg-dark: rgba(30, 30, 50, 0.6);
 
-    /* Neutrals */
-    --color-white: #FFFFFF;
-    --color-black: #000000;
-    --color-gray-50: #F2F2F7;
-    --color-gray-100: #E5E5EA;
-    --color-gray-200: #D1D1D6;
-    --color-gray-300: #C7C7CC;
-    --color-gray-400: #AEAEB2;
-    --color-gray-500: #8E8E93;
-    --color-gray-600: #636366;
-    --color-gray-700: #48484A;
-    --color-gray-800: #3A3A3C;
-    --color-gray-900: #1C1C1E;
+    --glass-border-light: rgba(255, 255, 255, 0.6);
+    --glass-border-dark: rgba(255, 255, 255, 0.15);
 
-    /* ==========================================================================
-     Typography
-     ========================================================================== */
+    --glass-shadow-light: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+    --glass-shadow-dark: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    --glass-blur: blur(16px);
 
-    --font-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    /* Typography */
+    --font-family-base: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
-    --font-size-xs: 0.75rem;
-    --font-size-sm: 0.875rem;
-    --font-size-base: 1rem;
-    --font-size-lg: 1.125rem;
-    --font-size-xl: 1.25rem;
-    --font-size-2xl: 1.5rem;
-    --font-size-3xl: 2rem;
+    /* Colors - Text */
+    --text-primary-light: #1a1a1a;
+    --text-secondary-light: #555555;
 
-    --font-weight-regular: 400;
-    --font-weight-medium: 500;
-    --font-weight-semibold: 600;
-    --font-weight-bold: 700;
+    --text-primary-dark: #FFFFFF;
+    --text-secondary-dark: #BBBBBB;
 
-    --line-height-tight: 1.2;
-    --line-height-normal: 1.5;
+    /* Colors - Accents */
+    --color-accent-blue: #007AFF;
+    --color-accent-red: #FF3B30;
+    --color-accent-green: #34C759;
+    --color-accent-yellow: #FFCC00;
+    --color-accent-purple: #AF52DE;
+    --color-accent-pink: #FF2D55;
+    --color-accent-orange: #FF9500;
 
-    /* ==========================================================================
-     Spacing
-     ========================================================================== */
+    /* Event Block Colors (Semi-transparent for glass effect) */
+    --event-blue-light: rgba(0, 122, 255, 0.55);
+    --event-blue-dark: rgba(0, 100, 200, 0.75);
+    --event-green-light: rgba(52, 199, 89, 0.55);
+    --event-green-dark: rgba(40, 160, 70, 0.75);
+    --event-yellow-light: rgba(255, 204, 0, 0.55);
+    --event-yellow-dark: rgba(200, 160, 0, 0.75);
+    --event-pink-light: rgba(255, 45, 85, 0.5);
+    --event-pink-dark: rgba(200, 40, 70, 0.7);
 
-    --space-2xs: 0.25rem;
-    --space-xs: 0.5rem;
-    --space-sm: 0.75rem;
-    --space-md: 1rem;
-    --space-lg: 1.5rem;
-    --space-xl: 2rem;
-    --space-2xl: 3rem;
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
 
-    /* ==========================================================================
-     Layout
-     ========================================================================== */
-
-    --sidebar-width: 250px;
-    --bottom-nav-height: 80px;
-    --header-height: 60px;
+    /* Borders */
     --radius-sm: 8px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --radius-xl: 32px;
-    --radius-full: 9999px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
 
-    /* ==========================================================================
-     Animation
-     ========================================================================== */
+    /* Current Theme Defaults (Light) */
+    --bg-gradient: var(--bg-gradient-light);
+    --glass-bg: var(--glass-bg-light);
+    --glass-border: var(--glass-border-light);
+    --glass-shadow: var(--glass-shadow-light);
+    --text-primary: var(--text-primary-light);
+    --text-secondary: var(--text-secondary-light);
 
-    --transition-fast: 0.2s;
-    --transition-base: 0.3s;
+    /* Event Colors */
+    --event-blue: var(--event-blue-light);
+    --event-green: var(--event-green-light);
+    --event-yellow: var(--event-yellow-light);
+    --event-pink: var(--event-pink-light);
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s ease;
 }
 
-/* ==========================================================================
-   Themes
-   ========================================================================== */
-
-/* Light Theme (Pastel Aurora) */
-:root,
-[data-theme="light"] {
-    /* Backgrounds */
-    --color-bg-primary: #F2F2F7;
-
-    /* Image-matched Gradient: Soft Blue -> Peach/Pink */
-    --bg-gradient: linear-gradient(135deg, #A1C4FD 0%, #C2E9FB 50%, #FFD1FF 100%);
-
-    /* Text */
-    --color-text-primary: #1C1C1E;
-    --color-text-secondary: #3C3C43;
-    --color-text-tertiary: rgba(60, 60, 67, 0.6);
-
-    /* Glassmorphism */
-    --glass-bg: rgba(255, 255, 255, 0.45);
-    --glass-border: rgba(255, 255, 255, 0.6);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-    --glass-blur: blur(20px);
-
-    /* Colors from image for tags */
-    --color-tag-blue: rgba(0, 122, 255, 0.2);
-    --color-tag-green: rgba(52, 199, 89, 0.2);
-}
-
-/* Dark Theme (Deep Aurora) */
 [data-theme="dark"] {
-    /* Backgrounds */
-    --color-bg-primary: #000000;
+    --bg-gradient: var(--bg-gradient-dark);
+    --glass-bg: var(--glass-bg-dark);
+    --glass-border: var(--glass-border-dark);
+    --glass-shadow: var(--glass-shadow-dark);
+    --text-primary: var(--text-primary-dark);
+    --text-secondary: var(--text-secondary-dark);
 
-    /* Image-matched Gradient: Deep Blue -> Purple/Black */
-    --bg-gradient: linear-gradient(135deg, #0f1c2e 0%, #152040 50%, #2b1d3d 100%);
-
-    /* Text */
-    --color-text-primary: #FFFFFF;
-    --color-text-secondary: #EBEBF5;
-    --color-text-tertiary: rgba(235, 235, 245, 0.6);
-
-    /* Glassmorphism */
-    --glass-bg: rgba(30, 30, 40, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.15);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-    --glass-blur: blur(24px);
-
-    /* Colors from image for tags */
-    --color-tag-blue: rgba(10, 132, 255, 0.3);
-    --color-tag-green: rgba(48, 209, 88, 0.3);
-}
-
-/* ==========================================================================
-   Utilities
-   ========================================================================== */
-
-body {
-    background: var(--bg-gradient);
-    background-attachment: fixed;
-    /* Keep gradient fixed */
-    min-height: 100vh;
-}
-
-.glass-card {
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
-    border-radius: var(--radius-lg);
-    color: var(--color-text-primary);
+    --event-blue: var(--event-blue-dark);
+    --event-green: var(--event-green-dark);
+    --event-yellow: var(--event-yellow-dark);
+    --event-pink: var(--event-pink-dark);
 }
