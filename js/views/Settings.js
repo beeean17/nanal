@@ -12,8 +12,10 @@ export default class SettingsView {
 
   render() {
     return `
+      <!-- Home Layout Container -->
       <div class="home-layout fade-in">
         
+        <!-- App Header (Mobile/Tablet) -->
         <header class="app-header mobile-tablet-only">
           <h1 class="app-title">Nanal</h1>
           <button class="notification-btn" aria-label="알림">
@@ -24,28 +26,65 @@ export default class SettingsView {
           </button>
         </header>
 
-        <aside class="left-panel desktop-only">
-          <h1 class="app-title">Nanal</h1>
-          <nav class="sidebar-nav">
-            <a href="#home" class="nav-item" data-screen="home">
-              <span class="nav-icon">🏠</span><span class="nav-label">홈</span>
-            </a>
-            <a href="#calendar" class="nav-item" data-screen="calendar">
-              <span class="nav-icon">📅</span><span class="nav-label">캘린더</span>
-            </a>
-            <a href="#goals" class="nav-item" data-screen="goals">
-              <span class="nav-icon">🎯</span><span class="nav-label">목표</span>
-            </a>
-            <a href="#ideas" class="nav-item" data-screen="ideas">
-              <span class="nav-icon">💡</span><span class="nav-label">아이디어</span>
-            </a>
-            <a href="#settings" class="nav-item active" data-screen="settings">
-              <span class="nav-icon">⚙️</span><span class="nav-label">설정</span>
-            </a>
-          </nav>
+        <!-- Left Panel: Summary and Desktop Nav -->
+        <aside class="left-panel">
+           
+           <!-- Desktop App Title -->
+           <h1 class="app-title desktop-only">Nanal</h1>
+           
+           <!-- 1. App Info Card -->
+           <div class="summary-card glass-card">
+             <div class="card-header">
+               <h3><span class="header-icon">📱</span> 앱 정보</h3>
+             </div>
+             <div class="card-content">
+               <div class="app-info-simple">
+                 <div class="app-version">Nanal v1.0.0</div>
+                 <a href="https://github.com/beeean17/nanal" target="_blank" class="github-link">🔗 GitHub</a>
+               </div>
+             </div>
+           </div>
+
+           <!-- 2. Quick Actions Card -->
+           <div class="quick-add-card glass-card">
+             <div class="card-header">
+               <h3><span class="header-icon">⚡</span> 빠른 설정</h3>
+             </div>
+             <div class="card-content">
+               <div class="theme-toggle-inline">
+                 <button class="theme-btn-mini" data-theme="light" id="quick-theme-light">☀️</button>
+                 <button class="theme-btn-mini" data-theme="dark" id="quick-theme-dark">🌙</button>
+               </div>
+             </div>
+           </div>
+
+           <!-- 3. Desktop Navigation -->
+           <nav class="sidebar-nav desktop-only">
+             <a href="#home" class="nav-item" data-screen="home">
+               <span class="nav-icon">🏠</span>
+               <span class="nav-label">홈</span>
+             </a>
+             <a href="#calendar" class="nav-item" data-screen="calendar">
+               <span class="nav-icon">📅</span>
+               <span class="nav-label">캘린더</span>
+             </a>
+             <a href="#goals" class="nav-item" data-screen="goals">
+               <span class="nav-icon">🎯</span>
+               <span class="nav-label">목표</span>
+             </a>
+             <a href="#ideas" class="nav-item" data-screen="ideas">
+               <span class="nav-icon">💡</span>
+               <span class="nav-label">아이디어</span>
+             </a>
+             <a href="#settings" class="nav-item active" data-screen="settings">
+               <span class="nav-icon">⚙️</span>
+               <span class="nav-label">설정</span>
+             </a>
+           </nav>
         </aside>
 
-        <main class="main-panel glass-card">
+        <!-- Main Panel: Settings Content -->
+        <main class="timeline-panel glass-card">
           <div class="card-header">
             <h3><span class="header-icon">⚙️</span> 설정</h3>
           </div>
@@ -93,12 +132,23 @@ export default class SettingsView {
           </div>
         </main>
 
+        <!-- Mobile/Tablet Bottom Nav -->
         <nav class="bottom-nav mobile-tablet-only">
-          <a href="#home" class="nav-item" data-screen="home"><span class="nav-icon">🏠</span></a>
-          <a href="#calendar" class="nav-item" data-screen="calendar"><span class="nav-icon">📅</span></a>
-          <a href="#goals" class="nav-item" data-screen="goals"><span class="nav-icon">🎯</span></a>
-          <a href="#ideas" class="nav-item" data-screen="ideas"><span class="nav-icon">💡</span></a>
-          <a href="#settings" class="nav-item active" data-screen="settings"><span class="nav-icon">⚙️</span></a>
+          <a href="#home" class="nav-item" data-screen="home">
+            <span class="nav-icon">🏠</span>
+          </a>
+          <a href="#calendar" class="nav-item" data-screen="calendar">
+            <span class="nav-icon">📅</span>
+          </a>
+          <a href="#goals" class="nav-item" data-screen="goals">
+            <span class="nav-icon">🎯</span>
+          </a>
+          <a href="#ideas" class="nav-item" data-screen="ideas">
+            <span class="nav-icon">💡</span>
+          </a>
+          <a href="#settings" class="nav-item active" data-screen="settings">
+            <span class="nav-icon">⚙️</span>
+          </a>
         </nav>
 
         <!-- Category Edit Modal -->
