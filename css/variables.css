@@ -77,6 +77,11 @@
     /* Transitions */
     --transition-fast: 0.15s ease;
     --transition-normal: 0.25s ease;
+
+    /* Modal Colors (Opaque for proper theming) */
+    --modal-bg: rgba(255, 255, 255, 0.95);
+    --modal-text: #333333;
+    --modal-text-secondary: #666666;
 }
 
 [data-theme="dark"] {
@@ -91,4 +96,9 @@
     --event-green: var(--event-green-dark);
     --event-yellow: var(--event-yellow-dark);
     --event-pink: var(--event-pink-dark);
+
+    /* Modal Colors */
+    --modal-bg: rgba(40, 40, 55, 0.98);
+    --modal-text: #FFFFFF;
+    --modal-text-secondary: #BBBBBB;
 }

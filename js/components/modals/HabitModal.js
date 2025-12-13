@@ -7,8 +7,8 @@ import { Modal } from '../base/Modal.js';
  * @extends Modal
  */
 export class HabitModal extends Modal {
-  constructor(options = {}) {
-    super('habit-modal', {
+  constructor(modalId, options = {}) {
+    super(modalId, {
       title: '습관 추가',
       ...options
     });

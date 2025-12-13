@@ -26,6 +26,7 @@ export class CalendarGrid extends Component {
   template() {
     return `
       <div class="calendar-grid-container">
+        <div id="calendar-goals-legend" style="display: none;"></div>
         <!-- Day Headers -->
         <div class="calendar-day-headers">
           <div class="calendar-day-header">일</div>
@@ -57,6 +58,27 @@ export class CalendarGrid extends Component {
     if (this.options.showGoalBars) {
       this.renderGoalBars();
     }
+
+    // Add resize listener to update goal bars when grid changes
+    if (!this._resizeListener) {
+      this._resizeListener = this.debounce(() => {
+        if (this.options.showGoalBars) this.renderGoalBars();
+      }, 100);
+      window.addEventListener('resize', this._resizeListener);
+    }
+  }
+
+  // Helper for debounce
+  debounce(func, wait) {
+    let timeout;
+    return function formatted(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func.apply(this, args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
   }
 
   setupEventListeners() {
@@ -141,39 +163,15 @@ export class CalendarGrid extends Component {
 
     return `
       <div class="${classes}" data-date="${dateStr}">
-        <div class="calendar-cell-header">
+        <div class="calendar-cell-header" style="justify-content: space-between; padding: 4px;">
+          ${totalItems > 0 ? `<span class="calendar-cell-count" style="font-size: 0.75rem; font-weight: bold; color: var(--color-primary); background: none;">${totalItems}</span>` : '<span></span>'}
           <span class="calendar-cell-day">${day}</span>
-          ${totalItems > 0 ? `<span class="calendar-cell-count">${totalItems}</span>` : ''}
         </div>
         <div class="calendar-cell-body">
-          ${this.renderCellTasks(tasks.slice(0, this.options.maxCellTasks))}
-          ${totalItems > this.options.maxCellTasks ?
-        `<div class="calendar-cell-more">+${totalItems - this.options.maxCellTasks}개 더</div>` : ''}
+          <!-- Simplified View: No list, just scan -->
         </div>
       </div>
     `;
-  }
-
-  /**
-   * Render tasks in calendar cell
-   * @param {Array} tasks - Tasks to render
-   * @returns {string} HTML string
-   */
-  renderCellTasks(tasks) {
-    return tasks.map(task => {
-      const categoryColor = task.categoryColor || '#8E8E93';
-      const titleShort = task.title.length > 15 ?
-        task.title.substring(0, 15) + '...' :
-        task.title;
-
-      return `
-        <div class="calendar-cell-task ${task.isCompleted ? 'completed' : ''}"
-             style="border-left-color: ${categoryColor};"
-             title="${ValidationUtils.escapeHtml(task.title)}">
-          ${task.isCompleted ? '✓' : ''} ${ValidationUtils.escapeHtml(titleShort)}
-        </div>
-      `;
-    }).join('');
   }
 
   /**
@@ -181,6 +179,7 @@ export class CalendarGrid extends Component {
    */
   renderGoalBars() {
     const overlay = this.$('#calendar-goals-overlay');
+    console.log('[CalendarGrid] renderGoalBars called, overlay found:', !!overlay);
     if (!overlay) return;
 
     const year = this.currentDate.getFullYear();
@@ -199,55 +198,208 @@ export class CalendarGrid extends Component {
       return startDate <= monthEnd && endDate >= monthStart;
     });
 
+    console.log('[CalendarGrid] Active goals for this month:', activeGoals.length, activeGoals);
+
     if (activeGoals.length === 0) {
       overlay.innerHTML = '';
       return;
     }
 
-    // Render goal bars
-    const bars = activeGoals.map((goal, index) => {
-      return this.renderGoalBar(goal, index, year, month);
+    // Render legend
+    this.renderGoalLegend(activeGoals);
+
+    // Sort goals by start date, then by duration (longer first)
+    activeGoals.sort((a, b) => {
+      const startDiff = new Date(a.startDate) - new Date(b.startDate);
+      if (startDiff !== 0) return startDiff;
+      // Duration desc
+      const durA = new Date(a.endDate) - new Date(a.startDate);
+      const durB = new Date(b.endDate) - new Date(b.startDate);
+      return durB - durA;
+    });
+
+    // Packing Algorithm (Lane assignment)
+    // lanes array stores the end date of the last goal in that lane
+    const lanes = [];
+    const goalsWithLane = activeGoals.map(goal => {
+      const start = new Date(goal.startDate);
+      const end = new Date(goal.endDate);
+
+      let assignedLane = -1;
+
+      // Find the first lane where this goal fits (i.e., lane's last goal ends before this goal starts)
+      for (let i = 0; i < lanes.length; i++) {
+        // We add a simplified check: if lane is free by start date.
+        // Needs to be strictly free? end of prev < start of current
+        if (lanes[i] < start) {
+          assignedLane = i;
+          lanes[i] = end; // Update lane end
+          break;
+        }
+      }
+
+      // If no lane found, add a new one
+      if (assignedLane === -1) {
+        assignedLane = lanes.length;
+        lanes.push(end);
+      }
+
+      return { goal, lane: assignedLane };
+    });
+
+    // Measure grid rows for accurate positioning
+    const grid = this.$('#calendar-grid-cells');
+    const cells = grid ? Array.from(grid.children) : [];
+    if (cells.length === 0) return;
+
+    const rowMetrics = [];
+    // Assuming 7 columns. Measure first cell of each row.
+    for (let i = 0; i < cells.length; i += 7) {
+      const cell = cells[i];
+      // Calculate true top relative to container
+      const rowTop = grid.offsetTop + cell.offsetTop;
+      const rowHeight = cell.offsetHeight;
+
+      rowMetrics.push({ top: rowTop, height: rowHeight });
+    }
+
+    // Overlay offset to correct coordinate space (if overlay has top/margin)
+    const overlayTop = overlay.offsetTop || 0;
+
+    // Render goal bars using assigned lane
+    const bars = goalsWithLane.map(({ goal, lane }) => {
+      console.log(`[GoalDebug] id=${goal.id} title=${goal.title} start=${goal.startDate} end=${goal.endDate}`);
+      return this.renderGoalBar(goal, lane, year, month, rowMetrics, overlayTop);
     }).join('');
 
+    console.log('[CalendarGrid] Rendered bars HTML:', bars);
     overlay.innerHTML = bars;
 
     // Attach goal bar listeners
     this.attachGoalBarListeners();
   }
 
+  renderGoalLegend(activeGoals) {
+    const legendContainer = this.$('#calendar-goals-legend');
+    if (!legendContainer) return;
+
+    if (activeGoals.length === 0) {
+      legendContainer.innerHTML = '';
+      legendContainer.style.display = 'none';
+      return;
+    }
+
+    legendContainer.style.display = 'flex';
+    legendContainer.style.flexWrap = 'wrap';
+    legendContainer.style.gap = '12px';
+    legendContainer.style.marginBottom = '12px';
+    legendContainer.style.padding = '0 8px';
+
+    legendContainer.innerHTML = activeGoals.map(goal => `
+      <div style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-primary, #333);">
+        <span style="display: block; width: 10px; height: 10px; border-radius: 50%; background-color: ${goal.categoryColor || '#007AFF'};"></span>
+        <span>${ValidationUtils.escapeHtml(goal.title)}</span>
+      </div>
+    `).join('');
+  }
+
   /**
-   * Render a single goal bar
+   * Helper to convert hex to rgba
+   */
+  hexToRgba(hex, alpha) {
+    let c;
+    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+      c = hex.substring(1).split('');
+      if (c.length == 3) {
+        c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+      }
+      c = '0x' + c.join('');
+      return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',' + alpha + ')';
+    }
+    return hex;
+  }
+
+  /**
+   * Render a single goal bar (potentially split across rows)
    * @param {Object} goal - Goal object
    * @param {number} index - Goal index for positioning
    * @param {number} year - Current year
    * @param {number} month - Current month
    * @returns {string} HTML string
    */
-  renderGoalBar(goal, index, year, month) {
+  renderGoalBar(goal, lane, year, month, rowMetrics, overlayTop = 0) {
     const startDate = new Date(goal.startDate);
     const endDate = new Date(goal.endDate);
     const monthStart = new Date(year, month, 1);
     const monthEnd = new Date(year, month + 1, 0);
 
-    // Calculate start/end positions within month
     const displayStart = startDate < monthStart ? monthStart : startDate;
     const displayEnd = endDate > monthEnd ? monthEnd : endDate;
+    const firstDayOffset = new Date(year, month, 1).getDay();
 
+    const startDay = displayStart.getDate();
+    const endDay = displayEnd.getDate();
+    const startCellIndex = firstDayOffset + (startDay - 1);
+    const endCellIndex = firstDayOffset + (endDay - 1);
+
+    const startRow = Math.floor(startCellIndex / 7);
+    const endRow = Math.floor(endCellIndex / 7);
+
+    const columnWidth = 100 / 7;
     const categoryColor = goal.categoryColor || '#007AFF';
     const titleEscaped = ValidationUtils.escapeHtml(goal.title);
+    const bgColor = this.hexToRgba(categoryColor, 0.6);
 
-    // Calculate position
-    const topOffset = 30 + (index * 25); // Each bar 25px apart
+    let html = '';
 
-    return `
-      <div class="calendar-goal-bar"
-           style="background-color: ${categoryColor}; top: ${topOffset}px;"
-           data-goal-id="${goal.id}"
-           title="${titleEscaped} (${DateUtils.formatDateKorean(startDate)} - ${DateUtils.formatDateKorean(endDate)})">
-        <span class="goal-bar-label">${titleEscaped}</span>
-        <span class="goal-bar-progress">${goal.progress || 0}%</span>
-      </div>
-    `;
+    for (let r = startRow; r <= endRow; r++) {
+      const rowStartCol = (r === startRow) ? (startCellIndex % 7) : 0;
+      const rowEndCol = (r === endRow) ? (endCellIndex % 7) : 6;
+
+      const left = rowStartCol * columnWidth;
+      const width = (rowEndCol - rowStartCol + 1) * columnWidth;
+
+      // Dynamic positioning using measured metrics
+      // If rowMetrics exists and has entry for this row
+      if (!rowMetrics || !rowMetrics[r]) {
+        continue; // Guard
+      }
+
+      const metrics = rowMetrics[r]; // { top, height }
+
+      // Stack from bottom: 
+      // barBottom = rowTop + rowHeight - paddingBottom - (stack * (height + gap))
+      // top = barBottom - barHeight
+
+      const barHeight = 6;
+      const gap = 3;
+      const paddingBottom = 8; // User said "very low", increasing space from bottom
+
+      const bottomOffset = paddingBottom + (lane * (barHeight + gap)); // Use lane instead of index
+      const topPosition = metrics.top + metrics.height - bottomOffset - barHeight - overlayTop;
+
+      console.log(`[GoalDebug] Goal ${goal.title}: Row ${r}. Lane=${lane}. MetricsTop=${metrics.top} Height=${metrics.height}. TopPos=${topPosition}. OverlayTop=${overlayTop}`);
+
+      const isStartOfGoal = (startDate >= monthStart) && (r === startRow);
+      const isEndOfGoal = (endDate <= monthEnd) && (r === endRow);
+
+      const radiusLeft = isStartOfGoal ? '4px' : '0px';
+      const radiusRight = isEndOfGoal ? '4px' : '0px';
+      const radius = `border-radius: ${radiusLeft} ${radiusRight} ${radiusRight} ${radiusLeft};`;
+
+      // Optional: Darker left border for start
+      const borderLeft = isStartOfGoal ? `border-left: 2px solid ${categoryColor};` : '';
+
+      html += `
+        <div class="calendar-goal-bar"
+             style="background-color: ${bgColor}; top: ${topPosition}px; left: ${left}%; width: ${width}%; height: ${barHeight}px; ${radius} ${borderLeft} pointer-events: auto;"
+             data-goal-id="${goal.id}"
+             title="${titleEscaped} (${DateUtils.formatDateKorean(startDate)} ~ ${DateUtils.formatDateKorean(endDate)})">
+        </div>
+      `;
+    }
+
+    return html;
   }
 
   /**

@@ -4,6 +4,7 @@ import { dataManager } from '../state.js';
 import { GoalModal } from '../components/modals/GoalModal.js';
 import { HabitModal } from '../components/modals/HabitModal.js';
 import { TaskModal } from '../components/modals/TaskModal.js';
+import { SubGoalModal } from '../components/modals/SubGoalModal.js';
 import { GoalProgressBar } from '../components/progress/GoalProgressBar.js';
 import { DateUtils, ValidationUtils } from '../utils.js';
 
@@ -12,6 +13,7 @@ export default class GoalsView {
     this.goalModal = null;
     this.habitModal = null;
     this.taskModal = null;
+    this.subGoalModal = null;
     this.goalProgressBars = new Map();
     this.goalDetailProgressBar = null;
     this.activeTab = 'goals';
@@ -159,21 +161,21 @@ export default class GoalsView {
             <span class="nav-icon">⚙️</span>
           </a>
         </nav>
+      </div>
 
-        <!-- Goal Detail Modal -->
-        <div class="modal" id="goal-detail-modal" style="display: none;">
-          <div class="modal-overlay" id="goal-detail-overlay"></div>
-          <div class="modal-content modal-content-large">
-            <div class="modal-header">
-              <h3 id="goal-detail-title">목표 상세</h3>
-              <button class="modal-close-btn" id="goal-detail-close-btn">×</button>
-            </div>
-            <div class="modal-body" id="goal-detail-body"></div>
-            <div class="modal-footer">
-              <button class="btn-primary" id="add-subgoal-btn">+ 세부 목표</button>
-              <button class="btn-secondary" id="edit-goal-btn">수정</button>
-              <button class="btn-danger" id="delete-goal-btn">삭제</button>
-            </div>
+      <!-- Goal Detail Modal (outside home-layout for proper z-index) -->
+      <div class="modal" id="goal-detail-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 20000;">
+        <div class="modal-overlay" id="goal-detail-overlay"></div>
+        <div class="modal-content modal-content-large" style="position: relative; z-index: 20001;">
+          <div class="modal-header">
+            <h3 id="goal-detail-title">목표 상세</h3>
+            <button class="modal-close-btn" id="goal-detail-close-btn">×</button>
+          </div>
+          <div class="modal-body" id="goal-detail-body"></div>
+          <div class="modal-footer">
+            <button class="btn-primary" id="add-subgoal-btn">+ 세부 목표</button>
+            <button class="btn-secondary" id="edit-goal-btn">수정</button>
+            <button class="btn-danger" id="delete-goal-btn">삭제</button>
           </div>
         </div>
       </div>
@@ -203,6 +205,26 @@ export default class GoalsView {
       onSave: (data) => this.handleSaveSubGoalSchedule(data),
       categories: dataManager.categories
     });
+
+    this.subGoalModal = new SubGoalModal('subgoal-modal', {
+      onSave: (data) => this.handleSaveSubGoal(data)
+    });
+  }
+
+  handleSaveSubGoal(data) {
+    if (this.selectedGoalId && data.title) {
+      if (data.id) {
+        dataManager.updateSubGoal(data.id, data);
+      } else {
+        dataManager.addSubGoal({
+          goalId: this.selectedGoalId,
+          title: data.title,
+          targetDate: data.targetDate,
+          startTime: data.startTime,
+          endTime: data.endTime
+        });
+      }
+    }
   }
 
   subscribeToData() {
@@ -218,6 +240,18 @@ export default class GoalsView {
   refreshView() {
     if (this.activeTab === 'goals') this.renderGoals();
     else this.renderHabits();
+    this.updateStats();
+  }
+
+  updateStats() {
+    const activeGoals = dataManager.goals.filter(g => (g.progress || 0) < 100).length;
+    const completedGoals = dataManager.goals.filter(g => (g.progress || 0) >= 100).length;
+
+    const activeEl = document.getElementById('active-goals-count');
+    const completedEl = document.getElementById('completed-goals-count');
+
+    if (activeEl) activeEl.textContent = activeGoals;
+    if (completedEl) completedEl.textContent = completedGoals;
   }
 
   cleanupGoalProgressBars() {
@@ -450,17 +484,15 @@ export default class GoalsView {
     this.habitModal.hide();
   }
   handleEditHabit(id) {
-    const h = dataManager.getHabitById(id);
+    const h = dataManager.habits.find(habit => habit.id === id);
     if (h) this.habitModal.show(h);
   }
   handleDeleteHabit(id) {
     if (confirm('습관을 삭제하시겠습니까?')) dataManager.deleteHabit(id);
   }
   handleToggleHabit(id) {
-    const isCompleted = dataManager.isHabitCompletedOnDate(id, DateUtils.formatDate(new Date()));
-    if (!isCompleted) {
-      dataManager.completeHabit(id, DateUtils.formatDate(new Date()));
-    }
+    const today = DateUtils.formatDate(new Date());
+    dataManager.toggleHabitLog(id, today);
   }
 
   showGoalDetail(id) {
@@ -472,7 +504,9 @@ export default class GoalsView {
     const title = document.getElementById('goal-detail-title');
     const body = document.getElementById('goal-detail-body');
 
-    if (title) title.textContent = goal.title;
+    if (!modal || !title || !body) return;
+
+    title.textContent = goal.title;
 
     const subGoals = dataManager.getSubGoalsByGoalId(id);
 
@@ -499,7 +533,12 @@ export default class GoalsView {
       cb.addEventListener('change', (e) => this.handleToggleSubGoal(e.target.dataset.subgoalId, e.target.checked));
     });
 
+    // Explicitly set visibility styles
     modal.style.display = 'flex';
+    modal.classList.add('show');
+
+    // Re-attach modal button listeners after modal is visible
+    this.attachGoalDetailModalListeners();
   }
 
   renderSubGoalItem(sg) {
@@ -516,10 +555,10 @@ export default class GoalsView {
   }
 
   handleAddSubGoal() {
-    const title = prompt("새 세부 목표 이름:");
-    if (title && this.selectedGoalId) {
-      dataManager.addSubGoal({ goalId: this.selectedGoalId, title });
-    }
+    // Show SubGoal modal with defaults
+    this.subGoalModal.show({
+      targetDate: DateUtils.formatDate(new Date())
+    });
   }
 
   handleEditGoalFromDetail() {

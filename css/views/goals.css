@@ -1,0 +1,473 @@
+/* Goals View Styles */
+
+/* Header Actions - +목표, +습관 Buttons */
+.header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.header-actions .btn-primary,
+.header-actions .btn-secondary {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: linear-gradient(135deg, #4a90d9, #357abd);
+    color: white;
+}
+
+.header-actions .btn-primary:hover,
+.header-actions .btn-secondary:hover {
+    background: linear-gradient(135deg, #357abd, #2a6dab);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(74, 144, 217, 0.3);
+}
+
+/* Empty State Button */
+.goals-empty-state .btn-primary,
+.habits-empty-state .btn-primary {
+    padding: 12px 32px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 500;
+    background: linear-gradient(135deg, #4a90d9, #357abd);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.goals-empty-state .btn-primary:hover,
+.habits-empty-state .btn-primary:hover {
+    background: linear-gradient(135deg, #357abd, #2a6dab);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 144, 217, 0.4);
+}
+
+/* Goals Tabs */
+.goals-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 16px;
+    border-bottom: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    background: var(--glass-bg, rgba(255, 255, 255, 0.3));
+    color: var(--text-secondary, #666);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    background: var(--glass-bg-hover, rgba(255, 255, 255, 0.5));
+}
+
+.tab-btn.active {
+    background: var(--color-primary, #007AFF);
+    color: white;
+}
+
+/* Goals Content */
+.goals-content {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Goals Filters */
+.goals-filters {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.goals-filters label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary, #666);
+    cursor: pointer;
+}
+
+/* Goals List Grid */
+.goals-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+/* Goal Card */
+.goal-card {
+    background: var(--glass-bg, rgba(255, 255, 255, 0.6));
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.3));
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.goal-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.goal-card.completed {
+    opacity: 0.7;
+}
+
+.goal-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding-left: 12px;
+    border-left: 4px solid var(--color-primary, #007AFF);
+}
+
+.goal-card-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary, #1a1a1a);
+}
+
+.completed-badge {
+    font-size: 0.75rem;
+    background: var(--color-success, #34C759);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.goal-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.goal-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #666);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.goal-date {
+    font-size: 0.8rem;
+    color: var(--text-secondary, #666);
+}
+
+.goal-subgoals {
+    font-size: 0.8rem;
+    color: var(--color-primary, #007AFF);
+    margin-top: 8px;
+}
+
+.goal-card-footer {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.view-goal-btn {
+    background: var(--color-primary, #007AFF);
+    color: white;
+}
+
+.edit-goal-btn {
+    background: var(--glass-bg, rgba(0, 0, 0, 0.1));
+    color: var(--text-primary, #1a1a1a);
+}
+
+/* Habits List Grid */
+.habits-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+/* Habit Card */
+.habit-card {
+    background: var(--glass-bg, rgba(255, 255, 255, 0.6));
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.3));
+    transition: all 0.2s ease;
+}
+
+.habit-card.completed {
+    background: var(--color-success-light, rgba(52, 199, 89, 0.1));
+    border-color: var(--color-success, #34C759);
+}
+
+.habit-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.habit-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.habit-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+}
+
+.habit-stats {
+    font-size: 0.8rem;
+    color: var(--text-secondary, #666);
+}
+
+.habit-check-btn {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--color-primary, #007AFF);
+    background: transparent;
+    color: var(--color-primary, #007AFF);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.habit-check-btn:hover {
+    background: var(--color-primary, #007AFF);
+    color: white;
+}
+
+.habit-check-btn.checked {
+    background: var(--color-success, #34C759);
+    border-color: var(--color-success, #34C759);
+    color: white;
+}
+
+.habit-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+/* Empty States */
+.goals-empty-state,
+.habits-empty-state {
+    text-align: center;
+    padding: 48px 24px;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.goals-empty-state h3,
+.habits-empty-state h3 {
+    font-size: 1.2rem;
+    color: var(--text-secondary, #666);
+    margin-bottom: 16px;
+}
+
+/* Habits Header */
+.habits-header {
+    margin-bottom: 16px;
+}
+
+.habits-header h2 {
+    font-size: 1.2rem;
+    margin: 0 0 4px 0;
+}
+
+.habits-header p {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #666);
+    margin: 0;
+}
+
+/* Goal Detail Modal */
+.goal-detail-content {
+    padding: 16px 0;
+}
+
+.goal-detail-content p {
+    color: var(--text-secondary, #666);
+    margin-bottom: 16px;
+}
+
+.goal-detail-content h4 {
+    font-size: 1rem;
+    margin: 16px 0 12px 0;
+}
+
+.subgoals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.subgoal-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--glass-bg, rgba(255, 255, 255, 0.5));
+    border-radius: 8px;
+}
+
+.subgoal-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* Goal Detail Modal Footer Buttons */
+#goal-detail-modal .modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+#goal-detail-modal .modal-footer .btn-primary {
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: linear-gradient(135deg, #4a90d9, #357abd);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#goal-detail-modal .modal-footer .btn-primary:hover {
+    background: linear-gradient(135deg, #357abd, #2a6dab);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(74, 144, 217, 0.3);
+}
+
+#goal-detail-modal .modal-footer .btn-secondary {
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: var(--glass-bg, rgba(0, 0, 0, 0.08));
+    color: var(--modal-text, #333);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#goal-detail-modal .modal-footer .btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+#goal-detail-modal .modal-footer .btn-danger {
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#goal-detail-modal .modal-footer .btn-danger:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .goals-list,
+    .habits-list {
+        grid-template-columns: 1fr;
+    }
+
+    .goals-tabs {
+        padding: 12px;
+    }
+
+    .tab-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Dark Mode */
+[data-theme="dark"] .goal-card {
+    background: var(--glass-bg, rgba(50, 50, 60, 0.6));
+    border-color: var(--glass-border, rgba(255, 255, 255, 0.1));
+}
+
+[data-theme="dark"] .goal-card-header h3 {
+    color: var(--text-primary, #e0e0e0);
+}
+
+[data-theme="dark"] .habit-card {
+    background: var(--glass-bg, rgba(50, 50, 60, 0.6));
+    border-color: var(--glass-border, rgba(255, 255, 255, 0.1));
+}
+
+[data-theme="dark"] .habit-info h3 {
+    color: var(--text-primary, #e0e0e0);
+}
+
+[data-theme="dark"] .edit-goal-btn {
+    background: var(--glass-bg, rgba(255, 255, 255, 0.1));
+    color: var(--text-primary, #e0e0e0);
+}
+
+[data-theme="dark"] .subgoal-item {
+    background: var(--glass-bg, rgba(50, 50, 60, 0.6));
+}
+
+[data-theme="dark"] .goals-empty-state h3,
+[data-theme="dark"] .habits-empty-state h3 {
+    color: var(--text-secondary, #999);
+}
+
+[data-theme="dark"] .goal-description,
+[data-theme="dark"] .goal-date,
+[data-theme="dark"] .goal-subgoals {
+    color: var(--text-secondary, #999);
+}
