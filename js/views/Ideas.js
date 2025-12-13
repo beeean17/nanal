@@ -1,5 +1,4 @@
 // views/Ideas.js - Ideas Incubator view with Masonry layout
-// Pinterest-style idea board for capturing and organizing ideas
 
 import { dataManager } from '../state.js';
 import { IdeaModal } from '../components/modals/IdeaModal.js';
@@ -13,91 +12,78 @@ export default class IdeasView {
     this.ideas = [];
     this.filterText = '';
     this.sortBy = 'recent';
-    this.boundRefreshView = this.refreshView.bind(this);
   }
 
   render() {
     return `
       <div class="home-layout fade-in">
-        <!-- Left Panel: Sidebar Nav (Desktop Only) -->
+        
+        <header class="app-header mobile-tablet-only">
+          <h1 class="app-title">Nanal</h1>
+          <button class="notification-btn" aria-label="알림">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+          </button>
+        </header>
+
         <aside class="left-panel desktop-only">
-           <nav class="sidebar-nav">
-               <a href="#home" class="nav-item" data-screen="home">
-                    <span class="icon">🏠</span><span class="label">홈</span>
-               </a>
-               <a href="#calendar" class="nav-item" data-screen="calendar">
-                    <span class="icon">📅</span><span class="label">캘린더</span>
-               </a>
-               <a href="#goals" class="nav-item" data-screen="goals">
-                    <span class="icon">🎯</span><span class="label">목표</span>
-               </a>
-               <a href="#ideas" class="nav-item active" data-screen="ideas">
-                    <span class="icon">💡</span><span class="label">아이디어</span>
-               </a>
-               <a href="#settings" class="nav-item" data-screen="settings">
-                    <span class="icon">⚙️</span><span class="label">설정</span>
-               </a>
-           </nav>
+          <h1 class="app-title">Nanal</h1>
+          <nav class="sidebar-nav">
+            <a href="#home" class="nav-item" data-screen="home">
+              <span class="nav-icon">🏠</span><span class="nav-label">홈</span>
+            </a>
+            <a href="#calendar" class="nav-item" data-screen="calendar">
+              <span class="nav-icon">📅</span><span class="nav-label">캘린더</span>
+            </a>
+            <a href="#goals" class="nav-item" data-screen="goals">
+              <span class="nav-icon">🎯</span><span class="nav-label">목표</span>
+            </a>
+            <a href="#ideas" class="nav-item active" data-screen="ideas">
+              <span class="nav-icon">💡</span><span class="nav-label">아이디어</span>
+            </a>
+            <a href="#settings" class="nav-item" data-screen="settings">
+              <span class="nav-icon">⚙️</span><span class="nav-label">설정</span>
+            </a>
+          </nav>
         </aside>
 
-        <!-- Main Panel: Ideas Content -->
-        <main class="timeline-panel glass-card" style="display: flex; flex-direction: column;">
-            
-            <div class="ideas-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-               <div>
-                  <h1>💡 아이디어</h1>
-                  <p style="color: var(--text-secondary); font-size: 0.9rem;">떠오르는 생각을 자유롭게 기록하세요</p>
-               </div>
-               <button class="btn-primary" id="add-idea-btn">+ 새 아이디어</button>
-            </div>
+        <main class="main-panel glass-card">
+          <div class="card-header">
+            <h3><span class="header-icon">💡</span> 아이디어</h3>
+            <button class="btn-primary" id="add-idea-btn">+ 새 아이디어</button>
+          </div>
 
-            <!-- Toolbar -->
-            <div class="ideas-toolbar" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-               <div id="ideas-search-container" style="flex: 1; min-width: 200px;"></div>
-               <select id="ideas-sort-select" style="padding: 8px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--glass-bg);">
-                  <option value="recent">최근순</option>
-                  <option value="oldest">오래된순</option>
-                  <option value="updated">수정순</option>
-               </select>
-               <div style="display: flex; align-items: center;">총 <span id="ideas-count" style="font-weight: bold; margin: 0 4px;">0</span>개</div>
-            </div>
+          <div class="ideas-toolbar">
+            <div id="ideas-search-container"></div>
+            <select id="ideas-sort-select" class="form-select">
+              <option value="recent">최근순</option>
+              <option value="oldest">오래된순</option>
+              <option value="updated">수정순</option>
+            </select>
+            <div class="ideas-count">총 <span id="ideas-count">0</span>개</div>
+          </div>
 
-            <!-- Content Area -->
-            <div style="flex: 1; overflow-y: auto;">
-               <div id="ideas-masonry" style="column-count: 2; column-gap: 15px;"></div>
-               
-               <div id="ideas-empty-state" style="display: none; text-align: center; padding: 40px;">
-                  <div style="font-size: 3rem;">💡</div>
-                  <h3>아이디어가 없습니다</h3>
-                  <button class="btn-primary" id="add-idea-empty-btn" style="margin-top: 10px;">첫 아이디어 추가</button>
-               </div>
+          <div class="ideas-content">
+            <div id="ideas-masonry" class="ideas-masonry"></div>
+            <div id="ideas-empty-state" class="empty-state" style="display: none;">
+              <div class="empty-icon">💡</div>
+              <h3>아이디어가 없습니다</h3>
+              <p>떠오르는 생각을 자유롭게 기록하세요</p>
+              <button class="btn-primary" id="add-idea-empty-btn">첫 아이디어 추가</button>
             </div>
-
+          </div>
         </main>
 
-        <!-- Mobile Bottom Nav -->
-        <nav class="bottom-nav mobile-only">
-           <a href="#home" class="nav-item" data-screen="home">
-                <span class="icon">🏠</span><span class="label">홈</span>
-           </a>
-           <a href="#calendar" class="nav-item" data-screen="calendar">
-                <span class="icon">📅</span><span class="label">캘린더</span>
-           </a>
-           <a href="#goals" class="nav-item" data-screen="goals">
-                <span class="icon">🎯</span><span class="label">목표</span>
-           </a>
-           <a href="#ideas" class="nav-item active" data-screen="ideas">
-                <span class="icon">💡</span><span class="label">아이디어</span>
-           </a>
-           <a href="#settings" class="nav-item" data-screen="settings">
-                <span class="icon">⚙️</span><span class="label">설정</span>
-           </a>
+        <nav class="bottom-nav mobile-tablet-only">
+          <a href="#home" class="nav-item" data-screen="home"><span class="nav-icon">🏠</span></a>
+          <a href="#calendar" class="nav-item" data-screen="calendar"><span class="nav-icon">📅</span></a>
+          <a href="#goals" class="nav-item" data-screen="goals"><span class="nav-icon">🎯</span></a>
+          <a href="#ideas" class="nav-item active" data-screen="ideas"><span class="nav-icon">💡</span></a>
+          <a href="#settings" class="nav-item" data-screen="settings"><span class="nav-icon">⚙️</span></a>
         </nav>
-
       </div>
-
-      <!-- Import IdeaModal -->
-      <div id="idea-modal"></div>
     `;
   }
 
@@ -128,7 +114,6 @@ export default class IdeasView {
   refreshView() {
     this.ideas = [...dataManager.ideas];
 
-    // Filter
     if (this.filterText) {
       const lower = this.filterText.toLowerCase();
       this.ideas = this.ideas.filter(i =>
@@ -136,7 +121,6 @@ export default class IdeasView {
       );
     }
 
-    // Sort
     if (this.sortBy === 'recent') this.ideas.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     if (this.sortBy === 'oldest') this.ideas.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     if (this.sortBy === 'updated') this.ideas.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
@@ -157,7 +141,7 @@ export default class IdeasView {
       return;
     }
 
-    container.style.display = 'block'; // Block for Masonry (column-count)
+    container.style.display = 'block';
     if (emptyState) emptyState.style.display = 'none';
 
     container.innerHTML = this.ideas.map(idea => this.renderIdeaCard(idea)).join('');
@@ -166,17 +150,17 @@ export default class IdeasView {
 
   renderIdeaCard(idea) {
     return `
-        <div class="idea-card glass-card" data-id="${idea.id}" style="break-inside: avoid; margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.1); cursor: pointer; transition: transform 0.2s;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                <h3 style="margin: 0; font-size: 1rem;">${ValidationUtils.escapeHtml(idea.title)}</h3>
-                <div class="card-action-btn" style="opacity: 0.7;">✏️</div>
-            </div>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); max-height: 100px; overflow: hidden;">${ValidationUtils.escapeHtml(idea.content)}</p>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px; text-align: right;">
-                ${DateUtils.formatDateKorean(new Date(idea.createdAt))}
-            </div>
+      <div class="idea-card glass-card" data-id="${idea.id}">
+        <div class="idea-card-header">
+          <h3>${ValidationUtils.escapeHtml(idea.title)}</h3>
+          <button class="card-action-btn">✏️</button>
         </div>
-      `;
+        <p class="idea-content">${ValidationUtils.escapeHtml(idea.content)}</p>
+        <div class="idea-meta">
+          ${DateUtils.formatDateKorean(new Date(idea.createdAt))}
+        </div>
+      </div>
+    `;
   }
 
   attachEventListeners() {

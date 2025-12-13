@@ -1,18 +1,51 @@
-/* Home View - Grid Layout */
+/* Home View - Responsive Layout Matching Mockups */
+
+/* ======================================
+   Base Layout (Mobile First)
+   ====================================== */
+
 .home-layout {
     display: flex;
     flex-direction: column;
-    /* Default Mobile: Stack */
     gap: var(--space-md);
     padding: var(--space-md);
-    padding-bottom: 80px;
-    /* Space for Bottom Nav */
-    height: 100%;
+    padding-bottom: 100px;
+    /* Space for bottom nav */
+    min-height: 100vh;
     max-width: 1600px;
     margin: 0 auto;
 }
 
-/* Panel Containers */
+/* App Header (Mobile/Tablet) */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-sm) 0;
+}
+
+.app-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+}
+
+.notification-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+    transition: opacity var(--transition-fast);
+}
+
+.notification-btn:hover {
+    opacity: 1;
+}
+
+/* Left Panel (Contains Weather + Checklist) */
 .left-panel {
     display: flex;
     flex-direction: column;
@@ -20,45 +53,172 @@
     width: 100%;
 }
 
+.left-panel .app-title.desktop-only {
+    display: none;
+    font-size: 1.5rem;
+    margin-bottom: var(--space-sm);
+}
+
+/* Cards */
+.weather-card,
+.checklist-card {
+    padding: 0;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-header h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.card-header .header-icon {
+    font-size: 1rem;
+}
+
+.card-header .expand-btn {
+    font-size: 1.4rem;
+    opacity: 0.5;
+    font-weight: 300;
+    line-height: 1;
+    padding: 4px 8px;
+}
+
+.card-content {
+    padding: var(--space-md);
+}
+
+/* Weather Card - Compact Layout */
+.weather-card .card-content {
+    padding: var(--space-sm) var(--space-md) var(--space-md);
+}
+
+/* Checklist Card */
+.checklist-card .card-content {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.checklist-card.collapsed .card-content {
+    display: none;
+}
+
+/* Timeline Panel */
 .timeline-panel {
-    width: 100%;
-    height: 500px;
-    /* Min height for mobile */
+    flex: 1;
     display: flex;
     flex-direction: column;
-    padding: var(--space-md);
-    position: relative;
+    min-height: 400px;
 }
 
-/* Section Headers */
-.section-header {
+.timeline-panel .card-header {
+    flex-shrink: 0;
+}
+
+.timeline-panel .timeline-title-weekly {
+    display: none;
+}
+
+.timeline-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+/* Sidebar Navigation (Desktop Only) */
+.sidebar-nav {
+    display: none;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--glass-border);
+}
+
+.sidebar-nav .nav-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-sm);
-    padding: 0 var(--space-xs);
+    gap: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
 }
 
-.section-header h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
+.sidebar-nav .nav-item:hover {
+    background: rgba(255, 255, 255, 0.15);
     color: var(--text-primary);
 }
 
-/* Specific Modules */
-.weather-section {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-sm) var(--space-md);
+.sidebar-nav .nav-item.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
 }
 
-.checklist-section {
-    flex: 1;
-    /* Grow to fill space */
-    min-height: 200px;
+[data-theme="dark"] .sidebar-nav .nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .sidebar-nav .nav-item.active {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-nav .nav-icon {
+    font-size: 1.2rem;
+}
+
+.sidebar-nav .nav-label {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* Bottom Navigation (Mobile/Tablet) */
+.bottom-nav {
+    position: fixed;
+    bottom: var(--space-lg);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+}
+
+.bottom-nav .nav-item {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-sm) var(--space-md);
+    opacity: 0.5;
+    transition: all var(--transition-fast);
+}
+
+.bottom-nav .nav-item:hover,
+.bottom-nav .nav-item.active {
+    opacity: 1;
+}
+
+.bottom-nav .nav-icon {
+    font-size: 1.4rem;
 }
 
 /* Visibility Utilities */
@@ -66,64 +226,124 @@
     display: none !important;
 }
 
-.mobile-only {
-    display: flex !important;
+.mobile-tablet-only {
+    display: flex;
 }
 
-/* 📱 Mobile (Default) */
-/* Stacked Layout defined above */
+/* ======================================
+   Tablet Layout (≥768px)
+   2-Column: Left (35%) | Right Timeline (65%)
+   ====================================== */
 
-/* 💻 Tablet (≥ 768px) */
 @media (min-width: 768px) {
     .home-layout {
         display: grid;
+        grid-template-areas:
+            "header header"
+            "left   main";
         grid-template-columns: 35% 1fr;
-        /* 2 Column Grid */
-        align-items: start;
+        grid-template-rows: auto 1fr;
+        gap: var(--space-lg);
         height: 100vh;
-        padding-bottom: 80px;
-        /* Preserve space for floating nav */
+        padding: var(--space-lg);
+        padding-bottom: 100px;
         overflow: hidden;
-        /* Lock scroll, panel scrolls internally */
+    }
+
+    .app-header {
+        grid-area: header;
     }
 
     .left-panel {
+        grid-area: left;
         height: 100%;
         overflow-y: auto;
     }
 
     .timeline-panel {
+        grid-area: main;
         height: 100%;
+        min-height: unset;
+    }
+
+    .bottom-nav {
+        width: auto;
+        min-width: 300px;
+        padding: var(--space-sm) var(--space-xl);
+    }
+
+    .checklist-card .card-content {
+        max-height: 300px;
     }
 }
 
-/* 🖥 Desktop (≥ 1200px) */
+/* ======================================
+   Desktop Layout (≥1200px)
+   Fixed Sidebar (280px) | Main Timeline
+   Vertical Nav in Sidebar, No Bottom Nav
+   ====================================== */
+
 @media (min-width: 1200px) {
     .home-layout {
+        grid-template-areas:
+            "left main";
         grid-template-columns: 280px 1fr;
-        /* Fixed Sidebar Width */
-        padding: var(--space-lg);
-        padding-bottom: var(--space-lg);
-        gap: var(--space-lg);
+        grid-template-rows: 1fr;
+        padding: var(--space-xl);
+        padding-bottom: var(--space-xl);
+        gap: var(--space-xl);
     }
 
-    /* Switch Nav Mode */
-    .mobile-only {
+    /* Hide mobile header on desktop */
+    .app-header.mobile-tablet-only {
         display: none !important;
     }
 
+    /* Show desktop elements */
     .desktop-only {
         display: flex !important;
     }
 
-    /* Left Panel becomes Sidebar */
-    .left-panel {
-        height: 100%;
-        /* Order: Weather -> Checklist -> Nav */
+    .left-panel .app-title.desktop-only {
+        display: block !important;
     }
 
-    .checklist-section {
-        max-height: 400px;
-        /* Limit height so nav is visible */
+    /* Hide mobile elements */
+    .mobile-tablet-only {
+        display: none !important;
+    }
+
+    /* Show sidebar nav */
+    .sidebar-nav.desktop-only {
+        display: flex !important;
+    }
+
+    /* Left panel adjustments */
+    .left-panel {
+        height: 100%;
+        padding-right: var(--space-sm);
+    }
+
+    .checklist-card .card-content {
+        max-height: 250px;
+    }
+
+    /* Timeline title for desktop */
+    .timeline-panel .timeline-title-text {
+        display: none;
+    }
+
+    .timeline-panel .timeline-title-weekly {
+        display: inline !important;
+    }
+}
+
+/* ======================================
+   Large Desktop (≥1440px)
+   ====================================== */
+
+@media (min-width: 1440px) {
+    .home-layout {
+        grid-template-columns: 320px 1fr;
     }
 }

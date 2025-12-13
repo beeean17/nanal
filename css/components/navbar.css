@@ -1,114 +1,62 @@
-/* Navigation Component */
+/* Navigation Components - Bottom Nav & Sidebar Nav */
 
-/* 1. Mobile Bottom Nav (Floating Capsule) */
-.bottom-nav {
-    position: fixed;
-    bottom: calc(var(--space-lg) + env(safe-area-inset-bottom));
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 350px;
-    /* Reduced to match Mobile feel on Tablet */
-    height: 60px;
+/* Note: Styles are now primarily in home.css for the Home view.
+   This file contains shared utilities and any additional nav styling. */
 
-    /* Glass Capsule Style */
-    background: var(--glass-bg);
-    /* Stronger blur for nav */
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    border-radius: 30px;
-    /* Capsule shape */
-
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 100;
-    padding: 0 var(--space-md);
-
-    /* Hidden on Desktop by default (View controls visibility) */
+/* Shared Nav Item Styles */
+.nav-item {
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
 }
 
-/* Nav Item Styling */
-.nav-item {
-    display: flex;
-    flex-direction: column;
+.nav-icon {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-secondary);
-    opacity: 0.7;
-    transition: all 0.3s ease;
-    position: relative;
-    text-decoration: none;
 }
 
-.nav-item .icon {
-    font-size: 1.4rem;
-    margin-bottom: 2px;
-}
-
-.nav-item .label {
-    font-size: 0.7rem;
+.nav-label {
     font-weight: 500;
 }
 
-/* Active State */
+/* Active indicator - subtle glow effect */
 .nav-item.active {
     color: var(--text-primary);
-    opacity: 1;
-    transform: translateY(-2px);
 }
 
-.nav-item.active::after {
+/* Bottom nav capsule - enhanced glass effect */
+.bottom-nav {
+    /* Extra blur for nav */
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+}
+
+/* Safe area support for iOS */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .bottom-nav {
+        bottom: calc(var(--space-lg) + env(safe-area-inset-bottom));
+    }
+}
+
+/* Sidebar nav item hover effect */
+.sidebar-nav .nav-item::before {
     content: '';
     position: absolute;
-    bottom: -4px;
-    width: 4px;
-    height: 4px;
-    background: var(--text-primary);
-    /* Dot indicator */
-    border-radius: 50%;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: var(--color-accent-blue);
+    border-radius: 0 2px 2px 0;
+    transition: height var(--transition-fast);
 }
 
-/* 2. Desktop Sidebar Nav (Vertical List) */
-.sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    margin-top: var(--space-lg);
-    width: 100%;
+.sidebar-nav .nav-item.active::before {
+    height: 60%;
 }
 
 .sidebar-nav .nav-item {
-    flex-direction: row;
-    justify-content: flex-start;
-    padding: var(--space-md);
-    border-radius: var(--radius-md);
-    width: 100%;
-}
-
-.sidebar-nav .nav-item .icon {
-    margin-right: var(--space-md);
-    margin-bottom: 0;
-}
-
-.sidebar-nav .nav-item .label {
-    font-size: 1rem;
-}
-
-.sidebar-nav .nav-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.sidebar-nav .nav-item.active {
-    background: rgba(255, 255, 255, 0.2);
-    /* Active background for sidebar */
-    transform: none;
-    /* No jump */
-}
-
-.sidebar-nav .nav-item.active::after {
-    display: none;
-    /* Remove dot */
+    position: relative;
 }

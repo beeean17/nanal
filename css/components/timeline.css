@@ -1,137 +1,317 @@
-/* Timeline Component - Glass & Grid */
-#timeline-container {
-    width: 100%;
+/* Timeline Component - Matching Mockup Design */
+
+/* Main Timeline Grid */
+.timeline-grid {
+    display: flex;
     height: 100%;
+    overflow: hidden;
+}
+
+/* Time Labels Column (Left side) */
+.timeline-time-column {
+    width: 50px;
+    flex-shrink: 0;
+    padding-top: 40px;
+    /* Space for day headers */
+    border-right: 1px solid rgba(128, 128, 128, 0.1);
+}
+
+.timeline-hour-label {
+    height: 60px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-right: var(--space-sm);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    position: relative;
+}
+
+.timeline-hour-label::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width: 100vw;
+    height: 1px;
+    background: rgba(128, 128, 128, 0.1);
+}
+
+/* Days Container */
+.timeline-days-container {
+    display: flex;
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+/* Day Column */
+.timeline-day-column {
+    flex: 1;
+    min-width: 120px;
     display: flex;
     flex-direction: column;
+    border-right: 1px solid rgba(128, 128, 128, 0.1);
 }
 
-/* Header & Day Columns */
-.timeline-header-days {
-    display: grid;
-    grid-template-columns: repeat(var(--day-count, 1), 1fr);
-    /* Configurable columns */
-    border-bottom: 1px solid var(--glass-border);
-    position: sticky;
-    top: 0;
-    background: var(--glass-bg);
-    /* Sticky header needs background */
-    backdrop-filter: var(--glass-blur);
-    z-index: 10;
-    transition: grid-template-columns 0.3s ease;
-}
-
-.day-header {
-    text-align: center;
-    padding: var(--space-sm);
-    border-right: 1px solid var(--glass-border);
-    font-weight: 500;
-    color: var(--text-secondary);
-}
-
-.day-header.today {
-    color: var(--color-accent-blue);
-    font-weight: 700;
-    background: rgba(0, 122, 255, 0.05);
-}
-
-.day-header:last-child {
+.timeline-day-column:last-child {
     border-right: none;
 }
 
-/* Timeline Content Grid */
-.timeline-body {
-    flex: 1;
-    position: relative;
-    overflow-y: auto;
-    display: grid;
-    grid-template-columns: 50px 1fr;
-    /* Time Column | Event Grid */
+.timeline-day-column.today {
+    background: rgba(255, 255, 255, 0.05);
 }
 
-/* Time labels (08:00, 09:00...) */
-.time-column {
-    border-right: 1px solid var(--glass-border);
-    background: rgba(0, 0, 0, 0.02);
+[data-theme="dark"] .timeline-day-column.today {
+    background: rgba(255, 255, 255, 0.03);
 }
 
-.time-slot-label {
-    height: 60px;
-    /* 1 hour height */
-    font-size: 0.75rem;
+/* Day Header */
+.timeline-day-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-sm) var(--space-xs);
+    background: inherit;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--glass-border);
+    min-height: 40px;
+}
+
+.timeline-day-header .day-name {
+    font-size: 0.8rem;
+    font-weight: 500;
     color: var(--text-secondary);
     text-align: center;
-    transform: translateY(-50%);
-    /* Center label on line */
-    padding-top: var(--space-xs);
 }
 
-/* Event Grid Area */
-.events-grid {
-    display: grid;
-    grid-template-columns: repeat(var(--day-count, 1), 1fr);
-    /* Matches header */
+.timeline-day-column.today .timeline-day-header .day-name {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.timeline-day-header .day-number {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+/* Slots Container */
+.timeline-slots {
     position: relative;
-    background-size: 100% 60px;
-    /* 1 hour grid lines */
-    background-image: linear-gradient(to bottom, var(--glass-border) 1px, transparent 1px);
+    flex: 1;
+    min-height: calc(60px * 24);
+    /* 24 hours */
 }
 
-/* Event Block Style */
-.timeline-event {
-    position: absolute;
-    /* Positioned by JS (top/height) */
-    left: 2px;
-    right: 2px;
-    background: rgba(0, 122, 255, 0.4);
-    /* Default Blue Glass */
-    border-radius: var(--radius-sm);
-    padding: 4px 6px;
-    color: white;
-    font-size: 0.85rem;
-    overflow: hidden;
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    cursor: pointer;
-    transition: transform 0.2s ease, z-index 0s;
-}
-
-.timeline-event:hover {
-    transform: scale(1.02);
-    z-index: 5;
-    background: rgba(0, 122, 255, 0.6);
-}
-
-/* Categories Colors */
-.event-category-work {
-    background: rgba(0, 122, 255, 0.4);
-}
-
-.event-category-personal {
-    background: rgba(52, 199, 89, 0.4);
-}
-
-.event-category-urgent {
-    background: rgba(255, 59, 48, 0.4);
+.timeline-slot {
+    height: 12.5px;
+    /* 60px / 24 (5-minute intervals per hour) = ~12.5px for smooth granularity */
+    /* Actually: 60px per hour, 12 slots per hour = 5px each */
+    /* If 288 slots = 24 hours, each slot = 5 minutes */
+    position: relative;
 }
 
 /* Current Time Indicator */
-.current-time-indicator {
+.timeline-current-time {
     position: absolute;
     left: 0;
     right: 0;
-    height: 2px;
-    background: var(--color-accent-red);
     z-index: 20;
+    display: flex;
+    align-items: center;
     pointer-events: none;
 }
 
 .current-time-dot {
-    position: absolute;
-    left: -4px;
-    top: -3px;
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     background: var(--color-accent-red);
     border-radius: 50%;
+    margin-left: -5px;
+    flex-shrink: 0;
+}
+
+.current-time-line {
+    flex: 1;
+    height: 2px;
+    background: var(--color-accent-red);
+}
+
+.current-time-label {
+    position: absolute;
+    left: -50px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-accent-red);
+    background: inherit;
+    padding: 0 4px;
+}
+
+/* Event Blocks */
+.timeline-event {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    border-radius: var(--radius-sm);
+    padding: var(--space-xs) var(--space-sm);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    z-index: 5;
+    color: white;
+}
+
+.timeline-event:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    z-index: 6;
+}
+
+.timeline-event .event-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.timeline-event .event-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.timeline-event .event-time {
+    font-size: 0.65rem;
+    opacity: 0.9;
+}
+
+.timeline-event .event-duration {
+    font-size: 0.6rem;
+    opacity: 0.7;
+}
+
+.timeline-event .fixed-icon {
+    font-size: 0.7rem;
+    margin-right: 4px;
+}
+
+/* Fixed schedule style */
+.timeline-event.fixed-schedule {
+    border-left: 3px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Active event (current time is within) */
+.timeline-event.active {
+    border: 2px solid var(--color-accent-red);
+}
+
+/* Drag Overlay */
+.timeline-drag-overlay {
+    position: absolute;
+    background: var(--color-accent-blue);
+    opacity: 0.4;
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+    z-index: 15;
+}
+
+/* Add Button in day columns */
+.timeline-add-btn {
+    position: absolute;
+    bottom: var(--space-md);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    z-index: 15;
+}
+
+.timeline-add-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: var(--text-primary);
+    transform: translateX(-50%) scale(1.1);
+}
+
+[data-theme="dark"] .timeline-add-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Empty state */
+.timeline-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: var(--space-xl);
+}
+
+.timeline-empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-md);
+    opacity: 0.5;
+}
+
+/* Mobile: Single day - hide time column labels inside slots */
+@media (max-width: 767px) {
+    .timeline-time-column {
+        width: 45px;
+        padding-top: 0;
+    }
+
+    .timeline-day-header {
+        display: none;
+    }
+
+    .current-time-label {
+        left: -48px;
+    }
+
+    .timeline-event {
+        left: 2px;
+        right: 2px;
+    }
+}
+
+/* Event colors based on category */
+.timeline-event[style*="background-color: #007AFF"],
+.timeline-event[style*="background-color: rgb(0, 122, 255)"] {
+    background: var(--event-blue) !important;
+}
+
+.timeline-event[style*="background-color: #34C759"],
+.timeline-event[style*="background-color: rgb(52, 199, 89)"] {
+    background: var(--event-green) !important;
+}
+
+.timeline-event[style*="background-color: #FFCC00"],
+.timeline-event[style*="background-color: rgb(255, 204, 0)"] {
+    background: var(--event-yellow) !important;
+}
+
+.timeline-event[style*="background-color: #FF2D55"],
+.timeline-event[style*="background-color: rgb(255, 45, 85)"] {
+    background: var(--event-pink) !important;
 }

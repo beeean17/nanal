@@ -1,5 +1,4 @@
 // views/Settings.js - Settings and configuration view
-// Categories management, data export/import, theme, statistics
 
 import { dataManager } from '../state.js';
 import { FirebaseDB, FirebaseAuth } from '../firebase-config.js';
@@ -9,136 +8,116 @@ import { toggleTheme } from '../app.js';
 export default class SettingsView {
   constructor() {
     this.currentUser = null;
-    this.boundRefreshView = this.refreshView.bind(this);
   }
 
   render() {
     return `
       <div class="home-layout fade-in">
-        <!-- Left Panel: Sidebar Nav (Desktop Only) -->
+        
+        <header class="app-header mobile-tablet-only">
+          <h1 class="app-title">Nanal</h1>
+          <button class="notification-btn" aria-label="알림">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+          </button>
+        </header>
+
         <aside class="left-panel desktop-only">
-           <nav class="sidebar-nav">
-               <a href="#home" class="nav-item" data-screen="home">
-                    <span class="icon">🏠</span><span class="label">홈</span>
-               </a>
-               <a href="#calendar" class="nav-item" data-screen="calendar">
-                    <span class="icon">📅</span><span class="label">캘린더</span>
-               </a>
-               <a href="#goals" class="nav-item" data-screen="goals">
-                    <span class="icon">🎯</span><span class="label">목표</span>
-               </a>
-               <a href="#ideas" class="nav-item" data-screen="ideas">
-                    <span class="icon">💡</span><span class="label">아이디어</span>
-               </a>
-               <a href="#settings" class="nav-item active" data-screen="settings">
-                    <span class="icon">⚙️</span><span class="label">설정</span>
-               </a>
-           </nav>
+          <h1 class="app-title">Nanal</h1>
+          <nav class="sidebar-nav">
+            <a href="#home" class="nav-item" data-screen="home">
+              <span class="nav-icon">🏠</span><span class="nav-label">홈</span>
+            </a>
+            <a href="#calendar" class="nav-item" data-screen="calendar">
+              <span class="nav-icon">📅</span><span class="nav-label">캘린더</span>
+            </a>
+            <a href="#goals" class="nav-item" data-screen="goals">
+              <span class="nav-icon">🎯</span><span class="nav-label">목표</span>
+            </a>
+            <a href="#ideas" class="nav-item" data-screen="ideas">
+              <span class="nav-icon">💡</span><span class="nav-label">아이디어</span>
+            </a>
+            <a href="#settings" class="nav-item active" data-screen="settings">
+              <span class="nav-icon">⚙️</span><span class="nav-label">설정</span>
+            </a>
+          </nav>
         </aside>
 
-        <!-- Main Panel: Settings Content -->
-        <main class="timeline-panel glass-card" style="display: flex; flex-direction: column; padding: 20px;">
+        <main class="main-panel glass-card">
+          <div class="card-header">
+            <h3><span class="header-icon">⚙️</span> 설정</h3>
+          </div>
+
+          <div class="settings-content">
             
-            <div class="settings-header" style="margin-bottom: 20px;">
-              <h1>⚙️ 설정</h1>
-            </div>
+            <section class="settings-section">
+              <h2>테마</h2>
+              <div class="theme-buttons">
+                <button class="theme-btn" data-theme="light" id="theme-light-btn">☀️ 라이트</button>
+                <button class="theme-btn" data-theme="dark" id="theme-dark-btn">🌙 다크</button>
+              </div>
+            </section>
 
-            <!-- Scrollable Settings -->
-            <div class="settings-container" style="flex: 1; overflow-y: auto;">
-              
-              <!-- Theme Settings -->
-              <section class="settings-section">
-                <h2>테마</h2>
-                <div class="settings-group">
-                  <div class="theme-buttons" style="display: flex; gap: 10px;">
-                    <button class="theme-btn" data-theme="light" id="theme-light-btn" style="padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border);">
-                      ☀️ 라이트
-                    </button>
-                    <button class="theme-btn" data-theme="dark" id="theme-dark-btn" style="padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border);">
-                      🌙 다크
-                    </button>
-                  </div>
-                </div>
-              </section>
+            <section class="settings-section">
+              <h2>📊 통계</h2>
+              <div class="stats-grid" id="stats-grid"></div>
+            </section>
 
-              <!-- Statistics -->
-              <section class="settings-section">
-                <h2>📊 통계</h2>
-                <div class="stats-grid" id="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;"></div>
-              </section>
+            <section class="settings-section">
+              <h2>🏷️ 카테고리</h2>
+              <div id="categories-list" class="categories-list"></div>
+              <button class="btn-primary" id="add-category-btn">+ 카테고리 추가</button>
+            </section>
 
-              <!-- Categories -->
-              <section class="settings-section">
-                <h2>🏷️ 카테고리</h2>
-                <div class="settings-group">
-                  <div id="categories-list" style="display: grid; gap: 8px; margin-bottom: 10px;"></div>
-                  <button class="btn-primary" id="add-category-btn">+ 카테고리 추가</button>
-                </div>
-              </section>
+            <section class="settings-section">
+              <h2>💾 데이터</h2>
+              <div class="data-actions">
+                <button class="btn-secondary" id="export-data-btn">📥 내보내기</button>
+                <button class="btn-secondary" id="import-data-btn">📤 가져오기</button>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;" />
+              </div>
+            </section>
 
-              <!-- Data Management -->
-              <section class="settings-section">
-                <h2>💾 데이터</h2>
-                <div class="settings-group" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                  <button class="btn-secondary" id="export-data-btn">📥 내보내기</button>
-                  <button class="btn-secondary" id="import-data-btn">📤 가져오기</button>
-                  <input type="file" id="import-file-input" accept=".json" style="display: none;" />
-                </div>
-              </section>
+            <section class="settings-section">
+              <h2>☁️ 동기화</h2>
+              <div id="cloud-sync-status"></div>
+              <div id="cloud-sync-actions"></div>
+            </section>
 
-              <!-- Cloud Sync -->
-              <section class="settings-section">
-                <h2>☁️ 동기화</h2>
-                <div id="cloud-sync-status" style="margin-bottom: 10px;"></div>
-                <div id="cloud-sync-actions" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
-              </section>
-
-              <!-- App Info -->
-              <section class="settings-section" style="margin-top: 20px; text-align: center; color: var(--text-secondary);">
-                <div class="app-version">Nanal v1.0.0</div>
-                <div><a href="https://github.com/beeean17/nanal" target="_blank" style="text-decoration: underline;">GitHub</a></div>
-              </section>
-
-            </div>
+            <section class="settings-section app-info">
+              <div class="app-version">Nanal v1.0.0</div>
+              <div><a href="https://github.com/beeean17/nanal" target="_blank">GitHub</a></div>
+            </section>
+          </div>
         </main>
 
-        <!-- Mobile Bottom Nav -->
-        <nav class="bottom-nav mobile-only">
-           <a href="#home" class="nav-item" data-screen="home">
-                <span class="icon">🏠</span><span class="label">홈</span>
-           </a>
-           <a href="#calendar" class="nav-item" data-screen="calendar">
-                <span class="icon">📅</span><span class="label">캘린더</span>
-           </a>
-           <a href="#goals" class="nav-item" data-screen="goals">
-                <span class="icon">🎯</span><span class="label">목표</span>
-           </a>
-           <a href="#ideas" class="nav-item" data-screen="ideas">
-                <span class="icon">💡</span><span class="label">아이디어</span>
-           </a>
-           <a href="#settings" class="nav-item active" data-screen="settings">
-                <span class="icon">⚙️</span><span class="label">설정</span>
-           </a>
+        <nav class="bottom-nav mobile-tablet-only">
+          <a href="#home" class="nav-item" data-screen="home"><span class="nav-icon">🏠</span></a>
+          <a href="#calendar" class="nav-item" data-screen="calendar"><span class="nav-icon">📅</span></a>
+          <a href="#goals" class="nav-item" data-screen="goals"><span class="nav-icon">🎯</span></a>
+          <a href="#ideas" class="nav-item" data-screen="ideas"><span class="nav-icon">💡</span></a>
+          <a href="#settings" class="nav-item active" data-screen="settings"><span class="nav-icon">⚙️</span></a>
         </nav>
 
         <!-- Category Edit Modal -->
         <div id="category-modal" class="modal" style="display:none;">
-             <div class="modal-overlay" id="category-modal-overlay"></div>
-             <div class="modal-content">
-                  <h3>카테고리 편집</h3>
-                  <input type="text" id="category-name-input" placeholder="이름" class="form-input">
-                  <div style="display: flex; gap: 5px; margin: 10px 0;">
-                      <input type="color" id="category-color-input">
-                      <input type="text" id="category-icon-input" placeholder="Icon" style="width: 50px;">
-                  </div>
-                  <div class="modal-footer">
-                      <button id="save-category-btn" class="btn-primary">저장</button>
-                      <button id="cancel-category-btn" class="btn-secondary">취소</button>
-                  </div>
-                  <button id="category-modal-close-btn" class="modal-close-btn">×</button>
-             </div>
+          <div class="modal-overlay" id="category-modal-overlay"></div>
+          <div class="modal-content">
+            <h3>카테고리 편집</h3>
+            <input type="text" id="category-name-input" placeholder="이름" class="form-input">
+            <div class="category-options">
+              <input type="color" id="category-color-input">
+              <input type="text" id="category-icon-input" placeholder="아이콘" class="form-input-sm">
+            </div>
+            <div class="modal-footer">
+              <button id="save-category-btn" class="btn-primary">저장</button>
+              <button id="cancel-category-btn" class="btn-secondary">취소</button>
+            </div>
+            <button id="category-modal-close-btn" class="modal-close-btn">×</button>
+          </div>
         </div>
-
       </div>
     `;
   }
@@ -165,9 +144,7 @@ export default class SettingsView {
     this.renderCloudSyncStatus();
   }
 
-  loadSettings() {
-    // Load logic if any specific settings need UI update beyond themes
-  }
+  loadSettings() { }
 
   renderStatistics() {
     const container = document.getElementById('stats-grid');
@@ -177,15 +154,14 @@ export default class SettingsView {
     const completedTasks = dataManager.tasks.filter(t => t.isCompleted).length;
 
     container.innerHTML = `
-      <div class="stat-card glass-card" style="padding: 10px; background: rgba(255,255,255,0.1);">
-         <div style="font-size: 1.5rem;">✅ ${completedTasks}</div>
-         <div style="font-size: 0.8rem;">완료한 할 일</div>
+      <div class="stat-card glass-card">
+        <div class="stat-value">✅ ${completedTasks}</div>
+        <div class="stat-label">완료한 할 일</div>
       </div>
-      <div class="stat-card glass-card" style="padding: 10px; background: rgba(255,255,255,0.1);">
-         <div style="font-size: 1.5rem;">📋 ${totalTasks}</div>
-         <div style="font-size: 0.8rem;">총 할 일</div>
+      <div class="stat-card glass-card">
+        <div class="stat-value">📋 ${totalTasks}</div>
+        <div class="stat-label">총 할 일</div>
       </div>
-      <!-- Additional stats skipped for brevity but layout is responsive -->
     `;
   }
 
@@ -194,20 +170,22 @@ export default class SettingsView {
     if (!container) return;
 
     container.innerHTML = dataManager.categories.map(cat => `
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="display:inline-block; width: 12px; height: 12px; border-radius: 50%; background: ${cat.color};"></span>
-                  <span>${cat.icon} ${ValidationUtils.escapeHtml(cat.name)}</span>
-              </div>
-              <div>
-                  <button class="edit-category-btn btn-icon" data-id="${cat.id}">✏️</button>
-                  <button class="delete-category-btn btn-icon" data-id="${cat.id}">🗑️</button>
-              </div>
-          </div>
-      `).join('');
+      <div class="category-item">
+        <div class="category-info">
+          <span class="category-color" style="background: ${cat.color};"></span>
+          <span>${cat.icon} ${ValidationUtils.escapeHtml(cat.name)}</span>
+        </div>
+        <div class="category-actions">
+          <button class="edit-category-btn btn-icon" data-id="${cat.id}">✏️</button>
+          <button class="delete-category-btn btn-icon" data-id="${cat.id}">🗑️</button>
+        </div>
+      </div>
+    `).join('');
 
-    document.querySelectorAll('.edit-category-btn').forEach(b => b.addEventListener('click', () => this.handleEditCategory(b.dataset.id)));
-    document.querySelectorAll('.delete-category-btn').forEach(b => b.addEventListener('click', () => this.handleDeleteCategory(b.dataset.id)));
+    document.querySelectorAll('.edit-category-btn').forEach(b =>
+      b.addEventListener('click', () => this.handleEditCategory(b.dataset.id)));
+    document.querySelectorAll('.delete-category-btn').forEach(b =>
+      b.addEventListener('click', () => this.handleDeleteCategory(b.dataset.id)));
   }
 
   async renderCloudSyncStatus() {
@@ -220,10 +198,10 @@ export default class SettingsView {
     if (this.currentUser) {
       statusEl.innerHTML = `✅ 로그인됨: ${this.currentUser.email}`;
       actionsEl.innerHTML = `
-             <button id="manual-backup-btn" class="btn-primary">☁️ 백업</button>
-             <button id="restore-backup-btn" class="btn-secondary">⬇️ 복원</button>
-             <button id="firebase-logout-btn" class="btn-secondary">🚪 로그아웃</button>
-          `;
+        <button id="manual-backup-btn" class="btn-primary">☁️ 백업</button>
+        <button id="restore-backup-btn" class="btn-secondary">⬇️ 복원</button>
+        <button id="firebase-logout-btn" class="btn-secondary">🚪 로그아웃</button>
+      `;
       document.getElementById('manual-backup-btn').addEventListener('click', () => alert('백업 기능 준비 중'));
       document.getElementById('restore-backup-btn').addEventListener('click', () => alert('복원 기능 준비 중'));
       document.getElementById('firebase-logout-btn').addEventListener('click', () => this.handleFirebaseLogout());
@@ -249,7 +227,6 @@ export default class SettingsView {
     if (importBtn) importBtn.addEventListener('click', () => fileInput.click());
     if (fileInput) fileInput.addEventListener('change', (e) => this.handleImportData(e));
 
-    // Modal
     const modal = document.getElementById('category-modal');
     const closeBtn = document.getElementById('category-modal-close-btn');
     const cancelBtn = document.getElementById('cancel-category-btn');
@@ -267,8 +244,7 @@ export default class SettingsView {
   updateThemeButtons() {
     const currentTheme = localStorage.getItem('theme') || 'light';
     document.querySelectorAll('.theme-btn').forEach(btn => {
-      btn.style.background = btn.dataset.theme === currentTheme ? 'var(--color-accent-blue)' : 'transparent';
-      btn.style.color = btn.dataset.theme === currentTheme ? 'white' : 'inherit';
+      btn.classList.toggle('active', btn.dataset.theme === currentTheme);
     });
   }
 

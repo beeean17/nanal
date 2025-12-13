@@ -1,51 +1,57 @@
-/* Weather Widget - Compact Glass Design */
-.weather-widget {
-    /* Parent container usually controls width, 
-     but component should fill it */
-    width: 100%;
-    padding: var(--space-md);
+/* Weather Widget - Compact Card Style */
 
-    /* Flex layout for Icon + Text */
+.weather-widget {
     display: flex;
     align-items: center;
     gap: var(--space-md);
-    color: var(--text-primary);
 }
 
 .weather-icon {
-    font-size: 2.5rem;
-    /* Large icon */
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    font-size: 2rem;
+    line-height: 1;
 }
 
 .weather-info {
-    display: flex;
-    flex-direction: column;
+    flex: 1;
 }
 
 .weather-location {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 600;
-    margin-bottom: var(--space-xs);
-    color: var(--text-secondary);
-    /* Slightly dimmer */
+    color: var(--text-primary);
+    margin-bottom: 2px;
 }
 
 .weather-temp {
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 1.2;
-}
-
-.weather-desc {
     font-size: 0.85rem;
-    opacity: 0.8;
+    color: var(--text-secondary);
 }
 
-/* Skeleton/Loading State */
+.weather-condition {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* Compact variant */
+.weather-widget.compact {
+    padding: 0;
+}
+
+.weather-widget.compact .weather-icon {
+    font-size: 1.8rem;
+}
+
+/* Loading state */
 .weather-loading {
-    opacity: 0.6;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--text-secondary);
     font-size: 0.9rem;
-    text-align: center;
-    width: 100%;
+}
+
+/* Error state */
+.weather-error {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
 }
