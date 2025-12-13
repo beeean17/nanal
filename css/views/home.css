@@ -130,6 +130,8 @@
     display: none;
 }
 
+/* .timeline-panel .card-header display:none removed to show title */
+
 .timeline-content {
     flex: 1;
     overflow: hidden;
@@ -239,13 +241,27 @@
         display: none !important;
     }
 
-    /* Compact Weather Widget - Hide Header */
-    .weather-card .card-header {
+    /* Compact Weather Widget & Timeline - Show Headers but Hide Toggle */
+    .weather-card .card-header,
+    .timeline-panel .card-header {
+        display: flex !important;
+        /* Restore header */
+        padding: var(--space-sm) var(--space-md) !important;
+    }
+
+    /* Hide the chevron/toggle icon specifically */
+    .weather-card .card-header .chevron,
+    .timeline-panel .card-header .toggle-icon,
+    .timeline-panel .card-header .chevron {
         display: none !important;
     }
 
     .weather-card .card-content {
         padding: var(--space-sm) var(--space-md) !important;
+    }
+
+    .timeline-panel .card-body {
+        padding-top: var(--space-sm) !important;
     }
 
     .weather-main-text {
