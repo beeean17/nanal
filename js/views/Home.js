@@ -311,17 +311,18 @@ export default class HomeView {
     const titleText = document.querySelector('.timeline-title-text');
     const titleWeekly = document.querySelector('.timeline-title-weekly');
     if (titleText && titleWeekly) {
-      const isDesktop = window.innerWidth >= 1200;
-      titleText.style.display = isDesktop ? 'none' : 'inline';
-      titleWeekly.style.display = isDesktop ? 'inline' : 'none';
+      // Show "Weekly" title only for 7-day view (>= 1200px)
+      const isWeekly = window.innerWidth >= 1200;
+      titleText.style.display = isWeekly ? 'none' : 'inline';
+      titleWeekly.style.display = isWeekly ? 'inline' : 'none';
     }
   }
 
   getResponsiveDayCount() {
     const width = window.innerWidth;
-    if (width < 768) return 1;   // Mobile: 1 Day (Today only)
-    if (width < 1200) return 3;  // Tablet: 3 Days (Yesterday, Today, Tomorrow)
-    return 7;                    // Desktop: 7 Days (Weekly View Mon-Sun)
+    if (width < 768) return 1;   // Mobile: 1 Day
+    if (width < 1200) return 3;  // Small Desktop/Half Screen: 3 Days
+    return 7;                    // Full Desktop: 7 Days
   }
 
   // --- Handlers ---

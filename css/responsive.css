@@ -16,46 +16,10 @@
 }
 
 /* ====================================
-   Tablet (768px+)
+   Desktop (768px+)
    ==================================== */
 
 @media (min-width: 768px) {
-    .main-content {
-        padding: var(--space-lg);
-        padding-bottom: calc(var(--bottom-nav-height) + var(--space-lg));
-    }
-
-    body {
-        font-size: var(--font-size-base);
-    }
-
-    .card-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-lg);
-    }
-
-    .nav-item .icon {
-        font-size: 1.75rem;
-    }
-
-    .nav-item .label {
-        font-size: var(--font-size-sm);
-    }
-
-    .floating-btn {
-        width: 64px;
-        height: 64px;
-        bottom: calc(var(--bottom-nav-height) + var(--space-xl));
-        right: var(--space-xl);
-    }
-}
-
-/* ====================================
-   Desktop (1024px+)
-   ==================================== */
-
-@media (min-width: 1024px) {
     #app {
         flex-direction: row;
     }
@@ -124,6 +88,7 @@
     }
 
     .card-grid {
+        display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: var(--space-xl);
     }
@@ -207,7 +172,7 @@
    Weekly Timeline (주간 화면 전용)
    ==================================== */
 
-@media (max-width: 499px) {
+@media (max-width: 767px) {
     .weekly-timeline .timeline-day-column:not(.today) {
         display: none;
     }
@@ -221,25 +186,13 @@
     }
 }
 
-@media (min-width: 500px) and (max-width: 799px) {
-    .weekly-timeline .timeline-day-column {
-        min-width: 100px;
-    }
-}
-
-@media (min-width: 800px) and (max-width: 1099px) {
-    .weekly-timeline .timeline-day-column {
-        min-width: 80px;
-    }
-}
-
-@media (min-width: 1100px) {
+@media (min-width: 768px) {
     .weekly-timeline {
-        min-width: 800px;
+        min-width: 0;
     }
 
     .weekly-timeline .timeline-day-column {
-        min-width: 100px;
+        min-width: 0;
     }
 }
 
@@ -247,7 +200,7 @@
    Home Screen - 반응형 레이아웃
    ==================================== */
 
-@media (max-width: 499px) {
+@media (max-width: 767px) {
     .home-time {
         font-size: 2rem;
     }
@@ -289,7 +242,7 @@
     }
 }
 
-@media (min-width: 500px) {
+@media (min-width: 768px) {
     .home-grid-container {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -345,25 +298,13 @@
     background-color: var(--color-text-secondary, #999);
 }
 
-@media (max-width: 499px) {
+@media (max-width: 767px) {
     .home-timeline-container {
         max-height: 400px;
     }
 }
 
-@media (min-width: 500px) and (max-width: 799px) {
-    .home-timeline-container {
-        max-height: 500px;
-    }
-}
-
-@media (min-width: 800px) and (max-width: 1099px) {
-    .home-timeline-container {
-        max-height: 560px;
-    }
-}
-
-@media (min-width: 1100px) {
+@media (min-width: 768px) {
     .home-timeline-container {
         max-height: 640px;
     }
@@ -475,7 +416,7 @@
     display: flex !important;
 }
 
-@media (max-width: 499px) {
+@media (max-width: 767px) {
     .home-timeline .timeline-header-cell {
         min-height: 50px;
         padding: 8px 4px;
@@ -501,59 +442,7 @@
     }
 }
 
-@media (min-width: 500px) and (max-width: 799px) {
-    .home-timeline .timeline-header-cell {
-        min-height: 56px;
-        padding: 8px 6px;
-    }
-
-    .home-timeline .timeline-day-header {
-        min-height: 56px;
-        padding: 10px 8px;
-    }
-
-    .home-timeline .day-name {
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .home-timeline .day-date {
-        font-size: 0.75rem;
-        margin-top: 2px;
-    }
-
-    .home-timeline .timeline-days-container {
-        gap: 6px;
-    }
-}
-
-@media (min-width: 800px) and (max-width: 1099px) {
-    .home-timeline .timeline-header-cell {
-        min-height: 60px;
-        padding: 10px 8px;
-    }
-
-    .home-timeline .timeline-day-header {
-        min-height: 60px;
-        padding: 12px 10px;
-    }
-
-    .home-timeline .day-name {
-        font-size: 0.9375rem;
-        font-weight: 600;
-    }
-
-    .home-timeline .day-date {
-        font-size: 0.8125rem;
-        margin-top: 3px;
-    }
-
-    .home-timeline .timeline-days-container {
-        gap: 8px;
-    }
-}
-
-@media (min-width: 1100px) {
+@media (min-width: 768px) {
     .home-timeline .timeline-header-cell {
         min-height: 64px;
         padding: 12px 10px;
@@ -597,7 +486,7 @@
     border-right: 1px solid var(--color-border, #eee);
 }
 
-@media (min-width: 500px) {
+@media (min-width: 768px) {
     .timeline-time-column {
         flex: 0 0 60px;
     }
@@ -662,7 +551,8 @@
 }
 
 /* 헤더 높이 강제 일치 */
-@media (max-width: 499px) {
+@media (max-width: 767px) {
+
     .home-timeline .timeline-header-cell,
     .home-timeline .timeline-day-header {
         height: 50px !important;
@@ -670,23 +560,8 @@
     }
 }
 
-@media (min-width: 500px) and (max-width: 799px) {
-    .home-timeline .timeline-header-cell,
-    .home-timeline .timeline-day-header {
-        height: 56px !important;
-        min-height: 56px !important;
-    }
-}
+@media (min-width: 768px) {
 
-@media (min-width: 800px) and (max-width: 1099px) {
-    .home-timeline .timeline-header-cell,
-    .home-timeline .timeline-day-header {
-        height: 60px !important;
-        min-height: 60px !important;
-    }
-}
-
-@media (min-width: 1100px) {
     .home-timeline .timeline-header-cell,
     .home-timeline .timeline-day-header {
         height: 64px !important;
@@ -701,13 +576,6 @@
 @media (min-width: 768px) {
     .calendar-layout {
         display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: var(--space-lg);
-    }
-}
-
-@media (min-width: 1024px) {
-    .calendar-layout {
         grid-template-columns: 200px 2fr 1fr;
     }
 
@@ -746,6 +614,7 @@
    ==================================== */
 
 @media (hover: none) and (pointer: coarse) {
+
     .btn,
     .nav-item,
     .input {
@@ -768,6 +637,7 @@
    ==================================== */
 
 @media print {
+
     .sidebar,
     .bottom-nav,
     .floating-btn {
@@ -820,6 +690,7 @@
    ==================================== */
 
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
