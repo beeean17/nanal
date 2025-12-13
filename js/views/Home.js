@@ -71,7 +71,10 @@ export default class HomeView {
            <div class="checklist-card glass-card collapsed">
              <div class="card-header">
                <h3><span class="header-icon">☰</span> 오늘의 할 일 (Checklist)</h3>
-               <button class="expand-btn checklist-toggle" aria-label="접기">ˇ</button>
+               <div class="header-actions">
+                 <button class="add-btn" id="add-task-btn" onclick="window.openAddTaskModal && window.openAddTaskModal()" aria-label="할 일 추가">+</button>
+                 <button class="expand-btn checklist-toggle" aria-label="접기">ˇ</button>
+               </div>
              </div>
              <div class="card-content" id="todo-list-container"></div>
            </div>
@@ -143,6 +146,9 @@ export default class HomeView {
   async init() {
     console.log('[HomeView] Initializing...');
 
+    // Expose to window for global access
+    window.homeView = this;
+
     // Components
     this.initializeComponents();
 
@@ -155,6 +161,11 @@ export default class HomeView {
 
     // Initial Responsive check
     this.handleResize();
+
+    // Set up global add task handler
+    window.openAddTaskModal = () => {
+      this.taskModal.show({ date: DateUtils.formatDate(this.currentDate) });
+    };
   }
 
   initializeComponents() {
@@ -189,10 +200,12 @@ export default class HomeView {
     // 4. Modals
     this.taskModal = new TaskModal('task-modal', {
       onSave: (d) => this.handleSaveTask(d),
+      onDelete: (id) => this.handleDeleteTask(id),
       categories: dataManager.categories
     });
     this.fixedScheduleModal = new FixedScheduleModal('timetable-modal', {
       onSave: (d) => this.handleSaveFixedSchedule(d),
+      onDelete: (id) => this.handleDeleteFixedSchedule(id),
       categories: dataManager.categories
     });
   }
@@ -311,6 +324,15 @@ export default class HomeView {
       });
     }
 
+    // Add task button - use event delegation for reliable click handling
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'add-task-btn' || e.target.closest('#add-task-btn')) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.taskModal.show({ date: DateUtils.formatDate(this.currentDate) });
+      }
+    });
+
     // Resize listener
     window.addEventListener('resize', this.boundHandleResize);
   }
@@ -385,10 +407,27 @@ export default class HomeView {
     }
   }
 
+  handleSaveTask(data) {
+    if (data.id) {
+      dataManager.updateTask(data.id, data);
+    } else {
+      dataManager.addTask(data);
+    }
+    this.taskModal.hide();
+  }
+
   handleSaveFixedSchedule(data) {
     if (data.id) dataManager.updateFixedSchedule(data.id, data);
     else dataManager.addFixedSchedule(data);
     this.fixedScheduleModal.hide();
+  }
+
+  handleDeleteTask(id) {
+    dataManager.deleteTask(id);
+  }
+
+  handleDeleteFixedSchedule(id) {
+    dataManager.deleteFixedSchedule(id);
   }
 
   destroy() {

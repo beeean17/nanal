@@ -22,6 +22,7 @@ export class Modal {
       title: 'Modal',
       onSave: null,
       onCancel: null,
+      onDelete: null,
       ...options
     };
 
@@ -46,6 +47,12 @@ export class Modal {
 
     // Populate form
     this.populateForm(data);
+
+    // Show/hide delete button based on whether we're editing
+    const deleteBtn = modal.querySelector(`#${this.modalId}-delete`);
+    if (deleteBtn) {
+      deleteBtn.style.display = (data.id && this.options.onDelete) ? 'inline-block' : 'none';
+    }
 
     // Show modal
     modal.style.display = 'flex';
@@ -104,8 +111,13 @@ export class Modal {
           ${this.renderForm()}
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" id="${this.modalId}-save">저장</button>
-          <button class="btn btn-secondary" id="${this.modalId}-cancel">취소</button>
+          <div class="modal-footer-left">
+            <button class="btn btn-danger" id="${this.modalId}-delete" style="display: none;">삭제</button>
+          </div>
+          <div class="modal-footer-right">
+            <button class="btn btn-secondary" id="${this.modalId}-cancel">취소</button>
+            <button class="btn btn-primary" id="${this.modalId}-save">저장</button>
+          </div>
         </div>
       </div>
     `;
@@ -167,6 +179,20 @@ export class Modal {
       });
     }
 
+    // Delete button
+    const deleteBtn = modal.querySelector(`#${this.modalId}-delete`);
+    if (deleteBtn) {
+      const newDeleteBtn = deleteBtn.cloneNode(true);
+      // Preserve display style
+      newDeleteBtn.style.display = deleteBtn.style.display;
+      deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
+
+      newDeleteBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.handleDelete();
+      });
+    }
+
     // Close buttons (overlay, X button)
     const closeBtns = modal.querySelectorAll('[data-close="true"]');
     closeBtns.forEach(btn => {
@@ -202,6 +228,21 @@ export class Modal {
       if (this.options.onSave) {
         this.options.onSave(data);
       }
+    }
+  }
+
+  /**
+   * Handle delete button click
+   */
+  handleDelete() {
+    if (!this.data.id) return;
+
+    const confirmMsg = '정말 삭제하시겠습니까?';
+    if (confirm(confirmMsg)) {
+      if (this.options.onDelete) {
+        this.options.onDelete(this.data.id);
+      }
+      this.hide();
     }
   }
 
