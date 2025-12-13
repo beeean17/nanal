@@ -200,17 +200,100 @@ export default class SettingsView {
     const container = document.getElementById('stats-grid');
     if (!container) return;
 
+    // Calculate overall stats
     const totalTasks = dataManager.tasks.length;
     const completedTasks = dataManager.tasks.filter(t => t.isCompleted).length;
+    const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+    // Calculate this week's stats
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 7);
+
+    const weeklyTasks = dataManager.tasks.filter(t => {
+      const taskDate = new Date(t.date);
+      return taskDate >= startOfWeek && taskDate < endOfWeek;
+    });
+    const weeklyCompleted = weeklyTasks.filter(t => t.isCompleted).length;
+
+    // Calculate habit completion rate (last 7 days)
+    const habits = dataManager.habits.filter(h => h.isActive !== false);
+    const habitLogs = dataManager.habitLogs || [];
+    let habitCompletions = 0;
+    let habitTotal = 0;
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dateStr = DateUtils.formatDate(date);
+
+      habits.forEach(habit => {
+        habitTotal++;
+        const log = habitLogs.find(l => l.habitId === habit.id && l.date === dateStr);
+        if (log && log.isCompleted) habitCompletions++;
+      });
+    }
+    const habitRate = habitTotal > 0 ? Math.round((habitCompletions / habitTotal) * 100) : 0;
+
+    // Focus sessions stats
+    const focusSessions = dataManager.focusSessions || [];
+    const totalFocusMinutes = focusSessions.reduce((acc, s) => acc + (s.duration || 0), 0);
+    const focusHours = Math.floor(totalFocusMinutes / 60);
+    const focusMins = totalFocusMinutes % 60;
+
+    // Goal progress
+    const goals = dataManager.goals || [];
+    const activeGoals = goals.filter(g => (g.progress || 0) < 100).length;
+    const completedGoals = goals.filter(g => (g.progress || 0) >= 100).length;
 
     container.innerHTML = `
       <div class="stat-card glass-card">
-        <div class="stat-value">✅ ${completedTasks}</div>
-        <div class="stat-label">완료한 할 일</div>
+        <div class="stat-icon">📋</div>
+        <div class="stat-value">${weeklyCompleted} / ${weeklyTasks.length}</div>
+        <div class="stat-label">이번 주 할 일</div>
+        <div class="stat-progress-bar">
+          <div class="stat-progress-fill" style="width: ${weeklyTasks.length > 0 ? (weeklyCompleted / weeklyTasks.length * 100) : 0}%"></div>
+        </div>
       </div>
+
       <div class="stat-card glass-card">
-        <div class="stat-value">📋 ${totalTasks}</div>
-        <div class="stat-label">총 할 일</div>
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">${completedTasks}</div>
+        <div class="stat-label">전체 완료</div>
+        <div class="stat-sub">${completionRate}% 완료율</div>
+      </div>
+
+      <div class="stat-card glass-card">
+        <div class="stat-icon">🔄</div>
+        <div class="stat-value">${habitRate}%</div>
+        <div class="stat-label">습관 달성률</div>
+        <div class="stat-progress-bar">
+          <div class="stat-progress-fill habit" style="width: ${habitRate}%"></div>
+        </div>
+      </div>
+
+      <div class="stat-card glass-card">
+        <div class="stat-icon">⏱️</div>
+        <div class="stat-value">${focusHours > 0 ? focusHours + '시간 ' : ''}${focusMins}분</div>
+        <div class="stat-label">집중 시간</div>
+        <div class="stat-sub">${focusSessions.length}회 세션</div>
+      </div>
+
+      <div class="stat-card glass-card">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-value">${activeGoals}</div>
+        <div class="stat-label">진행중 목표</div>
+        <div class="stat-sub">${completedGoals}개 완료</div>
+      </div>
+
+      <div class="stat-card glass-card">
+        <div class="stat-icon">💡</div>
+        <div class="stat-value">${(dataManager.ideas || []).length}</div>
+        <div class="stat-label">아이디어</div>
       </div>
     `;
   }
