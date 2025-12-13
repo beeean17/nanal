@@ -8,8 +8,8 @@ import { DateUtils } from '../../utils.js';
  * @extends Modal
  */
 export class GoalModal extends Modal {
-  constructor(options = {}) {
-    super('goal-modal', {
+  constructor(modalId, options = {}) {
+    super(modalId, {
       title: '목표 추가',
       ...options
     });

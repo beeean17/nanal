@@ -148,7 +148,7 @@ export class CalendarGrid extends Component {
         <div class="calendar-cell-body">
           ${this.renderCellTasks(tasks.slice(0, this.options.maxCellTasks))}
           ${totalItems > this.options.maxCellTasks ?
-            `<div class="calendar-cell-more">+${totalItems - this.options.maxCellTasks}개 더</div>` : ''}
+        `<div class="calendar-cell-more">+${totalItems - this.options.maxCellTasks}개 더</div>` : ''}
         </div>
       </div>
     `;
@@ -254,7 +254,9 @@ export class CalendarGrid extends Component {
    * Attach event listeners to calendar cells
    */
   attachCellListeners() {
-    this.$$('.calendar-cell').forEach(cell => {
+    const cells = this.$$('.calendar-cell');
+
+    cells.forEach(cell => {
       this.addEventListener(cell, 'click', () => {
         const dateStr = cell.dataset.date;
         if (this.options.onDateClick) {

@@ -16,8 +16,10 @@ export default class IdeasView {
 
   render() {
     return `
+      <!-- Home Layout Container -->
       <div class="home-layout fade-in">
         
+        <!-- App Header (Mobile/Tablet) -->
         <header class="app-header mobile-tablet-only">
           <h1 class="app-title">Nanal</h1>
           <button class="notification-btn" aria-label="알림">
@@ -28,28 +30,70 @@ export default class IdeasView {
           </button>
         </header>
 
-        <aside class="left-panel desktop-only">
-          <h1 class="app-title">Nanal</h1>
-          <nav class="sidebar-nav">
-            <a href="#home" class="nav-item" data-screen="home">
-              <span class="nav-icon">🏠</span><span class="nav-label">홈</span>
-            </a>
-            <a href="#calendar" class="nav-item" data-screen="calendar">
-              <span class="nav-icon">📅</span><span class="nav-label">캘린더</span>
-            </a>
-            <a href="#goals" class="nav-item" data-screen="goals">
-              <span class="nav-icon">🎯</span><span class="nav-label">목표</span>
-            </a>
-            <a href="#ideas" class="nav-item active" data-screen="ideas">
-              <span class="nav-icon">💡</span><span class="nav-label">아이디어</span>
-            </a>
-            <a href="#settings" class="nav-item" data-screen="settings">
-              <span class="nav-icon">⚙️</span><span class="nav-label">설정</span>
-            </a>
-          </nav>
+        <!-- Left Panel: Summary and Desktop Nav -->
+        <aside class="left-panel">
+           
+           <!-- Desktop App Title -->
+           <h1 class="app-title desktop-only">Nanal</h1>
+           
+           <!-- 1. Ideas Summary Card -->
+           <div class="summary-card glass-card">
+             <div class="card-header">
+               <h3><span class="header-icon">💡</span> 아이디어 현황</h3>
+             </div>
+             <div class="card-content">
+               <div class="calendar-stats-inline">
+                 <div class="stat-item">
+                   <span class="stat-icon">📝</span>
+                   <span class="stat-value" id="ideas-total-count">0</span>
+                   <span class="stat-label">전체</span>
+                 </div>
+                 <div class="stat-item">
+                   <span class="stat-icon">🆕</span>
+                   <span class="stat-value" id="ideas-recent-count">0</span>
+                   <span class="stat-label">이번 주</span>
+                 </div>
+               </div>
+             </div>
+           </div>
+
+           <!-- 2. Quick Add Card -->
+           <div class="quick-add-card glass-card">
+             <div class="card-header">
+               <h3><span class="header-icon">✨</span> 빠른 추가</h3>
+             </div>
+             <div class="card-content">
+               <button class="btn-primary btn-block" id="quick-add-idea-btn">+ 새 아이디어</button>
+             </div>
+           </div>
+
+           <!-- 3. Desktop Navigation -->
+           <nav class="sidebar-nav desktop-only">
+             <a href="#home" class="nav-item" data-screen="home">
+               <span class="nav-icon">🏠</span>
+               <span class="nav-label">홈</span>
+             </a>
+             <a href="#calendar" class="nav-item" data-screen="calendar">
+               <span class="nav-icon">📅</span>
+               <span class="nav-label">캘린더</span>
+             </a>
+             <a href="#goals" class="nav-item" data-screen="goals">
+               <span class="nav-icon">🎯</span>
+               <span class="nav-label">목표</span>
+             </a>
+             <a href="#ideas" class="nav-item active" data-screen="ideas">
+               <span class="nav-icon">💡</span>
+               <span class="nav-label">아이디어</span>
+             </a>
+             <a href="#settings" class="nav-item" data-screen="settings">
+               <span class="nav-icon">⚙️</span>
+               <span class="nav-label">설정</span>
+             </a>
+           </nav>
         </aside>
 
-        <main class="main-panel glass-card">
+        <!-- Main Panel: Ideas Content -->
+        <main class="timeline-panel glass-card">
           <div class="card-header">
             <h3><span class="header-icon">💡</span> 아이디어</h3>
             <button class="btn-primary" id="add-idea-btn">+ 새 아이디어</button>
@@ -76,12 +120,23 @@ export default class IdeasView {
           </div>
         </main>
 
+        <!-- Mobile/Tablet Bottom Nav -->
         <nav class="bottom-nav mobile-tablet-only">
-          <a href="#home" class="nav-item" data-screen="home"><span class="nav-icon">🏠</span></a>
-          <a href="#calendar" class="nav-item" data-screen="calendar"><span class="nav-icon">📅</span></a>
-          <a href="#goals" class="nav-item" data-screen="goals"><span class="nav-icon">🎯</span></a>
-          <a href="#ideas" class="nav-item active" data-screen="ideas"><span class="nav-icon">💡</span></a>
-          <a href="#settings" class="nav-item" data-screen="settings"><span class="nav-icon">⚙️</span></a>
+          <a href="#home" class="nav-item" data-screen="home">
+            <span class="nav-icon">🏠</span>
+          </a>
+          <a href="#calendar" class="nav-item" data-screen="calendar">
+            <span class="nav-icon">📅</span>
+          </a>
+          <a href="#goals" class="nav-item" data-screen="goals">
+            <span class="nav-icon">🎯</span>
+          </a>
+          <a href="#ideas" class="nav-item active" data-screen="ideas">
+            <span class="nav-icon">💡</span>
+          </a>
+          <a href="#settings" class="nav-item" data-screen="settings">
+            <span class="nav-icon">⚙️</span>
+          </a>
         </nav>
       </div>
     `;

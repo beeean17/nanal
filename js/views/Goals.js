@@ -21,8 +21,10 @@ export default class GoalsView {
 
   render() {
     return `
+      <!-- Home Layout Container -->
       <div class="home-layout fade-in">
         
+        <!-- App Header (Mobile/Tablet) -->
         <header class="app-header mobile-tablet-only">
           <h1 class="app-title">Nanal</h1>
           <button class="notification-btn" aria-label="알림">
@@ -33,28 +35,71 @@ export default class GoalsView {
           </button>
         </header>
 
-        <aside class="left-panel desktop-only">
-          <h1 class="app-title">Nanal</h1>
-          <nav class="sidebar-nav">
-            <a href="#home" class="nav-item" data-screen="home">
-              <span class="nav-icon">🏠</span><span class="nav-label">홈</span>
-            </a>
-            <a href="#calendar" class="nav-item" data-screen="calendar">
-              <span class="nav-icon">📅</span><span class="nav-label">캘린더</span>
-            </a>
-            <a href="#goals" class="nav-item active" data-screen="goals">
-              <span class="nav-icon">🎯</span><span class="nav-label">목표</span>
-            </a>
-            <a href="#ideas" class="nav-item" data-screen="ideas">
-              <span class="nav-icon">💡</span><span class="nav-label">아이디어</span>
-            </a>
-            <a href="#settings" class="nav-item" data-screen="settings">
-              <span class="nav-icon">⚙️</span><span class="nav-label">설정</span>
-            </a>
-          </nav>
+        <!-- Left Panel: Summary and Desktop Nav -->
+        <aside class="left-panel">
+           
+           <!-- Desktop App Title -->
+           <h1 class="app-title desktop-only">Nanal</h1>
+           
+           <!-- 1. Progress Summary Card -->
+           <div class="summary-card glass-card">
+             <div class="card-header">
+               <h3><span class="header-icon">📊</span> 진행 현황</h3>
+             </div>
+             <div class="card-content">
+               <div class="calendar-stats-inline">
+                 <div class="stat-item">
+                   <span class="stat-icon">🎯</span>
+                   <span class="stat-value" id="active-goals-count">0</span>
+                   <span class="stat-label">진행 중</span>
+                 </div>
+                 <div class="stat-item">
+                   <span class="stat-icon">✅</span>
+                   <span class="stat-value" id="completed-goals-count">0</span>
+                   <span class="stat-label">완료</span>
+                 </div>
+               </div>
+             </div>
+           </div>
+
+           <!-- 2. Today Habits Card -->
+           <div class="today-card glass-card collapsed">
+             <div class="card-header">
+               <h3><span class="header-icon">✨</span> 오늘의 습관</h3>
+               <button class="expand-btn today-toggle" aria-label="접기">ˇ</button>
+             </div>
+             <div class="card-content" id="today-habits-container">
+               <p class="empty-message">습관을 추가해보세요</p>
+             </div>
+           </div>
+
+           <!-- 3. Desktop Navigation -->
+           <nav class="sidebar-nav desktop-only">
+             <a href="#home" class="nav-item" data-screen="home">
+               <span class="nav-icon">🏠</span>
+               <span class="nav-label">홈</span>
+             </a>
+             <a href="#calendar" class="nav-item" data-screen="calendar">
+               <span class="nav-icon">📅</span>
+               <span class="nav-label">캘린더</span>
+             </a>
+             <a href="#goals" class="nav-item active" data-screen="goals">
+               <span class="nav-icon">🎯</span>
+               <span class="nav-label">목표</span>
+             </a>
+             <a href="#ideas" class="nav-item" data-screen="ideas">
+               <span class="nav-icon">💡</span>
+               <span class="nav-label">아이디어</span>
+             </a>
+             <a href="#settings" class="nav-item" data-screen="settings">
+               <span class="nav-icon">⚙️</span>
+               <span class="nav-label">설정</span>
+             </a>
+           </nav>
         </aside>
 
-        <main class="main-panel glass-card">
+        <!-- Main Panel: Goals Content -->
+        <main class="timeline-panel glass-card">
           <div class="card-header">
             <h3><span class="header-icon">🎯</span> 성장 트래킹</h3>
             <div class="header-actions">
@@ -96,12 +141,23 @@ export default class GoalsView {
           </div>
         </main>
 
+        <!-- Mobile/Tablet Bottom Nav -->
         <nav class="bottom-nav mobile-tablet-only">
-          <a href="#home" class="nav-item" data-screen="home"><span class="nav-icon">🏠</span></a>
-          <a href="#calendar" class="nav-item" data-screen="calendar"><span class="nav-icon">📅</span></a>
-          <a href="#goals" class="nav-item active" data-screen="goals"><span class="nav-icon">🎯</span></a>
-          <a href="#ideas" class="nav-item" data-screen="ideas"><span class="nav-icon">💡</span></a>
-          <a href="#settings" class="nav-item" data-screen="settings"><span class="nav-icon">⚙️</span></a>
+          <a href="#home" class="nav-item" data-screen="home">
+            <span class="nav-icon">🏠</span>
+          </a>
+          <a href="#calendar" class="nav-item" data-screen="calendar">
+            <span class="nav-icon">📅</span>
+          </a>
+          <a href="#goals" class="nav-item active" data-screen="goals">
+            <span class="nav-icon">🎯</span>
+          </a>
+          <a href="#ideas" class="nav-item" data-screen="ideas">
+            <span class="nav-icon">💡</span>
+          </a>
+          <a href="#settings" class="nav-item" data-screen="settings">
+            <span class="nav-icon">⚙️</span>
+          </a>
         </nav>
 
         <!-- Goal Detail Modal -->

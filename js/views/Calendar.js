@@ -27,9 +27,10 @@ export default class CalendarView {
     const monthName = DateUtils.getMonthNameKorean(this.currentDate);
 
     return `
+      <!-- Home Layout Container -->
       <div class="home-layout fade-in">
         
-        <!-- App Header (Mobile/Tablet) -->
+        <!-- App Header (Mobile/Tablet: Top bar with Nanal title and bell) -->
         <header class="app-header mobile-tablet-only">
           <h1 class="app-title">Nanal</h1>
           <button class="notification-btn" aria-label="알림">
@@ -40,30 +41,71 @@ export default class CalendarView {
           </button>
         </header>
 
-        <!-- Left Panel: Desktop Navigation -->
-        <aside class="left-panel desktop-only">
-          <h1 class="app-title">Nanal</h1>
-          <nav class="sidebar-nav">
-            <a href="#home" class="nav-item" data-screen="home">
-              <span class="nav-icon">🏠</span><span class="nav-label">홈</span>
-            </a>
-            <a href="#calendar" class="nav-item active" data-screen="calendar">
-              <span class="nav-icon">📅</span><span class="nav-label">캘린더</span>
-            </a>
-            <a href="#goals" class="nav-item" data-screen="goals">
-              <span class="nav-icon">🎯</span><span class="nav-label">목표</span>
-            </a>
-            <a href="#ideas" class="nav-item" data-screen="ideas">
-              <span class="nav-icon">💡</span><span class="nav-label">아이디어</span>
-            </a>
-            <a href="#settings" class="nav-item" data-screen="settings">
-              <span class="nav-icon">⚙️</span><span class="nav-label">설정</span>
-            </a>
-          </nav>
+        <!-- Left Panel: Weather, Summary, Desktop Nav -->
+        <aside class="left-panel">
+           
+           <!-- Desktop App Title -->
+           <h1 class="app-title desktop-only">Nanal</h1>
+           
+           <!-- 1. Calendar Summary Card (instead of Weather for Calendar view) -->
+           <div class="summary-card glass-card">
+             <div class="card-header">
+               <h3><span class="header-icon">📊</span> 이번 달 요약</h3>
+             </div>
+             <div class="card-content">
+               <div class="calendar-stats-inline">
+                 <div class="stat-item">
+                   <span class="stat-icon">✅</span>
+                   <span class="stat-value" id="completed-tasks-count">0</span>
+                   <span class="stat-label">완료</span>
+                 </div>
+                 <div class="stat-item">
+                   <span class="stat-icon">🎯</span>
+                   <span class="stat-value" id="active-goals-count">0</span>
+                   <span class="stat-label">진행 중</span>
+                 </div>
+               </div>
+             </div>
+           </div>
+
+           <!-- 2. Mini Today Card -->
+           <div class="today-card glass-card collapsed">
+             <div class="card-header">
+               <h3><span class="header-icon">📅</span> 오늘</h3>
+               <button class="expand-btn today-toggle" aria-label="접기">ˇ</button>
+             </div>
+             <div class="card-content" id="today-tasks-container">
+               <p class="empty-message">오늘의 일정이 없습니다</p>
+             </div>
+           </div>
+
+           <!-- 3. Desktop Navigation (Hidden on Mobile/Tablet) -->
+           <nav class="sidebar-nav desktop-only">
+             <a href="#home" class="nav-item" data-screen="home">
+               <span class="nav-icon">🏠</span>
+               <span class="nav-label">홈</span>
+             </a>
+             <a href="#calendar" class="nav-item active" data-screen="calendar">
+               <span class="nav-icon">📅</span>
+               <span class="nav-label">캘린더</span>
+             </a>
+             <a href="#goals" class="nav-item" data-screen="goals">
+               <span class="nav-icon">🎯</span>
+               <span class="nav-label">목표</span>
+             </a>
+             <a href="#ideas" class="nav-item" data-screen="ideas">
+               <span class="nav-icon">💡</span>
+               <span class="nav-label">아이디어</span>
+             </a>
+             <a href="#settings" class="nav-item" data-screen="settings">
+               <span class="nav-icon">⚙️</span>
+               <span class="nav-label">설정</span>
+             </a>
+           </nav>
         </aside>
 
-        <!-- Main Panel: Calendar Content -->
-        <main class="main-panel glass-card"> 
+        <!-- Main Panel: Calendar Grid -->
+        <main class="timeline-panel glass-card">
           <div class="card-header">
             <h3>
               <span class="header-icon">📅</span>
@@ -76,30 +118,26 @@ export default class CalendarView {
               <button class="btn-icon" id="calendar-today-btn" title="오늘로 이동">📍</button>
             </div>
           </div>
-
-          <div id="calendar-grid-container" class="calendar-content"></div>
-
-          <div class="calendar-stats">
-            <div class="stat-card">
-              <span class="stat-icon">✅</span>
-              <span class="stat-value" id="completed-tasks-count">0</span>
-              <span class="stat-label">완료</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-icon">🎯</span>
-              <span class="stat-value" id="active-goals-count">0</span>
-              <span class="stat-label">진행 중</span>
-            </div>
-          </div>
+          <div class="calendar-content" id="calendar-grid-container"></div>
         </main>
 
-        <!-- Mobile/Tablet Bottom Nav -->
+        <!-- Mobile/Tablet Bottom Nav (Hidden on Desktop) -->
         <nav class="bottom-nav mobile-tablet-only">
-          <a href="#home" class="nav-item" data-screen="home"><span class="nav-icon">🏠</span></a>
-          <a href="#calendar" class="nav-item active" data-screen="calendar"><span class="nav-icon">📅</span></a>
-          <a href="#goals" class="nav-item" data-screen="goals"><span class="nav-icon">🎯</span></a>
-          <a href="#ideas" class="nav-item" data-screen="ideas"><span class="nav-icon">💡</span></a>
-          <a href="#settings" class="nav-item" data-screen="settings"><span class="nav-icon">⚙️</span></a>
+          <a href="#home" class="nav-item" data-screen="home">
+            <span class="nav-icon">🏠</span>
+          </a>
+          <a href="#calendar" class="nav-item active" data-screen="calendar">
+            <span class="nav-icon">📅</span>
+          </a>
+          <a href="#goals" class="nav-item" data-screen="goals">
+            <span class="nav-icon">🎯</span>
+          </a>
+          <a href="#ideas" class="nav-item" data-screen="ideas">
+            <span class="nav-icon">💡</span>
+          </a>
+          <a href="#settings" class="nav-item" data-screen="settings">
+            <span class="nav-icon">⚙️</span>
+          </a>
         </nav>
 
         <!-- Day Detail Modal -->
@@ -107,7 +145,9 @@ export default class CalendarView {
           <div class="modal-overlay" id="day-detail-overlay"></div>
           <div class="modal-content">
             <div class="modal-header">
+              <button class="btn-icon day-nav-btn" id="day-detail-prev" aria-label="이전 날">◀</button>
               <h3 id="day-detail-title">날짜 상세</h3>
+              <button class="btn-icon day-nav-btn" id="day-detail-next" aria-label="다음 날">▶</button>
               <button class="modal-close-btn" id="day-detail-close-btn">×</button>
             </div>
             <div class="modal-body" id="day-detail-body"></div>
@@ -209,6 +249,12 @@ export default class CalendarView {
     if (cancelBtn) cancelBtn.addEventListener('click', () => this.closeDayDetailModal());
     if (overlay) overlay.addEventListener('click', () => this.closeDayDetailModal());
     if (addTaskBtn) addTaskBtn.addEventListener('click', () => this.handleAddTaskFromDay());
+
+    // Day navigation arrows
+    const prevDayBtn = document.getElementById('day-detail-prev');
+    const nextDayBtn = document.getElementById('day-detail-next');
+    if (prevDayBtn) prevDayBtn.addEventListener('click', () => this.navigateDayDetail(-1));
+    if (nextDayBtn) nextDayBtn.addEventListener('click', () => this.navigateDayDetail(1));
   }
 
   navigateMonth(offset) {
@@ -268,6 +314,10 @@ export default class CalendarView {
     `;
 
     modal.style.display = 'flex';
+    modal.style.opacity = '1';
+    modal.style.visibility = 'visible';
+    modal.style.zIndex = '9999';
+    modal.classList.add('show');
   }
 
   renderDayDetailTask(task, isSubGoal = false) {
@@ -291,6 +341,16 @@ export default class CalendarView {
     const modal = document.getElementById('day-detail-modal');
     if (modal) modal.style.display = 'none';
     this.selectedDate = null;
+  }
+
+  navigateDayDetail(offset) {
+    if (!this.selectedDate) return;
+
+    const currentDate = new Date(this.selectedDate);
+    currentDate.setDate(currentDate.getDate() + offset);
+    const newDateStr = DateUtils.formatDate(currentDate);
+
+    this.showDayDetail(newDateStr);
   }
 
   handleAddTaskFromDay() {
