@@ -300,6 +300,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     await dataManager.initialize();
     console.log('✅ DataManager initialized');
 
+    // Expose dataManager globally for console testing
+    window.dataManager = dataManager;
+
     // Setup event listeners and theme
     setupEventListeners();
     setupTheme();

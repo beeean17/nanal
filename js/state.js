@@ -419,6 +419,15 @@ class DataManager {
     return this.getFixedSchedulesForDay(dayOfWeek);
   }
 
+  /**
+   * Get fixed schedule by ID
+   * @param {string} id - Schedule ID
+   * @returns {object|null} Fixed schedule or null
+   */
+  getFixedScheduleById(id) {
+    return this.data.fixedSchedules.find(s => s.id === id) || null;
+  }
+
   // ============================================================
   // GOAL CRUD OPERATIONS
   // ============================================================

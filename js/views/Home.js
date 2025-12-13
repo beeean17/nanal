@@ -180,7 +180,7 @@ export default class HomeView {
 
     // 3. TodoList
     this.todoList = new TodoList('todo-list-container', {
-      onToggle: (id, c) => this.handleToggleTodo(id, c),
+      onToggle: (id, isCompleted, itemType) => this.handleToggleTodo(id, isCompleted, itemType),
       showTime: false,
       showCheckbox: true
     });
@@ -235,12 +235,33 @@ export default class HomeView {
   subscribeToData() {
     dataManager.subscribe('tasks', () => this.refreshView());
     dataManager.subscribe('fixedSchedules', () => this.refreshView());
+    dataManager.subscribe('subGoals', () => this.refreshView());
+    dataManager.subscribe('habits', () => this.refreshView());
+    dataManager.subscribe('habitLogs', () => this.refreshView());
   }
 
   refreshView() {
     const today = DateUtils.formatDate(this.currentDate);
     const todayTasks = dataManager.getTasksForDate(today);
     const todaySubGoals = dataManager.getSubGoalsForDate(today);
+
+    // Get active habits and today's logs
+    const activeHabits = dataManager.getActiveHabits();
+    const habitLogs = dataManager.getHabitLogsForDate(today);
+
+    // Convert habits to checklist items
+    const habitItems = activeHabits.map(habit => ({
+      id: habit.id,
+      title: `${habit.icon || '✅'} ${habit.title}`,
+      isCompleted: habitLogs.some(log => log.habitId === habit.id && log.isCompleted),
+      itemType: 'habit'
+    }));
+
+    // Mark subGoals with their type for toggle handler
+    const subGoalItems = todaySubGoals.map(sg => ({
+      ...sg,
+      itemType: 'subgoal'
+    }));
 
     // Get all tasks for the date range
     const dateRange = this.getDateRange();
@@ -271,10 +292,10 @@ export default class HomeView {
       });
     }
 
-    // Update todo list with today's tasks only
+    // Update todo list with today's tasks + subgoals + habits
     if (this.todoList) {
       this.todoList.update({
-        items: [...todayTasks, ...todaySubGoals]
+        items: [...todayTasks, ...subGoalItems, ...habitItems]
       });
     }
   }
@@ -352,9 +373,16 @@ export default class HomeView {
     }
   }
 
-  handleToggleTodo(id, isCompleted) {
-    const task = dataManager.getTaskById(id);
-    if (task) dataManager.updateTask(id, { isCompleted });
+  handleToggleTodo(id, isCompleted, itemType) {
+    if (itemType === 'habit') {
+      const today = DateUtils.formatDate(this.currentDate);
+      dataManager.toggleHabitLog(id, today);
+    } else if (itemType === 'subgoal') {
+      dataManager.updateSubGoal(id, { isCompleted });
+    } else {
+      const task = dataManager.getTaskById(id);
+      if (task) dataManager.updateTask(id, { isCompleted });
+    }
   }
 
   handleSaveFixedSchedule(data) {
