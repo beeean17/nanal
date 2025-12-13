@@ -1,5 +1,14 @@
 /* Calendar View Styles */
 
+/* Calendar Content Container - Fill available space */
+.calendar-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
 /* Summary Card */
 .summary-card .card-content {
     padding: 12px;
@@ -47,7 +56,10 @@
 .calendar-grid-container {
     position: relative;
     width: 100%;
+    height: 100%;
     padding: 16px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Day Headers */
@@ -78,7 +90,10 @@
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
     gap: 4px;
+    flex: 1;
+    min-height: 0;
 }
 
 /* Calendar Cell */
@@ -186,29 +201,32 @@
 /* Goal Bars Overlay */
 .calendar-goals-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 50px;
+    bottom: 0;
+    /* Below day headers */
+    left: 16px;
+    right: 16px;
     pointer-events: none;
-    padding: 16px;
+    z-index: 20;
 }
 
 .calendar-goal-bar {
     position: absolute;
-    left: 16px;
-    right: 16px;
-    height: 20px;
-    border-radius: 10px;
+    height: 22px;
+    border-radius: 11px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 12px;
-    font-size: 0.75rem;
+    padding: 0 10px;
+    font-size: 0.7rem;
     color: white;
     pointer-events: auto;
     cursor: pointer;
-    opacity: 0.85;
+    opacity: 0.9;
     transition: opacity 0.2s, transform 0.2s;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .calendar-goal-bar:hover {
@@ -408,38 +426,40 @@
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
-    .calendar-cell {
-        background: rgba(50, 50, 60, 0.6);
-        border-color: rgba(255, 255, 255, 0.1);
-    }
+[data-theme="dark"] .calendar-cell {
+    background: var(--glass-bg, rgba(50, 50, 60, 0.6));
+    border-color: var(--glass-border, rgba(255, 255, 255, 0.1));
+}
 
-    .calendar-cell:hover {
-        background: rgba(60, 60, 70, 0.8);
-    }
+[data-theme="dark"] .calendar-cell:hover {
+    background: rgba(60, 60, 70, 0.8);
+}
 
-    .calendar-cell.today {
-        background: rgba(0, 122, 255, 0.2);
-    }
+[data-theme="dark"] .calendar-cell.today {
+    background: rgba(0, 122, 255, 0.2);
+}
 
-    .calendar-cell-day {
-        color: #e0e0e0;
-    }
+[data-theme="dark"] .calendar-cell-day {
+    color: var(--text-primary, #e0e0e0);
+}
 
-    .calendar-day-header {
-        color: #999;
-    }
+[data-theme="dark"] .calendar-day-header {
+    color: var(--text-secondary, #999);
+}
 
-    .stat-card {
-        background: rgba(50, 50, 60, 0.6);
-        border-color: rgba(255, 255, 255, 0.1);
-    }
+[data-theme="dark"] .stat-card {
+    background: var(--glass-bg, rgba(50, 50, 60, 0.6));
+    border-color: var(--glass-border, rgba(255, 255, 255, 0.1));
+}
 
-    .day-detail-task {
-        background: rgba(50, 50, 60, 0.6);
-    }
+[data-theme="dark"] .day-detail-task {
+    background: var(--glass-bg, rgba(50, 50, 60, 0.6));
+}
 
-    .day-detail-content h4 {
-        color: #e0e0e0;
-    }
+[data-theme="dark"] .day-detail-content h4 {
+    color: var(--text-primary, #e0e0e0);
+}
+
+[data-theme="dark"] .calendar-legend {
+    color: var(--text-secondary, #999);
 }

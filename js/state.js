@@ -786,6 +786,73 @@ class DataManager {
     return this.data.habitLogs.filter(log => log.date === date);
   }
 
+  /**
+   * Check if a habit is completed on a specific date
+   * @param {string} habitId - Habit ID
+   * @param {string} date - Date in YYYY-MM-DD format
+   * @returns {boolean} True if completed
+   */
+  isHabitCompletedOnDate(habitId, date) {
+    const log = this.data.habitLogs.find(
+      log => log.habitId === habitId && log.date === date
+    );
+    return log ? log.isCompleted : false;
+  }
+
+  /**
+   * Get habit streak (consecutive days completed)
+   * @param {string} habitId - Habit ID
+   * @returns {number} Streak count
+   */
+  getHabitStreak(habitId) {
+    const logs = this.data.habitLogs
+      .filter(log => log.habitId === habitId && log.isCompleted)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (logs.length === 0) return 0;
+
+    let streak = 0;
+    const today = new Date();
+    let checkDate = new Date(today);
+
+    for (let i = 0; i < 365; i++) {
+      const dateStr = checkDate.toISOString().split('T')[0];
+      const found = logs.find(log => log.date === dateStr);
+
+      if (found) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }
+
+  /**
+   * Get habit completion rate for last N days
+   * @param {string} habitId - Habit ID
+   * @param {number} days - Number of days to check
+   * @returns {number} Percentage (0-100)
+   */
+  getHabitCompletionRate(habitId, days = 30) {
+    const today = new Date();
+    let completed = 0;
+
+    for (let i = 0; i < days; i++) {
+      const checkDate = new Date(today);
+      checkDate.setDate(checkDate.getDate() - i);
+      const dateStr = checkDate.toISOString().split('T')[0];
+
+      if (this.isHabitCompletedOnDate(habitId, dateStr)) {
+        completed++;
+      }
+    }
+
+    return Math.round((completed / days) * 100);
+  }
+
   // ============================================================
   // IDEA CRUD OPERATIONS
   // ============================================================

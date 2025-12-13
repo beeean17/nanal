@@ -172,7 +172,7 @@ export default class CalendarView {
   initializeComponents() {
     this.calendarGrid = new CalendarGrid('calendar-grid-container', {
       currentDate: this.currentDate,
-      showGoalBars: true,
+      showGoalBars: false,
       maxCellTasks: 3,
       onDateClick: (dateStr) => this.showDayDetail(dateStr),
       onGoalClick: (goalId) => this.handleEditGoal(goalId),

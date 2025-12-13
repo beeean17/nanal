@@ -7,8 +7,8 @@ import { Modal } from '../base/Modal.js';
  * @extends Modal
  */
 export class IdeaModal extends Modal {
-  constructor(options = {}) {
-    super('idea-modal', {
+  constructor(modalId, options = {}) {
+    super(modalId, {
       title: '새 아이디어',
       ...options
     });
