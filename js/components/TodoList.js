@@ -123,7 +123,7 @@ export class TodoList {
     return `
       <div class="todo-item ${task.isCompleted ? 'completed' : ''}"
            data-id="${task.id}"
-           data-type="${task.goalId ? 'subgoal' : 'task'}">
+           data-type="${task.itemType || (task.goalId ? 'subgoal' : 'task')}">
 
         <!-- Checkbox Wrapper -->
         <label class="checkbox-wrapper">
@@ -207,10 +207,12 @@ export class TodoList {
    * @param {Event} e - Change event
    */
   handleToggle(e) {
-    const id = e.target.dataset.id;
+    const todoItem = e.target.closest('.todo-item');
+    const id = todoItem.dataset.id;
+    const itemType = todoItem.dataset.type;
     const isCompleted = e.target.checked;
 
-    this.options.onToggle(id, isCompleted);
+    this.options.onToggle(id, isCompleted, itemType);
   }
 
   /**
