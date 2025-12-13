@@ -4,7 +4,10 @@
 .timeline-grid {
     display: flex;
     height: 100%;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    /* Context for sticky */
 }
 
 /* Time Labels Column (Left side) */
@@ -41,8 +44,8 @@
 .timeline-days-container {
     display: flex;
     flex: 1;
-    overflow-x: auto;
-    overflow-y: auto;
+    overflow: visible;
+    /* Let grid handle scrolling */
 }
 
 /* Day Column */
@@ -109,10 +112,8 @@
 }
 
 .timeline-slot {
-    height: 12.5px;
-    /* 60px / 24 (5-minute intervals per hour) = ~12.5px for smooth granularity */
-    /* Actually: 60px per hour, 12 slots per hour = 5px each */
-    /* If 288 slots = 24 hours, each slot = 5 minutes */
+    height: 5px;
+    /* 60px / 12 slots = 5px (5 min interval) */
     position: relative;
 }
 

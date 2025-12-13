@@ -132,8 +132,10 @@
 
 .timeline-content {
     flex: 1;
-    overflow-y: auto;
+    overflow: hidden;
+    /* Let .timeline-grid handle scrolling */
     padding: 0;
+    position: relative;
 }
 
 /* Sidebar Navigation (Desktop Only) */

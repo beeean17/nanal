@@ -285,7 +285,9 @@ export class Timeline extends Component {
       return;
     }
 
-    e.preventDefault();
+    if (e.type !== 'touchstart') {
+      e.preventDefault();
+    }
 
     const slotsEl = e.currentTarget;
     const date = slotsEl.dataset.date;
