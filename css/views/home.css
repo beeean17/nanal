@@ -11,7 +11,8 @@
     padding: var(--space-md);
     padding-bottom: 100px;
     /* Space for bottom nav */
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     max-width: 1600px;
     margin: 0 auto;
 }
@@ -129,10 +130,14 @@
     display: none;
 }
 
+/* .timeline-panel .card-header display:none removed to show title */
+
 .timeline-content {
     flex: 1;
-    overflow-y: auto;
+    overflow: hidden;
+    /* Let .timeline-grid handle scrolling */
     padding: 0;
+    position: relative;
 }
 
 /* Sidebar Navigation (Desktop Only) */
@@ -228,6 +233,40 @@
 
 .mobile-tablet-only {
     display: flex;
+}
+
+/* Hide Timeline Date on Mobile & Compact Weather */
+@media (max-width: 767px) {
+    .timeline-day-header {
+        display: none !important;
+    }
+
+    /* Compact Weather Widget & Timeline - Show Headers but Hide Toggle */
+    .weather-card .card-header,
+    .timeline-panel .card-header {
+        display: flex !important;
+        /* Restore header */
+        padding: var(--space-sm) var(--space-md) !important;
+    }
+
+    /* Hide the chevron/toggle icon specifically */
+    .weather-card .card-header .chevron,
+    .timeline-panel .card-header .toggle-icon,
+    .timeline-panel .card-header .chevron {
+        display: none !important;
+    }
+
+    .weather-card .card-content {
+        padding: var(--space-sm) var(--space-md) !important;
+    }
+
+    .timeline-panel .card-body {
+        padding-top: var(--space-sm) !important;
+    }
+
+    .weather-main-text {
+        font-size: 0.95rem;
+    }
 }
 
 /* ======================================

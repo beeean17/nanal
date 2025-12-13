@@ -285,7 +285,9 @@ export class Timeline extends Component {
       return;
     }
 
-    e.preventDefault();
+    if (e.type !== 'touchstart') {
+      e.preventDefault();
+    }
 
     const slotsEl = e.currentTarget;
     const date = slotsEl.dataset.date;
@@ -488,6 +490,8 @@ export class Timeline extends Component {
   onRender() {
     if (this.options.showCurrentTime) {
       this.startCurrentTimeUpdate();
+      // Auto-scroll to current time
+      setTimeout(() => this.scrollToCurrentTime(), 300);
     }
   }
 
@@ -506,6 +510,53 @@ export class Timeline extends Component {
     document.removeEventListener('mouseup', this.boundHandleMouseUp);
     document.removeEventListener('touchmove', this.boundHandleMouseMove);
     document.removeEventListener('touchend', this.boundHandleMouseUp);
+  }
+
+  /**
+   * Scroll timeline to center current time at ~1/3 viewport height
+   */
+  scrollToCurrentTime() {
+    const gridEl = this.container.querySelector('.timeline-grid');
+    if (!gridEl) return;
+
+    // Wait slightly for layout to settle (in case of transitions/animations)
+    // If clientHeight is 0, we can't calculate 1/3 properly.
+    if (gridEl.clientHeight === 0) {
+      setTimeout(() => this.scrollToCurrentTime(), 100);
+      return;
+    }
+
+    const now = new Date();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+
+    // Timeline visual layout logic:
+    // It renders 08:00 - 23:00 then 00:00 - 07:00
+
+    let visualHoursFromStart = 0;
+    if (hour >= 8) {
+      visualHoursFromStart = hour - 8;
+    } else {
+      // e.g. 00:00 is after 16 hours (08 to 24)
+      visualHoursFromStart = 16 + hour;
+    }
+
+    // 1 hour = 60px (since slot height is 5px and 12 slots/hr)
+    // 1 minute = 1px
+    const targetTop = (visualHoursFromStart * 60) + minute;
+
+    // Position at MIDDLE (1/2) of the VISIBLE SCROLLABLE AREA
+    const viewportHeight = gridEl.clientHeight;
+
+    // We want the red line (targetTop) to be at (viewportHeight / 2) pixels from the top of the viewport.
+    const offset = viewportHeight / 2;
+
+    // Ensure we don't scroll past 0
+    const scrollTo = Math.max(0, targetTop - offset + 120);
+
+    console.log(`Auto-scrolling: Time=${hour}:${minute}, VisualHour=${visualHoursFromStart}, TargetY=${targetTop}px, Viewport=${viewportHeight}px, Scroll=${scrollTo}`);
+
+    gridEl.scrollTo({ top: scrollTo, behavior: 'smooth' });
   }
 }
 
